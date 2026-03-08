@@ -1,3 +1,13 @@
+# Legacy CLI Reference
+
+For project overview and collaboration-oriented documentation, start with:
+
+- [`../README.md`](../README.md)
+- [`../docs/ja/README.md`](../docs/ja/README.md)
+- [`../docs/en/README.md`](../docs/en/README.md)
+
+This file remains the CLI-focused reference for the current `legacy/` implementation.
+
 # game-gen
 
 ゲーム（全連合 `2^N`）を CSV 生成し、ルール適用と公理チェックを行う CLI です。

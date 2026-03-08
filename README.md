@@ -1,97 +1,67 @@
 # srs-calculation
 
-このリポジトリは、協力ゲームの生成・ランキング計算・公理検証と、実データに対する同系統の集計/可視化を扱う Python CLI 群を管理しています。
+Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-現時点の実装本体は [`legacy/`](legacy/) 配下にあります。リポジトリ直下は入口ドキュメントと共通設定を置くための薄いレイヤーです。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。現在の実装は [`legacy/`](legacy/) にありますが、共同研究で読みやすく使いやすい形にするため、入口となる docs をリポジトリ直下に整理しています。
 
-## 構成
+## Intended audiences
 
-- [`legacy/`](legacy/): 実行可能な Poetry プロジェクト本体
-- [`legacy/src/gamegen`](legacy/src/gamegen): 合成ゲームの生成、ランキング列の計算、公理チェック
-- [`legacy/src/realgen`](legacy/src/realgen): 実データ取り込み、ルール適用、可視化
-- [`legacy/docs/`](legacy/docs/): ランキング指標と公理の設計/仕様ドキュメント
-- [`legacy/inputs/`](legacy/inputs/): 入力データ置き場
-- [`legacy/outputs/`](legacy/outputs/): 生成物の出力先
+- CMIS Lab, The University of Tokyo: 日本語の入口は [`docs/ja/README.md`](docs/ja/README.md)
+- LAMSADE collaborators: English overview is in [`docs/en/README.md`](docs/en/README.md)
 
-## セットアップ
+Note: the Japanese and English audience guides are intended to stay content-synchronized. When one is updated, the other should be reviewed and updated as needed.
 
-作業ディレクトリは `legacy/` を前提にします。
+## Current repository status
+
+- The executable implementation lives in [`legacy/`](legacy/).
+- The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
+- The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
+
+## What the code currently does
+
+### `game-gen`
+
+The synthetic-game pipeline supports:
+
+- generation of all-coalition game tables
+- computation of ranking columns for multiple rules
+- batch axiom checking
+- production of heatmaps and summary figures
+
+### `real-gen`
+
+The real-data pipeline supports:
+
+- importing feature-mask performance tables into a coalition-game format
+- reusing the ranking rules from `gamegen`
+- generating dataset-specific figures and heatmaps
+
+## Repository layout
+
+- [`docs/`](docs/): curated entry-point documentation for collaborators
+- [`legacy/`](legacy/): current Poetry project and implementation
+- [`legacy/src/gamegen`](legacy/src/gamegen): synthetic game generation, ranking, axioms, visualization
+- [`legacy/src/realgen`](legacy/src/realgen): real-data import, rule application, visualization
+- [`legacy/docs/`](legacy/docs/): detailed design notes and mathematical rule descriptions
+- [`legacy/tests/`](legacy/tests/): regression tests for CLI and ranking behavior
+
+## Quick start
 
 ```bash
 cd legacy
 poetry install
-```
-
-CLI の確認:
-
-```bash
 poetry run game-gen --help
 poetry run real-gen --help
-```
-
-テスト:
-
-```bash
 poetry run pytest
 ```
 
-## 主な使い方
+## Documentation map
 
-### 合成ゲームパイプライン
+- [`docs/README.md`](docs/README.md): documentation hub
+- [`docs/architecture.md`](docs/architecture.md): code and pipeline overview
+- [`docs/research-workflow.md`](docs/research-workflow.md): how to use the repository in research collaboration
+- [`legacy/README.md`](legacy/README.md): CLI-oriented reference for the current implementation
 
-```bash
-cd legacy
+## Practical note
 
-# ゲーム生成
-poetry run game-gen gen-games -p 4 -c 100 --out outputs
-
-# ランキング列を付与
-poetry run game-gen apply-rules -p 4 --out outputs
-
-# 公理チェック
-poetry run game-gen check-axioms -p 4 --out outputs
-
-# 一括実行
-poetry run game-gen pipeline -p 4 -c 100 --out outputs
-```
-
-主な出力先:
-
-- `outputs/games/nN/`
-- `outputs/rankings/nN/`
-- `outputs/axiom/nN/`
-- `outputs/heatmaps/nN/`
-
-### 実データパイプライン
-
-```bash
-cd legacy
-
-# raw CSV + schema.yaml からゲーム表へ正規化
-poetry run real-gen import-game <dataset_id>
-
-# ranking ルールを適用
-poetry run real-gen apply-rules <dataset_id>
-
-# 図表生成
-poetry run real-gen make-figures <dataset_id>
-
-# ルール別ヒートマップ生成
-poetry run real-gen feature-rule-heatmap <dataset_id>
-```
-
-主な出力先:
-
-- `outputs/real/<dataset_id>/`
-
-## 参照ドキュメント
-
-- [`legacy/README.md`](legacy/README.md): `legacy` プロジェクトの詳細 README
-- [`legacy/docs/README.md`](legacy/docs/README.md): ドキュメント全体の目次
-- [`legacy/config.yaml`](legacy/config.yaml): 既定パラメータと描画設定
-
-## 運用メモ
-
-- 生成物は基本的に `legacy/outputs/` 配下へ出ます。
-- Python キャッシュやローカル仮想環境は `.gitignore` で除外しています。
-- 将来的に `legacy/` 以外へ実装を分離する場合は、この README をリポジトリ全体の案内として更新してください。
+This repository is still legacy-first in its code layout. The new documentation layer is meant to make collaboration easier before a larger code reorganization happens.

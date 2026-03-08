@@ -1,5 +1,12 @@
 # Docs
 
+High-level collaboration guides are now available at:
+
+- [`../../docs/ja/README.md`](../../docs/ja/README.md)
+- [`../../docs/en/README.md`](../../docs/en/README.md)
+
+This directory remains the detailed technical archive for the current implementation.
+
 ## 設計（`design/`）
 
 - [README.md](design/README.md): 設計の目次

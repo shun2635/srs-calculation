@@ -1,0 +1,92 @@
+# Guide for LAMSADE Collaborators
+
+This guide is the shortest path to understanding the repository without starting from the implementation details.
+
+Maintenance note: this document should stay aligned in content with [`../ja/README.md`](../ja/README.md). When onboarding content or navigation changes here, review the Japanese version as well.
+
+## What this repository is
+
+- A research codebase for cooperative-game-based ranking rules
+- A place for both synthetic experiments and real-data analysis
+- Currently implemented in [`../../legacy/`](../../legacy/)
+- Documented at the top level so collaborators can navigate the project more easily
+
+## Main capabilities
+
+### Synthetic experiments
+
+The `game-gen` CLI can:
+
+- generate complete coalition game tables
+- compute ranking columns for multiple rules
+- check axiom satisfaction in batch
+- create heatmaps and summary figures
+
+### Real-data experiments
+
+The `real-gen` CLI can:
+
+- import feature-mask performance tables as coalition-game data
+- reuse the ranking rules defined in `gamegen`
+- generate figures and heatmaps for each dataset
+
+## Recommended reading order
+
+1. [`../../README.md`](../../README.md)
+2. [`../architecture.md`](../architecture.md)
+3. [`../research-workflow.md`](../research-workflow.md)
+4. [`../../legacy/docs/README.md`](../../legacy/docs/README.md) when detailed rule descriptions are needed
+
+## Where to look depending on your question
+
+### I want the code map
+
+Read [`../architecture.md`](../architecture.md), then inspect:
+
+- [`../../legacy/src/gamegen`](../../legacy/src/gamegen)
+- [`../../legacy/src/realgen`](../../legacy/src/realgen)
+
+### I want the mathematical rule descriptions
+
+Read:
+
+- [`../../legacy/docs/ranking/README.md`](../../legacy/docs/ranking/README.md)
+- [`../../legacy/docs/axioms/README.md`](../../legacy/docs/axioms/README.md)
+
+### I want to reproduce the experiment flow
+
+Read:
+
+- [`../research-workflow.md`](../research-workflow.md)
+- [`../../legacy/config.yaml`](../../legacy/config.yaml)
+
+## Setup
+
+```bash
+cd legacy
+poetry install
+poetry run game-gen --help
+poetry run real-gen --help
+poetry run pytest
+```
+
+## Minimal examples
+
+```bash
+cd legacy
+
+# Synthetic pipeline
+poetry run game-gen pipeline -p 4 -c 100 --out outputs
+
+# Real-data pipeline
+poetry run real-gen import-game <dataset_id>
+poetry run real-gen apply-rules <dataset_id>
+```
+
+## Interpretation of the documentation layers
+
+- `docs/`: collaboration-facing entry points
+- `legacy/README.md`: CLI usage for the current codebase
+- `legacy/docs/`: detailed technical and mathematical appendices
+
+This split is intentional while the repository is still centered on the legacy implementation.
