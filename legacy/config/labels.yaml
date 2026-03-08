@@ -1,0 +1,48 @@
+rules:
+  # Heatmap / figure display names for rule IDs.
+  # Keys are stable internal IDs (e.g. 'shapley-interaction', 'rp-index').
+  display_names:
+    du: DU Rule
+    ud: UD Rule
+    rp-index: RP Difference Rule
+    banzhaf-interaction: Banzhaf Interaction Rule
+    shapley-interaction: Shapley Interaction Rule
+    red-index: Redundancy Rule
+    g-shapley: Shapley Group Value
+    g-sum-shapley: Sum of Shapley Values
+    g-o-banzhaf: Group Ordinal Banzhaf
+    g-lexcel: Group Lex-cel
+
+  # Preferred display order for rule IDs (used in rule-corr + axiom summary heatmaps).
+  # Any rule IDs missing here will be appended after these, in their original order.
+  order:
+    - shapley
+    - banzhaf
+    - lexcel
+    - o-banzhaf
+    - g-shapley
+    - g-sum-shapley
+    - shapley-interaction
+    - banzhaf-interaction
+    - rp-index
+    - ud
+    - du
+    - red-index
+    - g-lexcel
+    - g-o-banzhaf
+
+axioms:
+  # Heatmap display names for axiom IDs.
+  display_names:
+    gekokujou-2p: 逆転公理
+    give-2p: 引き上げ公理
+    take-2p: 引き下げ公理
+    redundancy: 冗長性公理
+
+  # Preferred display order for axiom IDs (used in axiom summary heatmap columns).
+  # Any axiom IDs missing here will be appended after these, in their original order.
+  order:
+    - gekokujou-2p
+    - give-2p
+    - take-2p
+    - redundancy

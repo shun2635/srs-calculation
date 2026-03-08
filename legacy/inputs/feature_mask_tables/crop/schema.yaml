@@ -1,0 +1,40 @@
+raw_csv: game_table.csv
+score_column: value
+
+# Use pre-ranked ordinal classes instead of binning scores in this repository.
+rank_column: class_id
+
+allow_incomplete: false
+
+filters:
+  metric: mae
+  seed: 42
+  n_train: "75000"
+  n_test: "25000"
+
+feature_columns:
+  - Region
+  - Soil_Type
+  - Rainfall_mm
+  - Temperature_Celsius
+  - Fertilizer_Used
+  - Irrigation_Used
+  - Weather_Condition
+
+feature_labels:
+  Region: 地域
+  Soil_Type: 土壌タイプ
+  Rainfall_mm: 降水量(mm)
+  Temperature_Celsius: 気温(℃)
+  Fertilizer_Used: 肥料使用
+  Irrigation_Used: 灌漑使用
+  Weather_Condition: 天候条件
+
+feature_descriptions:
+  Region: 栽培地域（カテゴリ）
+  Soil_Type: 土壌タイプ（カテゴリ）
+  Rainfall_mm: 降水量（mm; フラグ化したビン）
+  Temperature_Celsius: 気温（℃; フラグ化したビン）
+  Fertilizer_Used: 肥料の使用有無（フラグ）
+  Irrigation_Used: 灌漑の有無（フラグ）
+  Weather_Condition: 天候条件（カテゴリ）

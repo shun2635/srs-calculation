@@ -1,0 +1,31 @@
+raw_csv: game_table__ranked.csv
+score_column: value
+
+# Use pre-ranked ordinal classes (1=best) instead of binning scores in this repository.
+rank_column: class_id
+
+allow_incomplete: false
+
+filters:
+  metric: mean_yield
+  seed: "42"
+
+feature_columns:
+  - high_rain_region
+  - irrigation_used
+  - fertilizer_used
+  - improved_soil
+
+# Short, readable Japanese labels used in plots/heatmaps.
+feature_labels:
+  high_rain_region: 高降雨地域
+  irrigation_used: 灌漑
+  fertilizer_used: 肥料
+  improved_soil: 土壌改良
+
+# Longer explanations (optional; shown in some outputs and helps traceability).
+feature_descriptions:
+  high_rain_region: "降水量（Rainfall_mm）を k=2 でクラスタリングし、中心が大きいクラスタを 1（高降雨地域）"
+  irrigation_used: "Irrigation_Used==True を 1（灌漑を使用）"
+  fertilizer_used: "Fertilizer_Used==True を 1（肥料を使用）"
+  improved_soil: "平均収穫量が最大の Soil_Type を 1（改良土壌）"

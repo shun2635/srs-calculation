@@ -1,0 +1,41 @@
+raw_csv: game_table.csv
+score_column: value
+# feature_columns を明示し、表示名/説明もここで対応付ける（bridge データセット方式）
+feature_columns:
+  - checking_status
+  - credit_history
+  - purpose
+  - savings_status
+  - employment
+  - personal_status
+  - other_parties
+  - property_magnitude
+  - other_payment_plans
+  - own_telephone
+empty_score: 0.0
+feature_labels:
+  checking_status: "当座口座"
+  credit_history: "信用履歴"
+  purpose: "借入目的"
+  savings_status: "貯蓄"
+  employment: "勤続年数"
+  personal_status: "個人属性"
+  other_parties: "保証人等"
+  property_magnitude: "資産区分"
+  other_payment_plans: "他支払計画"
+  own_telephone: "電話保有"
+feature_descriptions:
+  checking_status: "当座預金口座の状態（残高レンジ/口座なし）"
+  credit_history: "クレジット履歴（延滞有無など）"
+  purpose: "借入目的（車/家具/教育など）"
+  savings_status: "貯蓄/債券の状態（残高レンジ/不明）"
+  employment: "現職の勤続年数レンジ（失業含む）"
+  personal_status: "個人属性（婚姻/性別カテゴリ）"
+  other_parties: "共同申請者/保証人の有無"
+  property_magnitude: "資産区分（不動産/保険/車/なし等）"
+  other_payment_plans: "他の分割払い計画（銀行/店舗/なし）"
+  own_telephone: "電話保有（なし/あり）"
+filters:
+  metric: accuracy
+  seed: 42
+allow_incomplete: false

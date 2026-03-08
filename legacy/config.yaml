@@ -1,0 +1,52 @@
+# Default configuration for game-gen
+
+# ベース出力ディレクトリ (既定: outputs)
+output_base: outputs
+
+# 可視化の既定テーマ
+theme: light
+
+# gen-games サブコマンドの既定値
+gen_games:
+  # 生成するゲーム数 (既定: 1)
+  count: 1
+  # 連合スコアの最大値 (未指定の場合は 2^N - 1)
+  max_score: null
+  # 乱数シード (未指定の場合はランダム)
+  seed: null
+
+# 図（PNG）出力の既定 DPI
+figures:
+  png_dpi: 150
+
+# real-gen（実データ）設定
+realgen:
+  # import-game の rank 付与に使う分割数（max..min を等分割して 1..B を付与）
+  import_rank_bins: 5
+
+# pipeline サブコマンドの既定適用ルール（順序保持）
+# 例: shapley, banzhaf, lexcel, o-banzhaf, g-lexcel, g-o-banzhaf（個人→グループの順）
+pipeline:
+  # ルールを追加したら、ここ（config.yaml）と `gamegen/config.py:Defaults.pipeline_rules` の両方を更新する
+  rules: [shapley, banzhaf, lexcel, o-banzhaf, g-shapley, g-sum-shapley, shapley-interaction, banzhaf-interaction, rp-index, ud, du, red-index, g-lexcel, g-o-banzhaf]
+  # ルール間の「順位ペア頻度」ヒートマップ（rank-heatmap）を pipeline/apply-rules 実行時に出力するか
+  # - true: `<out>/heatmaps/nN/<x>_vs_<y>.png` を生成
+  # - false: 生成しない（必要なら `rank-heatmap` コマンドで個別に実行）
+  rank_heatmaps: false
+
+# 公理チェック（check-axioms）の対象ルール
+# 公理チェックは「相互作用比較ルール」の性質を、生成済みランキング結果に対して一括で数え上げます。
+axioms:
+  # ルールを追加したら、必要に応じてここも更新する（rankings CSV に rank_<rule> 列が必要）
+  rules: [rp-index, ud, du, red-index, shapley-interaction, banzhaf-interaction, g-shapley, g-sum-shapley, g-lexcel, g-o-banzhaf]
+
+# ヒートマップ設定
+rank_heatmap:
+  # 出力する組（[横軸, 縦軸]）。
+  # all/auto: 個人ルール同士・グループルール同士の全組み合わせを自動生成。
+  pairs: all
+
+# ルール×ルールの順位相関ヒートマップ（rule-corr-heatmap）
+rule_corr_heatmap:
+  # 相関の計算方法（pandas の corr に渡す）。例: spearman / pearson
+  method: spearman

@@ -1,0 +1,39 @@
+raw_csv: ontario_bridge_conditions_feature_mask.csv
+score_column: value
+feature_columns:
+  - category
+  - subcategory_1
+  - type_1
+  - material_1
+  - region
+  - owner
+  - age
+  - years_since_major_rehab
+  - deck_length_m
+  - span_count
+feature_descriptions:
+  category: "構造物の大分類（例: Bridge / Culvert / Tunnel / Retaining Wall）"
+  subcategory_1: "主構造要素の分類（橋梁なら上部構造の主桁形式など）"
+  type_1: "主構造要素の詳細タイプ（subcategory_1 をより細かくした分類）"
+  material_1: "主構造（主要耐荷部材）の材料"
+  region: "管理主体（MTO）の地域区分"
+  owner: "所有者区分（例: Provincial / Municipal など）"
+  age: "築年数（inspection_year - year_built）"
+  years_since_major_rehab: "最終大規模補修（major rehab）からの経過年数（inspection_year - last_major_rehab）"
+  deck_length_m: "デッキ（またはカルバート）長さ [m]"
+  span_count: "スパン/セル数（NUMBER OF SPAN / CELLS から数値を抽出して数値化）"
+feature_labels:
+  category: "構造物区分"
+  subcategory_1: "主構造分類"
+  type_1: "主構造タイプ"
+  material_1: "材料"
+  region: "地域"
+  owner: "所有者"
+  age: "築年数"
+  years_since_major_rehab: "補修経過年"
+  deck_length_m: "延長(m)"
+  span_count: "スパン数"
+filters:
+  metric: accuracy
+  seed: 42
+empty_score: 0.0

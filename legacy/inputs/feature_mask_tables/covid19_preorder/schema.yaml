@@ -1,0 +1,90 @@
+raw_csv: observed__ranked.csv
+
+filters:
+  metric: rt_mean_next_mean
+
+# Numerical score is stored in the `value` column.
+score_column: value
+score_transform: identity
+
+# Use pre-ranked ordinal classes (1=best) provided by clustering.
+rank_column: class_id
+
+# Observed subset: not all 2^N coalitions are present.
+allow_incomplete: true
+
+# Apply only weak-order (preorder) indices for incomplete tables by default.
+rules:
+  - o-banzhaf
+  - g-o-banzhaf
+  - rp-index
+  - ud
+  - du
+  - red-index
+
+# PNG output requirements for this dataset.
+figures:
+  disable_red_index_figures: true
+  rank_occurrence_mode: proportion
+  rank_occurrence_size2: true
+  rank_occurrence_size3: true
+  rank_occurrence_xlabel: 政策名
+  rank_occurrence_ylabel: 効果ランク
+  rank_occurrence_title: 当該政策を含む政策パッケージの効果ランクの分布
+  rank_occurrence_size2_xlabel: 政策ペア
+  rank_occurrence_size2_focus_features:
+    - マスク着用
+    - ワクチン費用支援
+    - ワクチン義務化
+    - 国際渡航制限
+    - 所得支援
+  interaction_index_size2: true
+  interaction_index_size3: true
+
+heatmaps:
+  feature_rule_max_coalition_size: 3
+
+feature_columns:
+  - C1M_on
+  - C2M_on
+  - C3M_on
+  - C4M_on
+  - C5M_on
+  - C6M_on
+  - C7M_on
+  - C8EV_on
+  - E1_on
+  - H3_on
+  - H6M_on
+  - V3_on
+  - V4_on
+
+feature_labels:
+  C1M_on: 学校閉鎖
+  C2M_on: 職場閉鎖
+  C3M_on: 公共イベント中止
+  C4M_on: 集会制限
+  C5M_on: 公共交通機関の停止
+  C6M_on: 外出制限（自宅待機要求）
+  C7M_on: 国内移動制限
+  C8EV_on: 国際渡航制限
+  E1_on: 所得支援
+  H3_on: 接触追跡
+  H6M_on: マスク着用
+  V3_on: ワクチン費用支援
+  V4_on: ワクチン義務化
+
+feature_descriptions:
+  C1M_on: 学校閉鎖（C1M_School closing）
+  C2M_on: 職場閉鎖（C2M_Workplace closing）
+  C3M_on: 公共イベント中止（C3M_Cancel public events）
+  C4M_on: 集会制限（C4M_Restrictions on gatherings）
+  C5M_on: 公共交通機関の停止（C5M_Close public transport）
+  C6M_on: 外出制限（自宅待機要求）（C6M_Stay at home requirements）
+  C7M_on: 国内移動制限（C7M_Restrictions on internal movement）
+  C8EV_on: 国際渡航制限（C8EV_International travel controls）
+  E1_on: 所得支援（E1_Income support）
+  H3_on: 接触追跡（H3_Contact tracing）
+  H6M_on: マスク着用（H6M_Facial Coverings）
+  V3_on: ワクチン費用支援（V3_Vaccine Financial Support (summary)）
+  V4_on: ワクチン義務化（V4_Mandatory Vaccination (summary)）

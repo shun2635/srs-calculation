@@ -1,0 +1,31 @@
+raw_csv: covid19_policy__ranked.csv
+filters:
+  metric: rt_mean_next_mean
+score_column: value
+score_transform: negate
+rank_method: dense
+allow_incomplete: false
+
+feature_columns:
+  - C1M_on
+  - C2M_on
+  - C4M_on
+  - C6M_on
+  - E1_on
+  - V3_on
+
+feature_labels:
+  C1M_on: 学校閉鎖
+  C2M_on: 職場閉鎖
+  C4M_on: 集会制限
+  C6M_on: 外出制限（自宅待機要求）
+  E1_on: 所得支援
+  V3_on: ワクチン費用支援
+
+feature_descriptions:
+  C1M_on: 学校閉鎖（C1M_School closing）
+  C2M_on: 職場閉鎖（C2M_Workplace closing）
+  C4M_on: 集会制限（C4M_Restrictions on gatherings）
+  C6M_on: 外出制限（自宅待機要求）（C6M_Stay at home requirements）
+  E1_on: 所得支援（E1_Income support）
+  V3_on: ワクチン費用支援（V3_Vaccine Financial Support (summary)）

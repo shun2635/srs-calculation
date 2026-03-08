@@ -1,0 +1,62 @@
+raw_csv: game_table.csv
+score_column: value
+
+# Use pre-ranked ordinal classes instead of binning scores in this repository.
+rank_column: class_id
+
+# Safety fallback (only used if the empty coalition row is missing from the CSV).
+empty_score: 0.4
+allow_incomplete: false
+
+# Safety: keep only a single experimental setting if the CSV is extended later.
+filters:
+  metric: accuracy
+  seed: 42
+  n_train: "133"
+  n_test: "45"
+
+# Feature (player) columns in coalition-bit order.
+feature_columns:
+  - Alcohol
+  - Malicacid
+  - Ash
+  - Alcalinity_of_ash
+  - Magnesium
+  - Total_phenols
+  - Flavanoids
+  - Nonflavanoid_phenols
+  - Proanthocyanins
+  - Color_intensity
+  - Hue
+  - 0D280_0D315_of_diluted_wines
+  - Proline
+
+feature_labels:
+  Alcohol: アルコール
+  Malicacid: リンゴ酸
+  Ash: 灰分
+  Alcalinity_of_ash: 灰分アルカリ度
+  Magnesium: マグネシウム
+  Total_phenols: 総フェノール
+  Flavanoids: フラボノイド
+  Nonflavanoid_phenols: 非フラボノイドフェノール
+  Proanthocyanins: プロアントシアニン
+  Color_intensity: 色の強度
+  Hue: 色相
+  0D280_0D315_of_diluted_wines: OD280/OD315（希釈ワイン）
+  Proline: プロリン
+
+feature_descriptions:
+  Alcohol: アルコール
+  Malicacid: リンゴ酸
+  Ash: 灰分
+  Alcalinity_of_ash: 灰分アルカリ度
+  Magnesium: マグネシウム
+  Total_phenols: 総フェノール
+  Flavanoids: フラボノイド
+  Nonflavanoid_phenols: 非フラボノイドフェノール
+  Proanthocyanins: プロアントシアニン
+  Color_intensity: 色の強度
+  Hue: 色相
+  0D280_0D315_of_diluted_wines: 希釈ワインの OD280/OD315
+  Proline: プロリン

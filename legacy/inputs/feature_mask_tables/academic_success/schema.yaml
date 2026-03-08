@@ -1,0 +1,50 @@
+raw_csv: game_table.csv
+score_column: value
+
+# This dataset does not include the empty coalition (all-zero mask) row.
+allow_incomplete: true
+
+# Safety: keep only a single experimental setting if the CSV is extended later.
+filters:
+  metric: accuracy
+  seed: "42"
+  n_train: "3318"
+  n_test: "1106"
+
+# Feature (player) columns in coalition-bit order.
+feature_columns:
+  - Course
+  - Previous qualification
+  - Mother's qualification
+  - Father's qualification
+  - Scholarship holder
+  - Curricular units 1st sem (credited)
+  - Curricular units 1st sem (grade)
+  - Unemployment rate
+  - Inflation rate
+  - GDP
+
+feature_labels:
+  Course: コース
+  Previous qualification: 入学前資格
+  Mother's qualification: 母学歴
+  Father's qualification: 父学歴
+  Scholarship holder: 奨学金
+  Curricular units 1st sem (credited): 1学期認定単位
+  Curricular units 1st sem (grade): 1学期成績
+  Unemployment rate: 失業率
+  Inflation rate: インフレ率
+  GDP: GDP
+
+feature_descriptions:
+  Course: 履修コース/学科（カテゴリ）
+  Previous qualification: 入学前の最終学歴/資格（カテゴリ）
+  Mother's qualification: 母の学歴/資格（カテゴリ）
+  Father's qualification: 父の学歴/資格（カテゴリ）
+  Scholarship holder: 奨学金受給の有無（フラグ）
+  Curricular units 1st sem (credited): 1学期の認定単位数（数値）
+  Curricular units 1st sem (grade): 1学期の成績（平均等）（数値）
+  Unemployment rate: 失業率（地域経済指標）（数値）
+  Inflation rate: インフレ率（地域経済指標）（数値）
+  GDP: GDP（地域経済指標）（数値）
+
