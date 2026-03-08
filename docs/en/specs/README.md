@@ -1,0 +1,29 @@
+# Specifications
+
+This directory stores feature and workflow specifications for substantial changes.
+
+## When to write a spec
+
+Write a spec when the change:
+
+- spans multiple modules
+- affects user-visible behavior
+- changes data contracts
+- requires phased migration
+- needs agreement before implementation starts
+
+## Naming convention
+
+Use descriptive file names such as:
+
+- `synthetic-pipeline-v2.md`
+- `real-data-import-service.md`
+- `cli-unification.md`
+
+## Review expectation
+
+Specs should be reviewed before implementation begins for larger changes. The goal is to reduce ambiguity across collaborators, not to create bureaucracy for trivial edits.
+
+## Template
+
+Start from [`TEMPLATE.md`](TEMPLATE.md).

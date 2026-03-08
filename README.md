@@ -2,7 +2,7 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。現在の実装は [`legacy/`](legacy/) にありますが、共同研究で読みやすく使いやすい形にするため、入口となる docs をリポジトリ直下に整理しています。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。現在の実装は [`legacy/`](legacy/) にありますが、共同研究と大規模開発を見据えて、新規実装用の [`src/`](src/) と標準化した [`docs/`](docs/) をリポジトリ直下に整備しています。
 
 ## Intended audiences
 
@@ -15,6 +15,7 @@ Note: the Japanese and English audience guides are intended to stay content-sync
 
 - The executable implementation lives in [`legacy/`](legacy/).
 - The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
+- The new top-level [`src/`](src/) directory is reserved for the next implementation, separate from the legacy codebase.
 - The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
 
 ## What the code currently does
@@ -39,6 +40,7 @@ The real-data pipeline supports:
 ## Repository layout
 
 - [`docs/`](docs/): curated entry-point documentation for collaborators
+- [`src/`](src/): target location for the new implementation
 - [`legacy/`](legacy/): current Poetry project and implementation
 - [`legacy/src/gamegen`](legacy/src/gamegen): synthetic game generation, ranking, axioms, visualization
 - [`legacy/src/realgen`](legacy/src/realgen): real-data import, rule application, visualization
@@ -57,11 +59,17 @@ poetry run pytest
 
 ## Documentation map
 
-- [`docs/README.md`](docs/README.md): documentation hub
-- [`docs/architecture.md`](docs/architecture.md): code and pipeline overview
-- [`docs/research-workflow.md`](docs/research-workflow.md): how to use the repository in research collaboration
+- [`docs/ja/README.md`](docs/ja/README.md): Japanese documentation hub
+- [`docs/en/README.md`](docs/en/README.md): English documentation hub
+- [`docs/en/architecture.md`](docs/en/architecture.md): current legacy-centered code and pipeline overview
+- [`docs/en/architecture/README.md`](docs/en/architecture/README.md): target architecture documents for the new implementation
+- [`docs/en/development/README.md`](docs/en/development/README.md): collaboration and development standards
+- [`docs/en/adr/README.md`](docs/en/adr/README.md): architectural decision records
+- [`docs/en/specs/README.md`](docs/en/specs/README.md): feature/specification documents
+- [`docs/en/research-workflow.md`](docs/en/research-workflow.md): how to use the repository in research collaboration
+- [`src/README.md`](src/README.md): intended package structure for new code
 - [`legacy/README.md`](legacy/README.md): CLI-oriented reference for the current implementation
 
 ## Practical note
 
-This repository is still legacy-first in its code layout. The new documentation layer is meant to make collaboration easier before a larger code reorganization happens.
+This repository is still legacy-first in its executable code, but the documentation is now organized for collaborative development and a future migration into `src/`.

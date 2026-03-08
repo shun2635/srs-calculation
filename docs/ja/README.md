@@ -4,6 +4,8 @@
 
 メンテナンスメモ: 内容は [`../en/README.md`](../en/README.md) と同期対象です。案内内容や導線を更新した場合は、英語版も見直してください。
 
+構成メモ: `en/` と `ja/` のドキュメントツリーは構造をそろえて維持します。片方で章を追加・移動・削除した場合は、もう片方でも同じ構造変更を反映してください。
+
 ## このリポジトリの位置づけ
 
 - 協力ゲームのランキング規則を比較するための研究用コードベースです。
@@ -33,15 +35,18 @@
 ## 最初に読むべき資料
 
 1. [`../../README.md`](../../README.md)
-2. [`../architecture.md`](../architecture.md)
-3. [`../research-workflow.md`](../research-workflow.md)
-4. 必要に応じて [`../../legacy/docs/README.md`](../../legacy/docs/README.md)
+2. [`architecture.md`](architecture.md)
+3. [`architecture/README.md`](architecture/README.md)
+4. [`../../src/README.md`](../../src/README.md)
+5. [`research-workflow.md`](research-workflow.md)
+6. 必要に応じて [`../../legacy/docs/README.md`](../../legacy/docs/README.md)
 
 ## 典型的な読み方
 
 ### コード全体を把握したい場合
 
-- [`../architecture.md`](../architecture.md) でモジュール構成を確認
+- [`architecture.md`](architecture.md) でモジュール構成を確認
+- 新規実装の前提は [`architecture/module-boundaries.md`](architecture/module-boundaries.md) と [`../../src/README.md`](../../src/README.md) を見る
 - [`../../legacy/src/gamegen`](../../legacy/src/gamegen) と [`../../legacy/src/realgen`](../../legacy/src/realgen) を見る
 
 ### 数式やルール定義を確認したい場合
@@ -51,7 +56,7 @@
 
 ### 実験の流れだけ知りたい場合
 
-- [`../research-workflow.md`](../research-workflow.md)
+- [`research-workflow.md`](research-workflow.md)
 - [`../../legacy/config.yaml`](../../legacy/config.yaml)
 
 ## セットアップ
@@ -80,6 +85,7 @@ poetry run real-gen apply-rules <dataset_id>
 
 - `legacy/README.md` は「CLI の使い方」
 - `legacy/docs/` は「詳細仕様・設計メモ」
-- `docs/` は「共同研究者向けの案内」
+- `docs/` は「共同研究者向けの案内」と「新規実装の標準文書」
+- `src/` は「新規実装の本体置き場」
 
 コード再編前の段階では、この分担で読むのが最も効率的です。

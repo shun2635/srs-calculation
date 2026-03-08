@@ -4,6 +4,8 @@ This guide is the shortest path to understanding the repository without starting
 
 Maintenance note: this document should stay aligned in content with [`../ja/README.md`](../ja/README.md). When onboarding content or navigation changes here, review the Japanese version as well.
 
+Structure note: the `en/` and `ja/` documentation trees should stay aligned in structure. When a section is added, moved, or removed in one tree, mirror the change in the other tree.
+
 ## What this repository is
 
 - A research codebase for cooperative-game-based ranking rules
@@ -33,16 +35,20 @@ The `real-gen` CLI can:
 ## Recommended reading order
 
 1. [`../../README.md`](../../README.md)
-2. [`../architecture.md`](../architecture.md)
-3. [`../research-workflow.md`](../research-workflow.md)
-4. [`../../legacy/docs/README.md`](../../legacy/docs/README.md) when detailed rule descriptions are needed
+2. [`architecture.md`](architecture.md)
+3. [`architecture/README.md`](architecture/README.md)
+4. [`../../src/README.md`](../../src/README.md)
+5. [`research-workflow.md`](research-workflow.md)
+6. [`../../legacy/docs/README.md`](../../legacy/docs/README.md) when detailed rule descriptions are needed
 
 ## Where to look depending on your question
 
 ### I want the code map
 
-Read [`../architecture.md`](../architecture.md), then inspect:
+Read [`architecture.md`](architecture.md), then inspect:
 
+- [`architecture/module-boundaries.md`](architecture/module-boundaries.md)
+- [`../../src/README.md`](../../src/README.md)
 - [`../../legacy/src/gamegen`](../../legacy/src/gamegen)
 - [`../../legacy/src/realgen`](../../legacy/src/realgen)
 
@@ -57,7 +63,7 @@ Read:
 
 Read:
 
-- [`../research-workflow.md`](../research-workflow.md)
+- [`research-workflow.md`](research-workflow.md)
 - [`../../legacy/config.yaml`](../../legacy/config.yaml)
 
 ## Setup
@@ -85,7 +91,9 @@ poetry run real-gen apply-rules <dataset_id>
 
 ## Interpretation of the documentation layers
 
-- `docs/`: collaboration-facing entry points
+- `docs/en/` and `docs/ja/`: language-specific documentation entry points
+- `docs/en/architecture`, `docs/en/development`, `docs/en/adr`, `docs/en/specs`: standards for the new implementation
+- `src/`: target source tree for new code
 - `legacy/README.md`: CLI usage for the current codebase
 - `legacy/docs/`: detailed technical and mathematical appendices
 
