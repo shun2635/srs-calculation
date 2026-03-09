@@ -67,6 +67,8 @@ To remove `legacy/` from the runtime path over time, follow this sequence:
 
 The important constraint is that the public entry point should switch only after the command's underlying use case already exists in `src/`.
 
+For the concrete removal order and review gates, use [`legacy-removal-runbook.md`](legacy-removal-runbook.md).
+
 ## Mapping hints
 
 - `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`

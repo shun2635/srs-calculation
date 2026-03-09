@@ -12,7 +12,8 @@ This directory contains the architecture documents for the new implementation un
 
 1. [`module-boundaries.md`](module-boundaries.md)
 2. [`migration-from-legacy.md`](migration-from-legacy.md)
-3. [`../../../src/README.md`](../../../src/README.md)
+3. [`legacy-removal-runbook.md`](legacy-removal-runbook.md)
+4. [`../../../src/README.md`](../../../src/README.md)
 
 ## Scope rule
 

@@ -65,7 +65,11 @@ The ranking migration slice currently includes:
 
 ## CLI
 
-The `src` tree includes the published `real-gen` CLI and a partial synthetic-game CLI.
+The `src` tree includes the published root CLI surface. The authoritative script names are stable:
+
+- `real-gen`
+- `srs-game-gen`
+- `srs-test`
 
 The repository root also publishes:
 
@@ -101,7 +105,7 @@ poetry run srs-test
 poetry run srs-test tests/unit -q
 ```
 
-Current supported commands:
+Current supported root commands:
 
 - `srs-game-gen gen-games`: generate complete synthetic game CSV files under `outputs/games/nN/`
 - `srs-game-gen make-figures`: render legacy-style PNG figures from synthetic rankings CSV files
@@ -112,7 +116,18 @@ Current supported commands:
 - `real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
 - `real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
 
-`real-gen` is now the published root CLI for this tree. `srs-game-gen` is intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are already migrated. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full legacy production surface still lives under [`../legacy/`](../legacy/).
+Deferred or unsupported legacy commands are not part of the root CLI contract:
+
+- `game-gen check-axioms`
+- `game-gen summarize-axioms`
+- `game-gen axiom-summary-heatmap`
+- `game-gen rank-heatmap`
+- `game-gen rule-corr-heatmap`
+- `game-gen pipeline`
+- `game-gen make-figures-png`
+- unpublished real-data commands that exist only under `legacy/`
+
+`real-gen` is now the published root CLI for this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some legacy-only compatibility details still remain in archive-oriented code paths under [`../legacy/`](../legacy/).
 
 ## Important rule
 

@@ -1,84 +1,54 @@
 from __future__ import annotations
 
-import pytest
+import json
+from pathlib import Path
 
-from gamegen.rules import banzhaf as legacy_banzhaf
-from gamegen.rules import lexcel as legacy_lexcel
-from gamegen.rules import ordinal_banzhaf as legacy_ordinal_banzhaf
-from gamegen.rules import shapley as legacy_shapley
+import pytest
 
 from srs_calculation.application.ranking.apply_ranking_rules import apply_ranking_rules
 from srs_calculation.domain.games.coalition_game import CoalitionGame
 
 
+FIXTURE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "parity" / "ranking" / "first_batch_rule_expected.json"
+
+
+def _load_expected_fixtures() -> dict[str, dict[str, object]]:
+    raw = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+    assert isinstance(raw, dict)
+    return raw
+
+
+EXPECTED_FIXTURES = _load_expected_fixtures()
+
+
+def _fixture_case(fixture_name: str) -> tuple[str, int, dict[int, float]]:
+    fixture = EXPECTED_FIXTURES[fixture_name]
+    player_count = int(fixture["player_count"])
+    raw_scores_by_mask = fixture["scores_by_mask"]
+    assert isinstance(raw_scores_by_mask, dict)
+    scores_by_mask = {int(mask): float(score) for mask, score in raw_scores_by_mask.items()}
+    return fixture_name, player_count, scores_by_mask
+
+
 FIXTURES = [
-    (
-        "strict_3p",
-        3,
-        {
-            0b000: 0.0,
-            0b001: 4.0,
-            0b010: 3.0,
-            0b011: 7.0,
-            0b100: 2.0,
-            0b101: 6.0,
-            0b110: 5.0,
-            0b111: 8.0,
-        },
-    ),
-    (
-        "ties_3p",
-        3,
-        {
-            0b000: 0.0,
-            0b001: 1.0,
-            0b010: 1.0,
-            0b011: 2.0,
-            0b100: 1.0,
-            0b101: 2.0,
-            0b110: 2.0,
-            0b111: 2.0,
-        },
-    ),
+    _fixture_case("strict_3p"),
+    _fixture_case("ties_3p"),
 ]
 
 
-def _legacy_expected(rule_id: str, scores_by_mask: dict[int, float], player_count: int) -> tuple[dict[int, float] | None, dict[int, int]]:
-    if rule_id == "shapley":
-        scores = {
-            player: score
-            for player, score in enumerate(
-                legacy_shapley.player_shapley_values(scores_by_mask, player_count)
-            )
-        }
-        ranks = legacy_shapley.rank_by_shapley(scores_by_mask, player_count)
-        return scores, ranks
-
-    if rule_id == "banzhaf":
-        scores = {
-            player: score
-            for player, score in enumerate(
-                legacy_banzhaf.player_banzhaf_values(scores_by_mask, player_count)
-            )
-        }
-        ranks = legacy_banzhaf.rank_by_banzhaf(scores_by_mask, player_count)
-        return scores, ranks
-
-    if rule_id == "lexcel":
-        ranks = legacy_lexcel.rank_by_lexcel(scores_by_mask, player_count)
-        return None, ranks
-
-    if rule_id == "ordinal_banzhaf":
-        levels = legacy_ordinal_banzhaf.build_levels_from_scores(scores_by_mask)
-        detail = legacy_ordinal_banzhaf.ordinal_banzhaf_detail(levels, player_count)
-        scores = {player: float(values["s"]) for player, values in detail.items()}
-        ranks = legacy_ordinal_banzhaf.rank_by_ordinal_banzhaf_from_scores(
-            scores_by_mask,
-            player_count,
-        )
-        return scores, ranks
-
-    raise AssertionError(f"unsupported rule_id: {rule_id}")
+def _expected_rule_payload(fixture_name: str, rule_id: str) -> tuple[dict[int, float] | None, dict[int, int]]:
+    rule_payload = EXPECTED_FIXTURES[fixture_name]["rules"][rule_id]
+    assert isinstance(rule_payload, dict)
+    raw_scores_by_player = rule_payload["scores_by_player"]
+    raw_ranks_by_player = rule_payload["ranks_by_player"]
+    assert isinstance(raw_ranks_by_player, dict)
+    scores_by_player = (
+        None
+        if raw_scores_by_player is None
+        else {int(player): float(score) for player, score in raw_scores_by_player.items()}
+    )
+    ranks_by_player = {int(player): int(rank) for player, rank in raw_ranks_by_player.items()}
+    return scores_by_player, ranks_by_player
 
 
 @pytest.mark.parametrize(
@@ -96,11 +66,9 @@ def test_first_batch_rules_match_legacy_outputs(
     scores_by_mask: dict[int, float],
     rule_id: str,
 ) -> None:
-    del fixture_name
-
     game = CoalitionGame.from_scores_by_mask(player_count, scores_by_mask)
     actual_result = apply_ranking_rules(game, [rule_id])[rule_id]
-    expected_scores, expected_ranks = _legacy_expected(rule_id, scores_by_mask, player_count)
+    expected_scores, expected_ranks = _expected_rule_payload(fixture_name, rule_id)
 
     if expected_scores is None:
         assert actual_result.score_set is None

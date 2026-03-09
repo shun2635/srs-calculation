@@ -67,6 +67,8 @@ domain と application が安定してから進めます。
 
 重要なのは、CLI 名だけ先に移すのではなく、各コマンドが依存する use case を `src/` に持ってから公開入口を切り替えることです。
 
+具体的な剥がし順とレビュー時の判定基準は [`legacy-removal-runbook.md`](legacy-removal-runbook.md) を使います。
+
 ## 対応付けの目安
 
 - `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`
