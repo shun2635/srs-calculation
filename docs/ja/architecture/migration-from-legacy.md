@@ -65,6 +65,18 @@ domain と application が安定してから進めます。
 - `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` と `src/srs_calculation/application/`
 - `legacy/config.yaml` 読み込み -> `src/srs_calculation/infrastructure/config`
 
+## 現在の進捗
+
+リポジトリにはすでに、`src/` 側の最初の ranking 移行スライスが入っています。
+
+- in-memory の ranking core を担う `domain/games` と `domain/ranking`
+- `CoalitionGame` に対する rule 実行を担う `application/ranking/apply_ranking_rules.py`
+- legacy 互換の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
+- legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
+- これらをカバーする `tests/` 配下の unit / integration test
+
+今後の移行は、このスライスを起点に積み上げる前提で進めます。
+
 ## ある機能が移行完了とみなせる条件
 
 次を満たしたとき、その機能は移行済みとみなします。

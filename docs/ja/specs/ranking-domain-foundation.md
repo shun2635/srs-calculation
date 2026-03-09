@@ -36,13 +36,14 @@
 
 - `src/srs_calculation/domain/` に置く連合ゲームとランキング規則の基盤
 - in-memory のゲーム表現に対して規則を適用する最小限の `src/srs_calculation/application/` サービス
+- legacy 互換の game CSV を読み、legacy 互換の rankings CSV を書くための最小限の `src/srs_calculation/infrastructure/persistence/` アダプタ
 - 移行した規則の同等性テスト
 - この移行対象を説明する docs 更新
 
 対象外:
 
 - CLI の直接移行
-- テストに最低限必要な範囲を超える永続化アダプタ
+- ranking slice の移行に必要な CSV アダプタを超える広い永続化対応
 - 実データ import と可視化
 - 公理チェックの移行
 
@@ -69,6 +70,11 @@ src/srs_calculation/
   application/
     ranking/
       apply_ranking_rules.py
+      apply_ranking_rules_to_game_csv.py
+  infrastructure/
+    persistence/
+      csv_game_repository.py
+      csv_ranking_repository.py
 ```
 
 `models/` や `rules/` のような汎用バケットではなく、feature ごとのまとまりで切ることを前提にします。
@@ -133,6 +139,12 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 これにより、今後 interface 層が rule モジュールを場当たり的に直接呼ぶことを防ぎます。
 
+また、最初の移行スライスでは file-based な application use case として次も許容します。
+
+- legacy 互換の game CSV を `CoalitionGame` に読む
+- application サービス経由で規則を適用する
+- infrastructure アダプタで legacy 互換の `rank_*` / `score_*` 列へ serialize する
+
 ## Data and interfaces
 
 このフェーズでは新しい公開 CLI は定義しません。
@@ -141,6 +153,11 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 - 入力: in-memory の coalition game
 - 出力: 後で infrastructure 層が serialize できる構造化 rule result
+
+移行境界では、次の file-based contract も持ってよいものとします。
+
+- 入力: `player*`, `score`, `rank` を持つ legacy 互換 game CSV
+- 出力: 既存の `rank_*` / `score_*` 命名を維持した legacy 互換 rankings CSV
 
 互換性メモ:
 
@@ -169,9 +186,13 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 ### Step 4
 
-共有 fixture 上で `src/` と `legacy` を比較する parity test を追加する。
+新しい ranking slice を legacy 互換ファイルへ接続する最小限の CSV アダプタを追加する。
 
 ### Step 5
+
+共有 fixture 上で `src/` と `legacy` を比較する parity test を追加する。
+
+### Step 6
 
 意図的な差分があれば文書化し、必要に応じて後続 ADR を起票する。
 
@@ -182,6 +203,7 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 - 連合ゲーム domain model の unit test
 - 各 rule の unit test
 - application 層の rule runner の integration test
+- legacy 互換 CSV の read/write と file-based ranking application の integration test
 - 代表的な小規模ゲームに対する `legacy` 比較の parity test
 
 推奨する parity 方針:

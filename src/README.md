@@ -1,6 +1,6 @@
 # New Source Tree
 
-This directory is reserved for the new implementation of the repository.
+This directory contains the in-progress new implementation of the repository.
 
 ## Policy
 
@@ -44,9 +44,18 @@ src/
 
 - prefer feature-oriented package names such as `games/`, `ranking/`, and `axioms/`
 - avoid generic buckets such as `models/`, `utils/`, and `common/` in the domain layer
-- name application modules after use cases, for example `apply_ranking_rules.py`
+- name application modules after use cases, for example `apply_ranking_rules_to_game_csv.py`
 - use snake_case internal rule identifiers such as `ordinal_banzhaf`
 - keep output-column naming decisions at the serialization boundary, not in core domain APIs
+
+## Current implemented slice
+
+The ranking migration slice currently includes:
+
+- domain models and first-batch ranking rules under `domain/games` and `domain/ranking`
+- application services for in-memory rule execution and legacy-style game-CSV workflows under `application/ranking`
+- persistence adapters for legacy-compatible game CSV and rankings CSV files under `infrastructure/persistence`
+- unit and integration tests under `tests/`
 
 ## Important rule
 

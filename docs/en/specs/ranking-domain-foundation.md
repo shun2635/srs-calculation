@@ -36,13 +36,14 @@ In scope:
 
 - `src/srs_calculation/domain/` foundations for coalition games and ranking rules
 - a minimal `src/srs_calculation/application/` service for applying selected rules to an in-memory game representation
+- minimal `src/srs_calculation/infrastructure/persistence/` adapters needed to read legacy-style game CSV files and serialize legacy-style rankings CSV files
 - parity-oriented tests for the migrated rules
 - documentation updates needed to explain the migrated slice
 
 Out of scope:
 
 - direct CLI migration
-- persistence adapters beyond what tests minimally need
+- broad persistence work beyond the ranking-slice CSV adapters needed for migration
 - real-data import and visualization flows
 - axiom checking logic
 
@@ -69,6 +70,11 @@ src/srs_calculation/
   application/
     ranking/
       apply_ranking_rules.py
+      apply_ranking_rules_to_game_csv.py
+  infrastructure/
+    persistence/
+      csv_game_repository.py
+      csv_ranking_repository.py
 ```
 
 The intent is to group domain code by feature area rather than under generic buckets such as `models/` or `rules/`.
@@ -133,6 +139,12 @@ A minimal application-layer service should:
 
 This service exists to prevent future interface code from calling rule modules ad hoc.
 
+The first migrated workflow may also include a file-based application use case that:
+
+- reads a legacy-compatible game CSV into the new `CoalitionGame`
+- applies selected rules through the application service
+- serializes legacy-compatible `rank_*` and `score_*` columns through infrastructure adapters
+
 ## Data and interfaces
 
 This phase should not define a new public CLI.
@@ -141,6 +153,11 @@ Instead, the main interface contract is:
 
 - input: an in-memory coalition game
 - output: structured rule results that can later be serialized by infrastructure adapters
+
+At the migration boundary, the slice may also expose:
+
+- input: a legacy-compatible game CSV with `player*`, `score`, and `rank`
+- output: a legacy-compatible rankings CSV that preserves the existing `rank_*` and `score_*` naming scheme
 
 Compatibility note:
 
@@ -169,9 +186,13 @@ Create an application-layer rule runner that uses the new registry.
 
 ### Step 4
 
-Add parity tests that compare `src/` outputs against `legacy` behavior on shared fixtures.
+Add the minimal CSV persistence adapters needed to connect the new ranking slice to legacy-compatible files.
 
 ### Step 5
+
+Add parity tests that compare `src/` outputs against `legacy` behavior on shared fixtures.
+
+### Step 6
 
 Document any intentional differences and decide whether a follow-up ADR is needed.
 
@@ -182,6 +203,7 @@ The migrated slice should include:
 - unit tests for coalition-game domain models
 - unit tests for each migrated rule
 - integration tests for the application-layer rule runner
+- integration tests for legacy-compatible CSV read/write and file-based ranking application
 - parity tests against `legacy` on representative small games
 
 Recommended parity strategy:

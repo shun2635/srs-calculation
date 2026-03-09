@@ -45,6 +45,7 @@ Reviewers should check:
 - update both [`../../ja/README.md`](../../ja/README.md) and [`../README.md`](../README.md) when onboarding or navigation changes
 - keep corresponding documents in `en/` and `ja/` aligned when structure or policy changes
 - prefer adding a new focused document over turning a README into a catch-all reference
+- when code changes package structure, workflow boundaries, or supported migration paths, update the corresponding architecture/spec docs in the same change
 
 ## Testing rules
 

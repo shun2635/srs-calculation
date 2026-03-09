@@ -65,6 +65,18 @@ Only after parity is demonstrated:
 - `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` plus `src/srs_calculation/application/`
 - `legacy/config.yaml` loading -> `src/srs_calculation/infrastructure/config`
 
+## Current progress
+
+The repository already contains a first migrated ranking slice in `src/`:
+
+- `domain/games` and `domain/ranking` for the in-memory ranking core
+- `application/ranking/apply_ranking_rules.py` for rule execution on `CoalitionGame`
+- `application/ranking/apply_ranking_rules_to_game_csv.py` for legacy-style game-CSV workflows
+- `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` for legacy-compatible CSV boundaries
+- `tests/` coverage for the persistence adapters and ranking application workflow
+
+The next migration steps should build on these modules rather than recreating the same slice elsewhere.
+
 ## Definition of done for a migrated capability
 
 A capability should be considered migrated only when:

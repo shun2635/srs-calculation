@@ -60,7 +60,7 @@ src/
 - `domain/` に依存してよい
 - CLI の直接解析を持たない
 - ワークフロー制御を保存詳細から切り離す
-- `apply_ranking_rules.py` のようにユースケース名でモジュールを切る
+- `apply_ranking_rules_to_game_csv.py` のようにユースケース名でモジュールを切る
 
 ### `infrastructure/`
 
@@ -77,6 +77,7 @@ src/
 - 外部副作用をこの層に閉じ込める
 - 他層には狭いインターフェースだけを公開する
 - `config/`、`persistence/`、`plotting/` のように技術責務で整理する
+- CSV 列名の互換維持のような legacy 互換ロジックは、`domain/` ではなくこの層に閉じ込める
 
 ### `interfaces/`
 

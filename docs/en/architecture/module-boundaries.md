@@ -60,7 +60,7 @@ Rules:
 - may depend on `domain/`
 - should not contain direct CLI parsing
 - should isolate workflow coordination from storage details
-- should use explicit use-case module names such as `apply_ranking_rules.py`
+- should use explicit use-case module names such as `apply_ranking_rules_to_game_csv.py`
 
 ### `infrastructure/`
 
@@ -77,6 +77,7 @@ Rules:
 - should keep external side effects contained
 - should expose narrow interfaces to the rest of the codebase
 - should be organized by technical concern such as `config/`, `persistence/`, and `plotting/`
+- may carry legacy compatibility mappings, such as CSV column naming, when that behavior is intentionally isolated from `domain/`
 
 ### `interfaces/`
 

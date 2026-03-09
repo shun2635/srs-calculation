@@ -1,6 +1,6 @@
 # Target Architecture Documents
 
-This directory contains the architecture documents for the new implementation that will live under [`../../../src/`](../../../src/).
+This directory contains the architecture documents for the new implementation under [`../../../src/`](../../../src/).
 
 ## Role of this directory
 
@@ -16,4 +16,4 @@ This directory contains the architecture documents for the new implementation th
 
 ## Scope rule
 
-These documents describe the target architecture for new code. They do not replace the current-state snapshot in [`../architecture.md`](../architecture.md), which still describes the legacy-centered codebase as it exists today.
+These documents describe the target architecture for new code and the migration path toward it. They do not replace the current-state snapshot in [`../architecture.md`](../architecture.md), which still describes the legacy-centered codebase as it exists today.
