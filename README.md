@@ -2,7 +2,7 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。次実装の Poetry project はリポジトリ root にあり、`real-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は参照実装として残し、[`docs/`](docs/) にはその方針と境界を整理しています。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。サポート対象の Poetry project はリポジトリ root にあり、`real-gen` と `srs-game-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は履歴資料として保持する archive であり、[`docs/`](docs/) にはその方針と境界を整理しています。
 
 ## Intended audiences
 
@@ -14,9 +14,10 @@ Note: the Japanese and English audience guides are intended to stay content-sync
 ## Current repository status
 
 - The root Poetry project now publishes the `src`-based `real-gen` CLI.
-- The legacy Poetry project remains under [`legacy/`](legacy/) for reference and still carries the old `game-gen` / `real-gen` scripts.
+- The `src/` tree is now the implementation of record for supported workflows.
+- The `legacy/` tree remains under [`legacy/`](legacy/) as a retained archive of historical code, commands, and design notes.
 - The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
-- The new top-level [`src/`](src/) directory already contains the in-progress next implementation.
+- The top-level [`src/`](src/) directory now contains the implementation of record for supported workflows.
 - The `src/` tree already exposes module-entry CLIs for migrated `game-gen` and `real-gen` slices.
 - The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
 
@@ -42,8 +43,8 @@ The real-data pipeline supports:
 ## Repository layout
 
 - [`docs/`](docs/): curated entry-point documentation for collaborators
-- [`src/`](src/): in-progress next implementation
-- [`legacy/`](legacy/): current Poetry project and implementation
+- [`src/`](src/): implementation of record for supported workflows
+- [`legacy/`](legacy/): archive of historical code, commands, and design notes
 - [`legacy/src/gamegen`](legacy/src/gamegen): synthetic game generation, ranking, axioms, visualization
 - [`legacy/src/realgen`](legacy/src/realgen): real-data import, rule application, visualization
 - [`legacy/docs/`](legacy/docs/): detailed design notes and mathematical rule descriptions
@@ -141,7 +142,7 @@ root CLI で現在使う主要設定キー:
 補足:
 
 - `legacy/src/realgen/commands/resignation_contrib.py` は実装ファイルがありますが、現時点では `real-gen` CLI に登録されていないため `poetry run real-gen ...` では呼べません
-- 詳細な CLI 用例は [`legacy/README.md`](legacy/README.md) を参照してください
+- archive-only command examples are collected in [`legacy/README.md`](legacy/README.md)
 
 ## `src` CLI
 
@@ -178,18 +179,30 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 
 - [`docs/ja/README.md`](docs/ja/README.md): Japanese documentation hub
 - [`docs/en/README.md`](docs/en/README.md): English documentation hub
-- [`docs/en/architecture.md`](docs/en/architecture.md): current legacy-centered code and pipeline overview
+- [`docs/en/architecture.md`](docs/en/architecture.md): historical architecture snapshot of the archived `legacy/` tree
 - [`docs/en/architecture/README.md`](docs/en/architecture/README.md): target architecture documents for the new implementation
 - [`docs/en/development/README.md`](docs/en/development/README.md): collaboration and development standards
 - [`docs/en/adr/README.md`](docs/en/adr/README.md): architectural decision records
 - [`docs/en/specs/README.md`](docs/en/specs/README.md): feature/specification documents
 - [`docs/en/research-workflow.md`](docs/en/research-workflow.md): how to use the repository in research collaboration
-- [`src/README.md`](src/README.md): intended package structure for new code
-- [`legacy/README.md`](legacy/README.md): CLI-oriented reference for the legacy implementation
+- [`src/README.md`](src/README.md): implementation-of-record package structure and CLI surface
+- [`legacy/README.md`](legacy/README.md): archive-only CLI reference for historical commands
 
 ## Practical note
 
-The repository now treats the root Poetry project as the authoritative executable surface for supported workflows. `legacy/` remains only as a reference implementation and archive candidate.
+The repository now treats the root Poetry project as the authoritative executable surface for supported workflows. `src/` is the implementation of record, and `legacy/` is intentionally retained as a historical archive for commands, mathematical notes, and design context.
+
+## Migration progress
+
+The repository has already completed the main decoupling work needed to keep the supported root workflows independent from `legacy/`.
+
+- root CLI contract is fixed in this README and [`src/README.md`](src/README.md)
+- collaborator-facing docs no longer require `legacy/` for normal operation
+- parity tests use frozen fixtures instead of importing `legacy`
+- compatibility-format CSV handling is isolated inside [`src/srs_calculation/infrastructure/persistence/`](src/srs_calculation/infrastructure/persistence/)
+- `legacy/config.yaml` is no longer part of the root CLI lookup path
+- `poetry run srs-verify-no-legacy` exists to verify that root CLI workflows still run when `legacy/` is hidden
+- `legacy/` is now documented as a retained historical archive, not a supported execution surface
 
 ## Testing
 

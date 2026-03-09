@@ -4,8 +4,8 @@ This document defines the default collaboration rules for shared development.
 
 ## Working assumptions
 
-- `legacy/` is the current reference implementation
-- `src/` is the preferred home for new implementation work
+- `src/` is the implementation of record for supported workflows
+- `legacy/` is archive-only and should not be treated as the normal execution surface
 - the English and Japanese documentation trees should remain aligned
 
 ## Before starting a substantial change

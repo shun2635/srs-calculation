@@ -4,10 +4,19 @@ This document defines how the repository should evolve from the current legacy-c
 
 ## Migration principles
 
-- `legacy/` remains the reference implementation until a behavior is reproduced or intentionally replaced
+- `src/` is the implementation of record for supported workflows
+- `legacy/` remains available only as an archive for historical behavior, commands, and design notes
 - new production code should prefer `src/` over adding more complexity to `legacy/`
 - migration should happen by capability, not by copying directories wholesale
 - each migration step should keep tests and documentation synchronized
+
+## Current repository decision
+
+The repository no longer treats `legacy/` removal as an active goal.
+
+- `legacy/` is intentionally retained as a historical archive inside the repository
+- supported execution, testing, and collaboration workflows must continue to work from the root Poetry project without requiring `legacy/`
+- future work may still port selected behavior from `legacy/`, but the default outcome is retention as reference material rather than deletion
 
 ## Suggested migration order
 
@@ -48,12 +57,12 @@ After domain and application logic stabilize:
 - move configuration loaders
 - move CSV and plotting adapters
 
-### Phase 5: deprecate legacy entry points
+### Phase 5: archive legacy entry points
 
-Only after parity is demonstrated:
+After the supported root CLI is verified:
 
-- redirect users to the new CLI
-- reduce legacy code to reference or archival status
+- keep users on the root CLI only
+- reduce `legacy/` to archive-only material
 
 ## Workflow for making `legacy/` unreachable
 
@@ -63,7 +72,7 @@ To remove `legacy/` from the runtime path over time, follow this sequence:
 2. move each shell-backed workflow into `application/` and `infrastructure/`
 3. lock parity between the old CLI behavior and the `src/` workflow with tests
 4. move user-facing README and docs entry points to the `src/` path
-5. only then remove the public `legacy` scripts from package metadata
+5. only then stop treating the `legacy` scripts as a public execution surface
 
 The important constraint is that the public entry point should switch only after the command's underlying use case already exists in `src/`.
 
@@ -111,7 +120,17 @@ The current published-entry-point state is:
 
 - the root `pyproject.toml` now publishes `real-gen` from the `src` CLI
 - the root `pyproject.toml` also publishes `srs-game-gen` as the partial synthetic CLI from `src`
-- `legacy/pyproject.toml` still keeps `game-gen` / `real-gen` as legacy entry points for reference
+- `legacy/pyproject.toml` still exists in the archive tree, but it is no longer documented as a supported execution surface
+
+The main completed decoupling milestones are:
+
+- the public root CLI contract is documented
+- collaborator-facing docs no longer require `legacy/`
+- parity tests compare against frozen fixtures instead of live `legacy` imports
+- compatibility-format CSV handling is isolated in `src`
+- root config lookup no longer implies `legacy/config.yaml`
+- a no-legacy verification command exists for local and CI-style checks
+- `legacy/` is kept as a retained archive rather than a deletion target
 
 ## Definition of done for a migrated capability
 

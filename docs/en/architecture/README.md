@@ -15,6 +15,8 @@ This directory contains the architecture documents for the new implementation un
 3. [`legacy-removal-runbook.md`](legacy-removal-runbook.md)
 4. [`../../../src/README.md`](../../../src/README.md)
 
+The runbook is kept to document how runtime decoupling from `legacy/` was achieved. It is no longer an active plan to delete the archive tree.
+
 ## Scope rule
 
-These documents describe the target architecture for new code and the migration path toward it. They do not replace the current-state snapshot in [`../architecture.md`](../architecture.md), which still describes the legacy-centered codebase as it exists today.
+These documents describe the target architecture for new code and the migration path toward it. They do not replace the historical snapshot in [`../architecture.md`](../architecture.md), which describes the archived `legacy/` codebase.

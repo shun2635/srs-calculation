@@ -4,8 +4,8 @@
 
 ## 前提
 
-- `legacy/` は現在の参照実装である
-- `src/` は新規実装作業の主な配置先である
+- `src/` はサポート対象 workflow の implementation of record である
+- `legacy/` は archive-only であり、通常の execution surface として扱わない
 - `en/` と `ja/` のドキュメントツリーは整合させて保つ
 
 ## 大きな変更を始める前

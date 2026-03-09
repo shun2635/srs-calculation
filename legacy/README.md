@@ -1,4 +1,4 @@
-# Legacy CLI Reference
+# Legacy Archive CLI Reference
 
 For project overview and collaboration-oriented documentation, start with:
 
@@ -6,7 +6,18 @@ For project overview and collaboration-oriented documentation, start with:
 - [`../docs/ja/README.md`](../docs/ja/README.md)
 - [`../docs/en/README.md`](../docs/en/README.md)
 
-This file remains the CLI-focused reference for the current `legacy/` implementation.
+This file is an archive-only CLI reference for historical commands that are no longer part of the supported root CLI contract.
+
+Repository decision:
+
+- keep `legacy/` in the repository as historical reference material
+- do not route normal collaboration or supported execution through this tree
+
+Normal use should start from the repository root:
+
+- install and run supported workflows from [`../README.md`](../README.md)
+- treat this file as historical reference material only
+- do not treat `legacy/pyproject.toml` as the normal execution surface for ongoing collaboration
 
 # game-gen
 

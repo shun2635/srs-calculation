@@ -1,8 +1,8 @@
-# legacy 剥離 runbook
+# legacy decoupling runbook
 
-このドキュメントは、`legacy/` をリポジトリから外しても root CLI が動き続ける状態に到達するための具体的な作業順を定義します。
+このドキュメントは、`legacy/` をリポジトリから外しても root CLI が動き続ける状態に到達するまでの具体的な作業順を記録したものです。
 
-[`migration-from-legacy.md`](migration-from-legacy.md) よりも運用寄りの文書です。実際の剥離作業を計画したりレビューしたりするときは、こちらを基準にします。
+[`migration-from-legacy.md`](migration-from-legacy.md) よりも運用寄りの文書です。現在は `legacy/` を履歴資料として保持する方針なので、削除計画ではなく decoupling の記録と検証 checklist として使います。
 
 ## 目標状態
 
@@ -14,17 +14,21 @@
 - `legacy/` ディレクトリを消しても `real-gen`、`srs-game-gen`、`srs-test` が壊れない
 - 共同研究者向け docs が通常運用のために `legacy/` を要求しない
 
-## 現在の主なブロッカー
+## 現在の状態
 
-現時点では、主に次が残っています。
+主な decoupling blocker はすでに解消しています。
 
-- parity test がまだ `legacy` モジュールを直接 import している
-- test bootstrap がまだ `legacy/src` を `sys.path` に追加している
-- `src/` が compatibility 境界で歴史的なファイル形式と命名をまだ露出している
-- 共同研究向け docs の一部が、実用上の CLI リファレンスをまだ `legacy` に寄せている
-- synthetic workflow の root CLI surface がまだ intentionally partial である
+- parity test は `legacy` モジュールを直接 import しない
+- test bootstrap は `legacy/src` を `sys.path` に追加しない
+- 共同研究者向け docs は通常運用のために `legacy/` を要求しない
+- root config lookup は `legacy/config.yaml` を前提にしない
+- `legacy/` を隠して root workflow が動くことを確認する verification command がある
 
-これらは一気にではなく、順番に外します。
+現在残っているものは意図的なものです。
+
+- `src/` は persistence 境界で歴史的 compatibility format を所有している
+- root の synthetic CLI surface は intentionally partial であり、archive-only command は `legacy/` に残している
+- `legacy/` 自体は履歴資料として保持している
 
 ## 剥がし順
 
@@ -187,6 +191,12 @@ poetry run srs-game-gen --help
 - リポジトリが `legacy` を通常の execution surface として扱わない
 - 正本 docs が `src/` を implementation of record として説明している
 
+現在の状態:
+
+- docs 上は完了しており、`legacy/` は archive-only、root Poetry project は唯一のサポート対象 execution surface として記述している
+- repository 判断として、`legacy/` は履歴資料として保持する
+- この runbook は、サポート対象 workflow が runtime で `legacy/` を要求しないことを示す記録として維持する
+
 ## 推奨 PR 分割
 
 これは 1 本の PR でやらない方がよいです。
@@ -197,7 +207,7 @@ poetry run srs-game-gen --help
 2. parity fixture 化と test bootstrap cleanup
 3. synthetic CLI の残差移行または廃止
 4. removability verification の CI 追加
-5. 最終的な `legacy/` の archive 化または削除
+5. `legacy/` の最終的な archive 化位置づけの確定
 
 ## レビュー checklist
 

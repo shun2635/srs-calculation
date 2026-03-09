@@ -10,7 +10,7 @@
 
 - 協力ゲームのランキング規則を比較するための研究用コードベースです。
 - 合成ゲーム実験と実データ実験の両方を扱います。
-- 公開されている次実装の Poetry CLI は repository root にあります。
+- サポート対象の Poetry CLI は repository root にあります。
 - `real-gen` は root の Poetry project から `src` 側実装へ接続されています。
 - 移行済みスライスの module-entry CLI は [`../../src/`](../../src/) からも直接叩けます。
 - 新しい [`../`](../) 配下の docs は、共同研究しやすくするための整理レイヤーです。
@@ -91,6 +91,6 @@ poetry run real-gen make-figures <dataset_id>
 - `legacy/README.md` は「歴史的な CLI リファレンス」
 - `legacy/docs/` は「数理 appendix と詳細仕様」
 - `docs/` は「共同研究者向けの案内」と「新規実装の標準文書」
-- `src/` は「新規実装の本体置き場」
+- `src/` は「サポート対象 workflow の implementation of record」
 
-現時点では、この分担で読むのが最も効率的です。通常運用では root CLI と `docs/` を先に見てください。`legacy/` は archive 候補の参照実装であり、一次導線ではありません。
+現時点では、この分担で読むのが最も効率的です。通常運用では root CLI と `docs/` を先に見てください。`legacy/` は履歴資料として保持する archive であり、一次導線ではありません。

@@ -77,7 +77,7 @@ Use end-to-end tests for:
 
 Purpose:
 
-- compare new `src/` behavior against the `legacy` reference implementation
+- compare new `src/` behavior against frozen historical `legacy` baselines where parity is still required
 - reduce migration risk when porting rules and workflows
 
 Examples:

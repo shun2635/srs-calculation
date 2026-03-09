@@ -1,8 +1,8 @@
-# Legacy Removal Runbook
+# Legacy Decoupling Runbook
 
-This document defines the concrete order for reaching a state where the root CLI continues to work even if `legacy/` is removed from the repository.
+This document defines the concrete order that was used to reach a state where the root CLI continues to work even if `legacy/` is removed from the repository.
 
-It is more operational than [`migration-from-legacy.md`](migration-from-legacy.md). Use this document when planning or reviewing actual removal work.
+It is more operational than [`migration-from-legacy.md`](migration-from-legacy.md). The repository now retains `legacy/` as a historical archive, so this document is kept as a decoupling record and verification checklist rather than an active deletion plan.
 
 ## Target state
 
@@ -14,17 +14,21 @@ The repository reaches the target state only when all of the following are true:
 - removing the `legacy/` directory does not break `real-gen`, `srs-game-gen`, or `srs-test`
 - collaborator-facing docs no longer require `legacy/` for normal operation
 
-## Current blockers
+## Current status
 
-As of now, the main blockers are:
+The main decoupling blockers have already been addressed.
 
-- parity tests still import `legacy` modules directly
-- test bootstrap still injects `legacy/src` into `sys.path`
-- `src/` still exposes historical file formats and naming at the compatibility boundary
-- some collaborator docs still treat `legacy/` as the practical CLI reference
-- the root CLI surface is still intentionally partial for synthetic workflows
+- parity tests no longer import `legacy` modules directly
+- test bootstrap no longer injects `legacy/src` into `sys.path`
+- collaborator-facing docs no longer require `legacy/` for normal operation
+- root config lookup no longer implies `legacy/config.yaml`
+- a verification command exists to prove that supported root workflows still run when `legacy/` is hidden
 
-These blockers should be removed in order, not all at once.
+What remains is intentional:
+
+- `src/` still owns historical compatibility formats at the persistence boundary
+- the root synthetic CLI surface is intentionally partial, and archive-only commands remain under `legacy/`
+- `legacy/` is retained as historical reference material
 
 ## Removal sequence
 
@@ -187,6 +191,12 @@ Exit criteria:
 - the repository no longer presents `legacy` as a normal execution surface
 - all authoritative docs describe `src/` as the implementation of record
 
+Current status:
+
+- completed in docs: `legacy/` is documented as archive-only and the root Poetry project is documented as the only supported execution surface
+- repository decision: keep `legacy/` as a retained historical archive inside the repository
+- this runbook remains useful as proof that supported workflows do not require `legacy/` at runtime
+
 ## Recommended batching
 
 Do not try to do this in one PR.
@@ -197,7 +207,7 @@ Recommended PR order:
 2. parity-fixture migration and test bootstrap cleanup
 3. remaining synthetic CLI migration or retirement
 4. removability verification in CI
-5. final archival or deletion of `legacy/`
+5. final archival positioning of `legacy/`
 
 ## Review checklist
 

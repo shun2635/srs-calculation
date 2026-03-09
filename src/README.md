@@ -1,11 +1,11 @@
 # New Source Tree
 
-This directory contains the in-progress new implementation of the repository.
+This directory contains the implementation of record for the repository's supported workflows.
 
 ## Policy
 
 - new production code should be added here by default
-- `legacy/` remains the reference implementation until parity is demonstrated
+- `legacy/` is an archive, not the normal execution surface
 - the repository root Poetry project publishes `real-gen` from this tree
 - architecture decisions for this tree are documented in [`../docs/en/architecture/`](../docs/en/architecture/) and mirrored in [`../docs/ja/architecture/`](../docs/ja/architecture/)
 
@@ -138,7 +138,7 @@ Archive-only historical commands are not part of the root CLI contract:
 
 These commands are closed as archive-only behavior under [`../legacy/`](../legacy/) rather than default migration targets.
 
-`real-gen` is now the published root CLI for this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some legacy-only compatibility details still remain in archive-oriented code paths under [`../legacy/`](../legacy/).
+`real-gen` is now the published root CLI for this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some historical compatibility details remain documented only under the archive tree [`../legacy/`](../legacy/).
 
 Compatibility note:
 

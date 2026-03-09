@@ -10,7 +10,7 @@ Structure note: the `en/` and `ja/` documentation trees should stay aligned in s
 
 - A research codebase for cooperative-game-based ranking rules
 - A place for both synthetic experiments and real-data analysis
-- The next-implementation Poetry CLI is now published from the repository root
+- The supported Poetry CLI is now published from the repository root
 - `real-gen` is already wired to the `src` implementation from that root project
 - Module-entry points for migrated slices also exist in [`../../src/`](../../src/)
 - Documented at the top level so collaborators can navigate the project more easily
@@ -97,8 +97,8 @@ poetry run real-gen make-figures <dataset_id>
 
 - `docs/en/` and `docs/ja/`: language-specific documentation entry points
 - `docs/en/architecture`, `docs/en/development`, `docs/en/adr`, `docs/en/specs`: standards for the new implementation
-- `src/`: target source tree for new code
+- `src/`: implementation of record for supported workflows
 - `legacy/README.md`: historical CLI reference
-- `legacy/docs/`: detailed technical and mathematical appendices
+- `legacy/docs/`: retained historical technical and mathematical appendices
 
-This split is intentional while the repository is still mid-migration. Normal collaborator workflows should start from the root CLI and `docs/`, while `legacy/` is now an archive-oriented reference rather than a primary entry point.
+This split is intentional. Normal collaborator workflows should start from the root CLI and `docs/`, while `legacy/` is retained as a historical archive rather than a primary entry point.

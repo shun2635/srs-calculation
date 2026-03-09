@@ -77,7 +77,7 @@ e2e test を使う対象:
 
 役割:
 
-- 新しい `src/` 挙動を `legacy` 参照実装と比較する
+- parity が必要な範囲で、新しい `src/` 挙動を historical な `legacy` baseline と比較する
 - ルール移行や workflow 移行のリスクを下げる
 
 例:

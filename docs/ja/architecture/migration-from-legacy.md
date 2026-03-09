@@ -4,10 +4,19 @@
 
 ## 移行原則
 
-- `legacy/` は、挙動が再現または意図的に置換されるまで参照実装として残す
+- `src/` をサポート対象 workflow の implementation of record とする
+- `legacy/` は historical な挙動、コマンド、設計メモの archive として残す
 - 新しい本実装コードは、`legacy/` を肥大化させるより `src/` を優先する
 - 移行はディレクトリ単位の丸ごとコピーではなく、機能単位で進める
 - 各段階でテストとドキュメントを同期させる
+
+## 現在の repository 判断
+
+この repository では、`legacy/` の物理削除を当面の目的にはしません。
+
+- `legacy/` は repository 内に履歴資料として保持する
+- サポート対象の実行、テスト、共同開発の workflow は root Poetry project だけで完結し続けるべきである
+- 今後も必要な挙動を `legacy/` から移すことはあるが、既定方針は削除ではなく reference material としての保持である
 
 ## 推奨される移行順序
 
@@ -48,12 +57,12 @@ domain と application が安定してから進めます。
 - 設定ローダーの移行
 - CSV と描画アダプタの移行
 
-### フェーズ 5: legacy エントリポイントの段階的廃止
+### フェーズ 5: legacy エントリポイントを archive 化する
 
-十分な同等性が確認できてから進めます。
+サポート対象の root CLI が検証できたあとに進めます。
 
-- 利用者を新しい CLI に誘導する
-- `legacy/` を参照または保管用途へ縮退させる
+- 利用者は root CLI のみを使う
+- `legacy/` は archive-only な資料へ縮退させる
 
 ## legacy を到達不能にするための作業フロー
 
@@ -63,7 +72,7 @@ domain と application が安定してから進めます。
 2. shell の背後にある workflow を `application/` と `infrastructure/` へ移す
 3. 旧 CLI と `src` 側 workflow の parity をテストで固める
 4. README と利用者向け docs の入口を `src` 側へ寄せる
-5. 最後に package/script 定義から `legacy` の公開入口を外す
+5. 最後に `legacy` script を公開 execution surface として扱う docs を外す
 
 重要なのは、CLI 名だけ先に移すのではなく、各コマンドが依存する use case を `src/` に持ってから公開入口を切り替えることです。
 
@@ -111,7 +120,17 @@ domain と application が安定してから進めます。
 
 - root `pyproject.toml` から `real-gen` は `src` 側 CLI を公開している
 - root `pyproject.toml` から `srs-game-gen` は `src` 側の partial な synthetic CLI を公開している
-- `legacy/pyproject.toml` の `game-gen` / `real-gen` は参照用の旧入口として残っている
+- `legacy/pyproject.toml` は archive tree に残っているが、サポート対象の execution surface としては docs していない
+
+主な decoupling の完了項目は次です。
+
+- public な root CLI 契約を docs 済み
+- 共同研究者向け docs から通常運用の `legacy` 依存を除去済み
+- parity test は live な `legacy` import ではなく固定 fixture 比較に移行済み
+- compatibility-format CSV は `src` 内の境界に隔離済み
+- root config lookup は `legacy/config.yaml` に依存しない
+- no-legacy verification command を追加済み
+- `legacy/` は deletion target ではなく retained archive として位置づけ済み
 
 ## ある機能が移行完了とみなせる条件
 

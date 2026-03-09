@@ -15,6 +15,8 @@
 3. [`legacy-removal-runbook.md`](legacy-removal-runbook.md)
 4. [`../../../src/README.md`](../../../src/README.md)
 
+`legacy-removal-runbook.md` は、runtime 依存をどう外したかを記録するために残しています。archive tree を削除するための active plan ではありません。
+
 ## 適用範囲
 
-ここに書くのは新規コードの目標構成とそこへの移行方針です。現状の実装構成を説明する [`../architecture.md`](../architecture.md) の代わりではありません。
+ここに書くのは新規コードの目標構成とそこへの移行方針です。archive として残している `legacy/` 実装の snapshot を説明する [`../architecture.md`](../architecture.md) の代わりではありません。

@@ -5,7 +5,7 @@ High-level collaboration guides are now available at:
 - [`../../docs/ja/README.md`](../../docs/ja/README.md)
 - [`../../docs/en/README.md`](../../docs/en/README.md)
 
-This directory remains the detailed technical archive for the current implementation.
+This directory remains the detailed technical archive for the historical `legacy/` implementation.
 
 ## 設計（`design/`）
 

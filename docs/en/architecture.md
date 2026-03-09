@@ -1,6 +1,6 @@
-# Architecture Overview
+# Historical Architecture Overview
 
-This document explains the current architecture as it exists in the repository today. It is not a target architecture for a future refactor.
+This document explains the archived `legacy/` architecture that remains in the repository for historical reference. It is not the current implementation of record.
 
 For the target architecture of the new implementation under `src/`, read:
 
@@ -10,7 +10,7 @@ For the target architecture of the new implementation under `src/`, read:
 
 ## High-level structure
 
-The repository is effectively centered on a single Python project under [`../../legacy/`](../../legacy/), managed by Poetry.
+The archived historical codebase is centered on a single Python project under [`../../legacy/`](../../legacy/), managed by Poetry.
 
 - [`../../legacy/pyproject.toml`](../../legacy/pyproject.toml): package definition, dependencies, CLI entry points
 - [`../../legacy/config.yaml`](../../legacy/config.yaml): default runtime configuration
@@ -91,11 +91,11 @@ There are now two documentation layers.
 - [`../ja/`](../ja/): Japanese collaboration-facing overview documents
 - [`../../legacy/docs/`](../../legacy/docs/): detailed design notes, ranking-rule explanations, and axiom definitions
 
-Use the top-level docs first, then move to the legacy docs when you need precise implementation detail.
+Use the top-level docs first. Move to the `legacy` docs only when you need historical implementation detail that has not been rewritten into `src`-oriented docs.
 
-## Practical extension points
+## Historical extension points
 
-If you need to extend the codebase, these are the most likely entry points.
+If you need to inspect how the archived implementation worked, these were the main entry points.
 
 - Add or modify ranking rules in [`../../legacy/src/gamegen/rules`](../../legacy/src/gamegen/rules)
 - Register new ranking behavior via [`../../legacy/src/gamegen/ranking/registry.py`](../../legacy/src/gamegen/ranking/registry.py)
@@ -103,6 +103,6 @@ If you need to extend the codebase, these are the most likely entry points.
 - Describe mathematical behavior in [`../../legacy/docs/ranking/`](../../legacy/docs/ranking/)
 - Document axiom logic in [`../../legacy/docs/axioms/`](../../legacy/docs/axioms/)
 
-## Current limitation
+## Status
 
-The repository is still organized around the historical `legacy/` codebase. The new documentation improves readability for collaborators, but it does not yet change the code layout itself.
+The repository's supported workflows now run from the root Poetry project and `src/`. This document is kept only as a historical snapshot of the archived `legacy/` tree.
