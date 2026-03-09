@@ -60,6 +60,15 @@ def test_apply_rules_cli_with_explicit_directories(tmp_path) -> None:
     ]
 
 
+def test_game_gen_cli_help_lists_supported_commands() -> None:
+    runner = CliRunner()
+    result = runner.invoke(main, ["--help"])
+
+    assert result.exit_code == 0
+    assert "apply-rules" in result.output
+    assert "rank-game" in result.output
+
+
 def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
     out_dir = tmp_path / "outputs"
     _write_game_csv(
@@ -104,3 +113,46 @@ def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
     ]
     assert rows[2] == ["1", "0", "1", "2", "2", "1"]
     assert rows[3] == ["0", "1", "1", "2", "2", "1"]
+
+
+def test_rank_game_cli_writes_one_rankings_csv(tmp_path) -> None:
+    game_csv_path = tmp_path / "games" / "n2" / "game_000001.csv"
+    _write_game_csv(
+        game_csv_path,
+        [
+            "player1,player2,score,rank",
+            "1,1,4,1",
+            "1,0,1,2",
+            "0,1,1,2",
+            "0,0,0,3",
+        ],
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "rank-game",
+            "--game",
+            str(game_csv_path),
+            "--rule",
+            "lexcel",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "rank_lexcel" in result.output
+
+    rankings_csv_path = tmp_path / "rankings" / "n2" / "game_000001.csv"
+    with rankings_csv_path.open("r", encoding="utf-8", newline="") as fh:
+        rows = list(csv.reader(fh))
+
+    assert rows[0] == [
+        "player1",
+        "player2",
+        "score",
+        "rank",
+        "rank_lexcel",
+    ]
+    assert rows[2] == ["1", "0", "1", "2", "1"]
+    assert rows[3] == ["0", "1", "1", "2", "1"]

@@ -55,8 +55,32 @@ The ranking migration slice currently includes:
 - domain models and first-batch ranking rules under `domain/games` and `domain/ranking`
 - application services for in-memory rule execution and legacy-style game-CSV workflows under `application/ranking`
 - persistence adapters for legacy-compatible game CSV and rankings CSV files under `infrastructure/persistence`
-- a thin synthetic-game CLI adapter for the migrated ranking workflow under `interfaces/cli`
+- a thin synthetic-game CLI adapter for migrated `apply-rules` and `rank-game` workflows under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
+
+## Experimental CLI
+
+The `src` tree includes an experimental synthetic-game CLI for the migrated ranking slice.
+
+Show the top-level help:
+
+```bash
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
+```
+
+Show command-specific help:
+
+```bash
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
+```
+
+Current supported commands:
+
+- `apply-rules`: apply migrated rules to a directory of legacy-style game CSV files
+- `rank-game`: apply one migrated rule to one legacy-style game CSV file
+
+This CLI is intentionally partial. The full production CLI surface still lives under [`../legacy/`](../legacy/).
 
 ## Important rule
 

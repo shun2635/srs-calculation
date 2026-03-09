@@ -149,6 +149,11 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 - application サービス経由で規則を適用する
 - infrastructure アダプタで legacy 互換の `rank_*` / `score_*` 列へ serialize する
 
+この slice に薄い CLI adapter を付ける場合、最初は次のような狭い command surface から始める想定とします。
+
+- legacy 互換 game CSV ディレクトリに対する `apply-rules`
+- 1 つの legacy 互換 game CSV に対する `rank-game`
+
 ## Data and interfaces
 
 このフェーズでは新しい公開 CLI は定義しません。

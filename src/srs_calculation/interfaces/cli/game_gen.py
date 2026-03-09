@@ -7,6 +7,7 @@ from pathlib import Path
 import click
 
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
+    apply_ranking_rules_to_game_csv,
     apply_ranking_rules_in_directory,
 )
 from ...domain.ranking.registry import build_default_ranking_rule_registry
@@ -22,6 +23,14 @@ def _resolve_rankings_dir_from_games_dir(games_dir: Path) -> Path:
     if games_dir.name.startswith("n"):
         return games_dir.parent / "rankings" / games_dir.name
     return games_dir.parent / "rankings"
+
+
+def _resolve_rankings_path_from_game_path(game_csv_path: Path) -> Path:
+    if game_csv_path.parent.name.startswith("n") and game_csv_path.parent.parent.name == "games":
+        return game_csv_path.parent.parent.parent / "rankings" / game_csv_path.parent.name / game_csv_path.name
+    if game_csv_path.parent.name == "games":
+        return game_csv_path.parent.parent / "rankings" / game_csv_path.name
+    return game_csv_path.parent / "rankings" / game_csv_path.name
 
 
 def _resolve_apply_rules_dirs(
@@ -152,4 +161,75 @@ def apply_rules_command(
     )
 
 
+@main.command(name="rank-game")
+@click.option(
+    "--game",
+    "game_csv_path",
+    type=click.Path(path_type=Path, exists=True),
+    required=True,
+    help="Path to one legacy-style game CSV.",
+)
+@click.option(
+    "--rankings",
+    "rankings_csv_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output rankings CSV path. Defaults to the legacy-style sibling rankings location.",
+)
+@click.option(
+    "--rule",
+    "rule_id",
+    type=click.Choice(_default_rule_ids(), case_sensitive=False),
+    required=True,
+    help="Ranking rule to apply.",
+)
+@click.option(
+    "--rank-style",
+    type=click.Choice(["dense", "competition"], case_sensitive=False),
+    default="competition",
+    show_default=True,
+    help="Rank style to serialize into the rankings CSV.",
+)
+@click.option(
+    "--allow-incomplete/--require-complete",
+    default=False,
+    show_default=True,
+    help="Allow incomplete game tables when reading the game CSV.",
+)
+def rank_game_command(
+    game_csv_path: Path,
+    rankings_csv_path: Path | None,
+    rule_id: str,
+    rank_style: str,
+    allow_incomplete: bool,
+) -> None:
+    """Apply one migrated ranking rule to one legacy-style game CSV."""
+
+    resolved_rankings_csv_path = (
+        rankings_csv_path
+        if rankings_csv_path is not None
+        else _resolve_rankings_path_from_game_path(game_csv_path)
+    )
+
+    try:
+        result = apply_ranking_rules_to_game_csv(
+            game_csv_path,
+            resolved_rankings_csv_path,
+            [str(rule_id)],
+            rank_style=str(rank_style).lower(),
+            require_complete=not allow_incomplete,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(
+        f"wrote {result.rankings_csv_path} "
+        f"({', '.join(result.written_columns) if result.written_columns else 'no derived columns'})"
+    )
+
+
 __all__ = ["main"]
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

@@ -149,6 +149,11 @@ The first migrated workflow may also include a file-based application use case t
 - applies selected rules through the application service
 - serializes legacy-compatible `rank_*` and `score_*` columns through infrastructure adapters
 
+If a thin CLI adapter is added for this slice, it should start with narrow commands such as:
+
+- `apply-rules` for a directory of legacy-style game CSV files
+- `rank-game` for one legacy-style game CSV
+
 ## Data and interfaces
 
 This phase should not define a new public CLI.

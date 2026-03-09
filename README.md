@@ -129,6 +129,23 @@ poetry run pytest
 - `legacy/src/realgen/commands/resignation_contrib.py` は実装ファイルがありますが、現時点では `real-gen` CLI に登録されていないため `poetry run real-gen ...` では呼べません
 - 詳細な CLI 用例は [`legacy/README.md`](legacy/README.md) を参照してください
 
+## Experimental `src` CLI
+
+`src/` 側には、移行済み ranking slice を叩くための experimental CLI があります。これは `poetry run` の公開 CLI ではなく、`src` を `PYTHONPATH` に載せて module 実行する想定です。
+
+```bash
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
+```
+
+現時点で使えるのは次の 2 コマンドです。
+
+- `apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
+- `rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+
+この CLI は意図的に partial です。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
+
 ## Documentation map
 
 - [`docs/ja/README.md`](docs/ja/README.md): Japanese documentation hub
