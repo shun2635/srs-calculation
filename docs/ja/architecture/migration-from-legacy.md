@@ -90,10 +90,12 @@ domain と application が安定してから進めます。
 
 ## 現在の進捗
 
-リポジトリにはすでに、`src/` 側の最初の ranking 移行スライスが入っています。
+リポジトリにはすでに、`src/` 側の ranking / axiom core 移行スライスが入っています。
 
-- in-memory の ranking core を担う `domain/games` と `domain/ranking`
+- in-memory の ranking core と legacy synthetic rule 群を担う `domain/games` と `domain/ranking`
+- coalition-ranking 用の公理 evaluator を担う `domain/axioms`
 - `CoalitionGame` に対する rule 実行を担う `application/ranking/apply_ranking_rules.py`
+- application 層の公理評価を担う `application/axiom_evaluation/evaluate_axioms.py`
 - compatibility-format の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
 - `src/` が所有する compatibility-format CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
 - 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
@@ -103,7 +105,7 @@ domain と application が安定してから進めます。
 - synthetic rankings CSV から compatibility-format PNG figure と順位相関 heatmap を出す workflow を担う `application/experiments/run_synthetic_experiment.py`
 - 移行した ranking workflow に被せる partial な real-data CLI adapter を担う `interfaces/cli/real_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
-- 初回バッチの ranking rule を deterministic な fixture で比較する parity test
+- 最初に移した player-rule batch を deterministic な fixture で比較する parity test
 
 今後の移行は、このスライスを起点に積み上げる前提で進めます。
 

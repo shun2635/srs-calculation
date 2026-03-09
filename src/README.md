@@ -53,8 +53,9 @@ src/
 
 The ranking migration slice currently includes:
 
-- domain models and first-batch ranking rules under `domain/games` and `domain/ranking`
+- domain models and the full legacy synthetic ranking rule set under `domain/games` and `domain/ranking`
 - application services for in-memory rule execution and compatibility-format game-CSV workflows under `application/ranking`
+- migrated coalition-ranking axiom evaluators and an application-layer axiom runner under `domain/axioms` and `application/axiom_evaluation`
 - persistence adapters for compatibility-format game CSV and rankings CSV files under `infrastructure/persistence`
 - a dataset-scoped real-data ranking workflow under `application/ranking/apply_ranking_rules_to_real_dataset.py`
 - a dataset-ingestion workflow for feature-mask tables under `application/dataset_ingestion/import_feature_mask_table.py`

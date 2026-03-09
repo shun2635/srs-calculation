@@ -27,6 +27,7 @@ Specs should be reviewed before implementation begins for larger changes. The go
 ## Current specs
 
 - [`ranking-domain-foundation.md`](ranking-domain-foundation.md): first concrete migration slice for the new `src/` implementation
+- [`legacy-ranking-and-axiom-completion.md`](legacy-ranking-and-axiom-completion.md): expands the migrated `src/` core to the full legacy synthetic rule family plus axiom evaluators
 - [`synthetic-game-methodology.md`](synthetic-game-methodology.md): current `srs-game-gen` simulation methodology and paper-facing wording
 
 ## Template

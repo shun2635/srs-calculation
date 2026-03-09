@@ -187,6 +187,16 @@ game CSV の `rank` 列は、coalition score に対する dense descending rank 
 - `banzhaf`
 - `lexcel`
 - `ordinal_banzhaf`
+- `group_shapley`
+- `group_sum_shapley`
+- `group_ordinal_banzhaf`
+- `group_lexcel`
+- `shapley_interaction`
+- `banzhaf_interaction`
+- `rp_index`
+- `ud`
+- `du`
+- `red_index`
 
 ### 5.2 `shapley`
 
@@ -250,6 +260,15 @@ score は
 
 通常の論文用 synthetic workflow では complete game を前提にするべきです。
 
+### 5.7 base `rank` に依存する coalition rule
+
+移行済み rule は、同じ入力を使っているわけではありません。
+
+- `shapley`, `banzhaf`, `group_shapley`, `group_sum_shapley`, `shapley_interaction`, `banzhaf_interaction` は coalition score に依存する cardinal rule です
+- `ordinal_banzhaf`, `group_ordinal_banzhaf`, `group_lexcel`, `rp_index`, `ud`, `du`, `red_index` は serialzed base `rank` の level 構造に依存します
+
+synthetic game では base `rank` は生成 score から導かれるので両者は整合しますが、import 済み real-data game ではこの違いが重要です。
+
 ## 6. rankings CSV の書き出し規約
 
 ### 6.1 base 列
@@ -269,18 +288,29 @@ rankings CSV には、元の game CSV と同じ base 列
 - `banzhaf` -> `score_banzhaf`, `rank_banzhaf`
 - `lexcel` -> `rank_lexcel`
 - `ordinal_banzhaf` -> `rank_o-banzhaf`
+- `group_shapley` -> `score_g-shapley`, `rank_g-shapley`
+- `group_sum_shapley` -> `score_g-sum-shapley`, `rank_g-sum-shapley`
+- `group_ordinal_banzhaf` -> `rank_g-o-banzhaf`
+- `group_lexcel` -> `rank_g-lexcel`
+- `shapley_interaction` -> `score_shapley-interaction`, `rank_shapley-interaction`
+- `banzhaf_interaction` -> `score_banzhaf-interaction`, `rank_banzhaf-interaction`
+- `rp_index` -> `score_rp-index`, `rank_rp-index`
+- `ud` -> `score_ud_up`, `score_ud_down`, `rank_ud`
+- `du` -> `score_du_up`, `score_du_down`, `rank_du`
+- `red_index` -> `score_red-index`, `rank_red-index`
 
 補足:
 
 - `ordinal_banzhaf` は内部的には score を持つが、現行 compatibility CSV には `score_o-banzhaf` を書かない
 - 列順は canonical compatibility order に従って固定する
 
-### 6.3 singleton 行だけに書く理由
+### 6.3 player-scope と coalition-scope の serialize
 
-現行の migrated synthetic rule はすべて player-scope rule です。そのため:
+移行済み synthetic rule 群には、player-scope と coalition-scope の両方があります。
 
-- singleton coalition 行にのみ `score_*` / `rank_*` を書く
-- それ以外の coalition 行は空欄にする
+- player-scope rule は singleton coalition 行にのみ `score_*` / `rank_*` を書く
+- coalition-scope rule は非空 coalition 行すべてに `score_*` / `rank_*` を書く
+- empty coalition 行は coalition-scope の派生列でも空欄にする
 
 この設計は、historical CSV との互換性維持のためです。
 
@@ -336,7 +366,7 @@ heatmap 系 command は rank column ごとに scope を判定します。
 - singleton 以外にも値が現れる列は coalition-scope
 - singleton 行にしか値が現れない列は player-scope
 
-現行の migrated synthetic rules はすべて player-scope なので、通常は singleton 行のみが対象になります。
+現行の migrated rule 群には両 scope があるので、player / coalition の両方の heatmap が生成され得ます。
 
 ### 8.3 `rank-heatmap`
 
@@ -383,7 +413,7 @@ config `rank_heatmap.pairs` に次を与えることもできます。
 - player-scope があれば `rule_corr_player.png`
 - coalition-scope があれば `rule_corr_coalition.png`
 
-現行の migrated synthetic rules は player-scope なので、通常は `rule_corr_player.png` が主出力です。
+現行の migrated synthetic rules では、`rule_corr_player.png` と `rule_corr_coalition.png` の両方が生成され得ます。
 
 ### 8.5 historical method との関係
 

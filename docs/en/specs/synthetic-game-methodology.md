@@ -185,6 +185,16 @@ If `apply-rules` is called without explicit `--rule` arguments, it applies all r
 - `banzhaf`
 - `lexcel`
 - `ordinal_banzhaf`
+- `group_shapley`
+- `group_sum_shapley`
+- `group_ordinal_banzhaf`
+- `group_lexcel`
+- `shapley_interaction`
+- `banzhaf_interaction`
+- `rp_index`
+- `ud`
+- `du`
+- `red_index`
 
 ### 5.2 `shapley`
 
@@ -244,6 +254,15 @@ By default, `apply-rules` and `rank-game` require a complete game table.
 
 For normal synthetic-paper workflows, complete games should be assumed.
 
+### 5.7 Coalition-scoped rules that depend on base `rank`
+
+Not all migrated rules depend on the same input signal.
+
+- `shapley`, `banzhaf`, `group_shapley`, `group_sum_shapley`, `shapley_interaction`, and `banzhaf_interaction` are cardinal and depend on coalition scores
+- `ordinal_banzhaf`, `group_ordinal_banzhaf`, `group_lexcel`, `rp_index`, `ud`, `du`, and `red_index` depend on the serialized base `rank` / level structure
+
+For synthetic games, the base `rank` column is derived from the generated scores, so these two views coincide. For imported real-data games, this distinction matters.
+
 ## 6. Rankings-CSV serialization rules
 
 ### 6.1 Base columns
@@ -263,18 +282,29 @@ Under the current compatibility format, rules are serialized as:
 - `banzhaf` -> `score_banzhaf`, `rank_banzhaf`
 - `lexcel` -> `rank_lexcel`
 - `ordinal_banzhaf` -> `rank_o-banzhaf`
+- `group_shapley` -> `score_g-shapley`, `rank_g-shapley`
+- `group_sum_shapley` -> `score_g-sum-shapley`, `rank_g-sum-shapley`
+- `group_ordinal_banzhaf` -> `rank_g-o-banzhaf`
+- `group_lexcel` -> `rank_g-lexcel`
+- `shapley_interaction` -> `score_shapley-interaction`, `rank_shapley-interaction`
+- `banzhaf_interaction` -> `score_banzhaf-interaction`, `rank_banzhaf-interaction`
+- `rp_index` -> `score_rp-index`, `rank_rp-index`
+- `ud` -> `score_ud_up`, `score_ud_down`, `rank_ud`
+- `du` -> `score_du_up`, `score_du_down`, `rank_du`
+- `red_index` -> `score_red-index`, `rank_red-index`
 
 Notes:
 
 - `ordinal_banzhaf` internally has a score, but the current compatibility CSV does not write `score_o-banzhaf`
 - derived-column order is fixed by the canonical compatibility order
 
-### 6.3 Why values appear only on singleton rows
+### 6.3 Player-scope vs coalition-scope serialization
 
-All currently migrated synthetic rules are player-scope rules. Therefore:
+The migrated synthetic rule family now contains both player-scope and coalition-scope rules.
 
-- `score_*` and `rank_*` are written only on singleton coalition rows
-- all non-singleton coalition rows are left blank for those rule columns
+- player-scope rules write `score_*` / `rank_*` only on singleton coalition rows
+- coalition-scope rules write `score_*` / `rank_*` on all non-empty coalition rows
+- the empty coalition row is left blank for coalition-scoped derived columns
 
 This is a deliberate compatibility decision inherited from the historical CSV surface.
 
@@ -328,7 +358,7 @@ The plotting code infers a scope for each rank column.
 - if a rank column has values outside singleton rows, it is treated as coalition-scope
 - if values appear only on singleton rows, it is treated as player-scope
 
-All currently migrated synthetic rules are player-scope, so singleton rows are normally the only active rows.
+The current migrated rule family contains both scopes, so player and coalition heatmaps may both exist depending on which columns are present.
 
 ### 8.3 `rank-heatmap`
 
@@ -375,7 +405,7 @@ Outputs are scope-specific:
 - `rule_corr_player.png` if player-scope columns exist
 - `rule_corr_coalition.png` if coalition-scope columns exist
 
-With the current migrated synthetic rules, `rule_corr_player.png` is the usual output.
+With the current migrated synthetic rules, both `rule_corr_player.png` and `rule_corr_coalition.png` may be produced.
 
 ### 8.5 Relation to the historical method
 

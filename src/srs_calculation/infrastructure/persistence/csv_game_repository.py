@@ -77,20 +77,30 @@ def read_compatible_game_csv(
     except ValueError as exc:
         raise ValueError("game CSV must contain a 'score' column") from exc
     try:
-        header.index("rank")
+        rank_index = header.index("rank")
     except ValueError as exc:
         raise ValueError("game CSV must contain a 'rank' column") from exc
 
     scores_by_mask: dict[int, float] = {}
+    base_ranks_by_mask: dict[int, int] = {}
     for row in rows:
         mask = _mask_from_row_prefix(row, player_count)
         try:
             score = float(row[score_index])
         except Exception as exc:
             raise ValueError(f"invalid score cell for mask={mask}: {row[score_index]!r}") from exc
+        try:
+            rank = int(row[rank_index])
+        except Exception as exc:
+            raise ValueError(f"invalid rank cell for mask={mask}: {row[rank_index]!r}") from exc
         scores_by_mask[int(mask)] = float(score)
+        base_ranks_by_mask[int(mask)] = int(rank)
 
-    game = CoalitionGame.from_scores_by_mask(player_count, scores_by_mask)
+    game = CoalitionGame.from_scores_by_mask(
+        player_count,
+        scores_by_mask,
+        base_ranks_by_mask=base_ranks_by_mask,
+    )
     if require_complete:
         game.require_complete()
     return game
@@ -107,7 +117,11 @@ def write_compatible_game_csv(
     effective_ranks_by_mask = (
         {int(mask): int(rank) for mask, rank in ranks_by_mask.items()}
         if ranks_by_mask is not None
-        else _dense_base_ranks_by_mask(game)
+        else (
+            game.coalition_levels()
+            if game.base_ranks_by_mask is not None
+            else _dense_base_ranks_by_mask(game)
+        )
     )
     ordered_masks = _ordered_masks_for_output(game)
     header = [f"player{i + 1}" for i in range(game.player_count)] + ["score", "rank"]

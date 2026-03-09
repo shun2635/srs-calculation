@@ -36,3 +36,4 @@ Use [`0000-template.md`](0000-template.md) as the template for new ADRs.
 - [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): makes ranking domain foundation the first migration slice into `src/`
 - [`0002-retire-legacy-only-synthetic-commands.md`](0002-retire-legacy-only-synthetic-commands.md): closes selected historical synthetic commands as archive-only instead of migrating them into the root CLI contract
 - [`0003-reintroduce-synthetic-rank-correlation-commands.md`](0003-reintroduce-synthetic-rank-correlation-commands.md): restores `rank-heatmap` and `rule-corr-heatmap` to the root `srs-game-gen` contract after migrating them into `src/`
+- [`0004-complete-legacy-ranking-and-axiom-core-in-src.md`](0004-complete-legacy-ranking-and-axiom-core-in-src.md): expands the `src/` core to all legacy synthetic ranking rules and coalition-ranking axiom evaluators

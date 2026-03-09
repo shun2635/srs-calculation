@@ -7,19 +7,6 @@ from ..result import RankingResult, RuleRankSet, RuleScoreSet
 from ..rule import RankingRule, dense_rank_desc
 
 
-def _build_level_map(game: CoalitionGame) -> dict[int, int]:
-    ordered = sorted(game.scores_by_mask.items(), key=lambda item: (-item[1], item[0]))
-    level_by_mask: dict[int, int] = {}
-    current_level = 0
-    last_score: float | None = None
-    for mask, score in ordered:
-        if last_score is None or score != last_score:
-            current_level += 1
-            last_score = score
-        level_by_mask[mask] = current_level
-    return level_by_mask
-
-
 class OrdinalBanzhafRule(RankingRule):
     """Ordinal Banzhaf score and dense rank."""
 
@@ -30,7 +17,7 @@ class OrdinalBanzhafRule(RankingRule):
         player_count = game.player_count
         scores_by_player: dict[int, float] = {}
         if player_count > 0:
-            level_by_mask = _build_level_map(game)
+            level_by_mask = game.coalition_levels()
             u_plus = [0] * player_count
             u_minus = [0] * player_count
             for coalition_mask in range(game.coalition_count):
@@ -51,6 +38,6 @@ class OrdinalBanzhafRule(RankingRule):
         ordered_scores = [scores_by_player[player] for player in range(player_count)]
         return RankingResult(
             rule_id=self.rule_id,
-            score_set=RuleScoreSet.from_mapping(scores_by_player),
-            rank_set=RuleRankSet.from_mapping(dense_rank_desc(ordered_scores)),
+            score_set=RuleScoreSet.from_player_mapping(scores_by_player),
+            rank_set=RuleRankSet.from_player_mapping(dense_rank_desc(ordered_scores)),
         )

@@ -20,7 +20,7 @@ class CompatibleRankingRuleSpec:
     internal_rule_id: str
     compatible_rule_id: str
     scope: RankingScope
-    write_score_column: bool = False
+    score_column_names: tuple[str, ...] = ()
     write_rank_column: bool = True
 
     @property
@@ -29,7 +29,9 @@ class CompatibleRankingRuleSpec:
 
     @property
     def score_column_name(self) -> str:
-        return f"score_{self.compatible_rule_id}"
+        if not self.score_column_names:
+            return f"score_{self.compatible_rule_id}"
+        return self.score_column_names[0]
 
 
 _COMPATIBILITY_RULE_SPECS: dict[str, CompatibleRankingRuleSpec] = {
@@ -37,13 +39,13 @@ _COMPATIBILITY_RULE_SPECS: dict[str, CompatibleRankingRuleSpec] = {
         internal_rule_id="shapley",
         compatible_rule_id="shapley",
         scope="player",
-        write_score_column=True,
+        score_column_names=("score_shapley",),
     ),
     "banzhaf": CompatibleRankingRuleSpec(
         internal_rule_id="banzhaf",
         compatible_rule_id="banzhaf",
         scope="player",
-        write_score_column=True,
+        score_column_names=("score_banzhaf",),
     ),
     "lexcel": CompatibleRankingRuleSpec(
         internal_rule_id="lexcel",
@@ -54,6 +56,64 @@ _COMPATIBILITY_RULE_SPECS: dict[str, CompatibleRankingRuleSpec] = {
         internal_rule_id="ordinal_banzhaf",
         compatible_rule_id="o-banzhaf",
         scope="player",
+    ),
+    "group_shapley": CompatibleRankingRuleSpec(
+        internal_rule_id="group_shapley",
+        compatible_rule_id="g-shapley",
+        scope="coalition",
+        score_column_names=("score_g-shapley",),
+    ),
+    "group_sum_shapley": CompatibleRankingRuleSpec(
+        internal_rule_id="group_sum_shapley",
+        compatible_rule_id="g-sum-shapley",
+        scope="coalition",
+        score_column_names=("score_g-sum-shapley",),
+    ),
+    "group_ordinal_banzhaf": CompatibleRankingRuleSpec(
+        internal_rule_id="group_ordinal_banzhaf",
+        compatible_rule_id="g-o-banzhaf",
+        scope="coalition",
+    ),
+    "group_lexcel": CompatibleRankingRuleSpec(
+        internal_rule_id="group_lexcel",
+        compatible_rule_id="g-lexcel",
+        scope="coalition",
+    ),
+    "shapley_interaction": CompatibleRankingRuleSpec(
+        internal_rule_id="shapley_interaction",
+        compatible_rule_id="shapley-interaction",
+        scope="coalition",
+        score_column_names=("score_shapley-interaction",),
+    ),
+    "banzhaf_interaction": CompatibleRankingRuleSpec(
+        internal_rule_id="banzhaf_interaction",
+        compatible_rule_id="banzhaf-interaction",
+        scope="coalition",
+        score_column_names=("score_banzhaf-interaction",),
+    ),
+    "rp_index": CompatibleRankingRuleSpec(
+        internal_rule_id="rp_index",
+        compatible_rule_id="rp-index",
+        scope="coalition",
+        score_column_names=("score_rp-index",),
+    ),
+    "ud": CompatibleRankingRuleSpec(
+        internal_rule_id="ud",
+        compatible_rule_id="ud",
+        scope="coalition",
+        score_column_names=("score_ud_up", "score_ud_down"),
+    ),
+    "du": CompatibleRankingRuleSpec(
+        internal_rule_id="du",
+        compatible_rule_id="du",
+        scope="coalition",
+        score_column_names=("score_du_up", "score_du_down"),
+    ),
+    "red_index": CompatibleRankingRuleSpec(
+        internal_rule_id="red_index",
+        compatible_rule_id="red-index",
+        scope="coalition",
+        score_column_names=("score_red-index",),
     ),
 }
 
@@ -205,6 +265,43 @@ def _serialize_player_rank_column(
     return column
 
 
+def _serialize_coalition_score_column(
+    game: CoalitionGame,
+    values_by_coalition: dict[int, float],
+) -> dict[int, str]:
+    column: dict[int, str] = {}
+    for mask in game.coalition_masks():
+        if int(mask) == 0:
+            column[int(mask)] = ""
+            continue
+        value = values_by_coalition.get(int(mask))
+        column[int(mask)] = "" if value is None else _format_derived_score(value)
+    return column
+
+
+def _serialize_coalition_rank_column(
+    game: CoalitionGame,
+    ranks_by_coalition: dict[int, int],
+    *,
+    rank_style: str,
+) -> dict[int, str]:
+    if rank_style not in {"dense", "competition"}:
+        raise ValueError("rank_style must be 'dense' or 'competition'")
+    normalized_ranks = (
+        _competition_ranks(ranks_by_coalition)
+        if rank_style == "competition"
+        else {int(k): int(v) for k, v in ranks_by_coalition.items()}
+    )
+    column: dict[int, str] = {}
+    for mask in game.coalition_masks():
+        if int(mask) == 0:
+            column[int(mask)] = ""
+            continue
+        rank = normalized_ranks.get(int(mask))
+        column[int(mask)] = "" if rank is None else str(int(rank))
+    return column
+
+
 def serialize_compatible_ranking_columns(
     game: CoalitionGame,
     result: RankingResult,
@@ -214,23 +311,40 @@ def serialize_compatible_ranking_columns(
     """Serialize one ranking result into compatibility-format derived columns."""
 
     spec = get_compatible_ranking_rule_spec(result.rule_id)
-    if spec.scope != "player":
-        raise NotImplementedError(
-            f"compatibility CSV serialization for scope '{spec.scope}' is not implemented yet"
-        )
-
     columns: dict[str, dict[int, str]] = {}
-    if spec.write_score_column and result.score_set is not None:
-        columns[spec.score_column_name] = _serialize_player_score_column(
-            game,
-            result.score_set.values_by_player,
-        )
-    if spec.write_rank_column and result.rank_set is not None:
-        columns[spec.rank_column_name] = _serialize_player_rank_column(
-            game,
-            result.rank_set.ranks_by_player,
-            rank_style=rank_style,
-        )
+    if spec.scope == "player":
+        if spec.score_column_names and result.score_set is not None:
+            columns[spec.score_column_name] = _serialize_player_score_column(
+                game,
+                result.score_set.values_by_player,
+            )
+        if spec.write_rank_column and result.rank_set is not None:
+            columns[spec.rank_column_name] = _serialize_player_rank_column(
+                game,
+                result.rank_set.ranks_by_player,
+                rank_style=rank_style,
+            )
+    else:
+        if spec.score_column_names and result.score_set is not None and len(spec.score_column_names) == 1:
+            columns[spec.score_column_name] = _serialize_coalition_score_column(
+                game,
+                result.score_set.values_by_coalition,
+            )
+        if spec.score_column_names and len(spec.score_column_names) > 1:
+            for column_name in spec.score_column_names:
+                score_set = result.auxiliary_score_sets.get(column_name)
+                if score_set is None:
+                    continue
+                columns[column_name] = _serialize_coalition_score_column(
+                    game,
+                    score_set.values_by_coalition,
+                )
+        if spec.write_rank_column and result.rank_set is not None:
+            columns[spec.rank_column_name] = _serialize_coalition_rank_column(
+                game,
+                result.rank_set.ranks_by_coalition,
+                rank_style=rank_style,
+            )
     return columns
 
 

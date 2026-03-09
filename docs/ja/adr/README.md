@@ -36,3 +36,4 @@
 - [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): ranking domain foundation を `src/` への最初の移行スライスとして定義する
 - [`0002-retire-legacy-only-synthetic-commands.md`](0002-retire-legacy-only-synthetic-commands.md): 一部の historical な synthetic commands を root CLI へ移さず archive-only として閉じる
 - [`0003-reintroduce-synthetic-rank-correlation-commands.md`](0003-reintroduce-synthetic-rank-correlation-commands.md): `rank-heatmap` と `rule-corr-heatmap` を `src/` に移植した上で root `srs-game-gen` 契約へ戻す
+- [`0004-complete-legacy-ranking-and-axiom-core-in-src.md`](0004-complete-legacy-ranking-and-axiom-core-in-src.md): legacy synthetic の全 rule と coalition-ranking axiom evaluator を `src/` core へ取り込む

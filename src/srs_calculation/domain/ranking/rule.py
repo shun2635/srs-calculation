@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Sequence
+from typing import Iterable, Mapping, Sequence
 
 from ..games.coalition_game import CoalitionGame
 from .result import RankingResult
@@ -32,6 +32,42 @@ def dense_rank_desc(values: Sequence[float | int]) -> dict[int, int]:
             current_rank += 1
             last_value = value
         ranks[index] = current_rank
+    return ranks
+
+
+def dense_rank_mapping_desc(values_by_key: Mapping[int, float | int]) -> dict[int, int]:
+    """Assign dense ranks in descending score order over arbitrary integer keys."""
+
+    order = sorted(values_by_key, key=lambda key: (-float(values_by_key[int(key)]), int(key)))
+    ranks: dict[int, int] = {}
+    last_value: float | int | None = None
+    current_rank = 0
+    for key in order:
+        value = values_by_key[int(key)]
+        if last_value is None or value != last_value:
+            current_rank += 1
+            last_value = value
+        ranks[int(key)] = current_rank
+    return ranks
+
+
+def dense_rank_mapping_lex_desc(vectors_by_key: Mapping[int, Iterable[int]]) -> dict[int, int]:
+    """Assign dense ranks by lexicographic descending comparison over arbitrary keys."""
+
+    normalized = {int(key): tuple(vector) for key, vector in vectors_by_key.items()}
+    order = sorted(
+        normalized,
+        key=lambda key: tuple([-v for v in normalized[int(key)]] + [int(key)]),
+    )
+    ranks: dict[int, int] = {}
+    last_vector: tuple[int, ...] | None = None
+    current_rank = 0
+    for key in order:
+        vector = normalized[int(key)]
+        if last_vector is None or vector != last_vector:
+            current_rank += 1
+            last_vector = vector
+        ranks[int(key)] = current_rank
     return ranks
 
 

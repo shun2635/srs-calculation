@@ -90,10 +90,12 @@ For the concrete removal order and review gates, use [`legacy-removal-runbook.md
 
 ## Current progress
 
-The repository already contains a first migrated ranking slice in `src/`:
+The repository already contains a migrated ranking-and-axiom core slice in `src/`:
 
-- `domain/games` and `domain/ranking` for the in-memory ranking core
+- `domain/games` and `domain/ranking` for the in-memory ranking core, including the full legacy synthetic rule family
+- `domain/axioms` for migrated coalition-ranking axiom evaluators
 - `application/ranking/apply_ranking_rules.py` for rule execution on `CoalitionGame`
+- `application/axiom_evaluation/evaluate_axioms.py` for application-layer axiom evaluation
 - `application/ranking/apply_ranking_rules_to_game_csv.py` for compatibility-format game-CSV workflows
 - `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` as the compatibility-format CSV boundary owned by `src/`
 - `interfaces/cli/game_gen.py` for a thin synthetic-game CLI adapter over the migrated ranking workflow
@@ -103,7 +105,7 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `application/experiments/run_synthetic_experiment.py` for compatibility-format synthetic ranking PNG workflows and rank-correlation heatmaps
 - `interfaces/cli/real_gen.py` for a partial real-data CLI adapter over that migrated workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
-- parity tests for the first-batch ranking rules on deterministic fixtures
+- parity tests for the first migrated player-rule batch on deterministic fixtures
 
 The next migration steps should build on these modules rather than recreating the same slice elsewhere.
 
