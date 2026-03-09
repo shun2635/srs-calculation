@@ -10,13 +10,11 @@ from typing import Mapping
 class RuleScoreSet:
     """Per-player score output of a ranking rule."""
 
-    column_name: str
     values_by_player: dict[int, float]
 
     @classmethod
-    def from_mapping(cls, column_name: str, values_by_player: Mapping[int, float]) -> "RuleScoreSet":
+    def from_mapping(cls, values_by_player: Mapping[int, float]) -> "RuleScoreSet":
         return cls(
-            column_name=column_name,
             values_by_player={int(player): float(value) for player, value in values_by_player.items()},
         )
 
@@ -25,13 +23,11 @@ class RuleScoreSet:
 class RuleRankSet:
     """Per-player rank output of a ranking rule."""
 
-    column_name: str
     ranks_by_player: dict[int, int]
 
     @classmethod
-    def from_mapping(cls, column_name: str, ranks_by_player: Mapping[int, int]) -> "RuleRankSet":
+    def from_mapping(cls, ranks_by_player: Mapping[int, int]) -> "RuleRankSet":
         return cls(
-            column_name=column_name,
             ranks_by_player={int(player): int(rank) for player, rank in ranks_by_player.items()},
         )
 

@@ -31,6 +31,6 @@ class BanzhafRule(RankingRule):
         ordered_scores = [scores_by_player[player] for player in range(player_count)]
         return RankingResult(
             rule_id=self.rule_id,
-            score_set=RuleScoreSet.from_mapping("score_banzhaf", scores_by_player),
-            rank_set=RuleRankSet.from_mapping("rank_banzhaf", dense_rank_desc(ordered_scores)),
+            score_set=RuleScoreSet.from_mapping(scores_by_player),
+            rank_set=RuleRankSet.from_mapping(dense_rank_desc(ordered_scores)),
         )

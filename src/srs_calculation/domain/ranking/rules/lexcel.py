@@ -44,5 +44,5 @@ class LexcelRule(RankingRule):
 
         return RankingResult(
             rule_id=self.rule_id,
-            rank_set=RuleRankSet.from_mapping("rank_lexcel", ranks_by_player),
+            rank_set=RuleRankSet.from_mapping(ranks_by_player),
         )
