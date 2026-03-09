@@ -77,14 +77,14 @@ root [`pyproject.toml`](pyproject.toml) が、共同研究向けにサポート�
 - `srs-game-gen apply-rules`
 - `srs-game-gen make-figures`
 - `srs-game-gen rank-game`
+- `srs-game-gen rank-heatmap`
+- `srs-game-gen rule-corr-heatmap`
 
 archive-only として `legacy/` 側に閉じる旧コマンドは、root CLI 契約には含めません。
 
 - `game-gen check-axioms`
 - `game-gen summarize-axioms`
 - `game-gen axiom-summary-heatmap`
-- `game-gen rank-heatmap`
-- `game-gen rule-corr-heatmap`
 - `game-gen pipeline`
 - `game-gen make-figures-png`
 - `legacy/src/realgen/commands/resignation_contrib.py` 相当の未公開コマンド
@@ -168,12 +168,14 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 - `srs-game-gen make-figures`: synthetic rankings CSV から compatibility-format PNG figure を `outputs/figures/nN/` に生成する
 - `srs-game-gen apply-rules`: compatibility-format game CSV ディレクトリに対して migrated rules を適用する
 - `srs-game-gen rank-game`: compatibility-format game CSV 1 件に対して migrated rule 1 つを適用する
+- `srs-game-gen rank-heatmap`: synthetic rankings CSV から pairwise rank heatmap を `outputs/heatmaps/nN/` に生成する
+- `srs-game-gen rule-corr-heatmap`: synthetic rankings CSV から rule-rank correlation heatmap を `outputs/heatmaps/nN/` に生成する
 - `srs-real-gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
 - `srs-real-gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
 - `srs-real-gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
 - `srs-real-gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
 
-`srs-real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game` を root でサポートしますが、旧 `game-gen` 全機能はまだ移行していません。`legacy/` は参照用に残っていますが、root CLI 契約の正本ではありません。
+`srs-real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game`, `rank-heatmap`, `rule-corr-heatmap` を root でサポートしますが、旧 `game-gen` 全機能はまだ移行していません。`legacy/` は参照用に残っていますが、root CLI 契約の正本ではありません。
 
 互換メモ:
 
@@ -191,6 +193,12 @@ poetry run srs-game-gen apply-rules -p 4 --out outputs
 
 # Render ranking figures
 poetry run srs-game-gen make-figures --rankings-dir outputs/rankings --out outputs
+
+# Render pairwise rank heatmaps
+poetry run srs-game-gen rank-heatmap -p 4 --rankings-dir outputs/rankings --out outputs
+
+# Render rule-rank correlation heatmaps
+poetry run srs-game-gen rule-corr-heatmap -p 4 --rankings-dir outputs/rankings --out outputs
 ```
 
 ## Documentation map

@@ -27,6 +27,7 @@
 ## 現在の spec
 
 - [`ranking-domain-foundation.md`](ranking-domain-foundation.md): 新しい `src/` 実装に向けた最初の具体的な移行スライス
+- [`synthetic-game-methodology.md`](synthetic-game-methodology.md): `srs-game-gen` の現在のシミュレーション仕様と論文向け記述基準
 
 ## テンプレート
 

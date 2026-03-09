@@ -88,3 +88,47 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
     figure_path = out_dir / "figures" / "n2" / "game_000001.png"
     assert figure_path.exists()
     assert figure_path.stat().st_size > 0
+
+    pair_heatmap_result = runner.invoke(
+        main,
+        [
+            "rank-heatmap",
+            "-p",
+            "2",
+            "--rankings-dir",
+            str(out_dir / "rankings"),
+            "--out",
+            str(out_dir),
+            "--dpi",
+            "80",
+        ],
+    )
+
+    assert pair_heatmap_result.exit_code == 0
+    assert "saved heatmap:" in pair_heatmap_result.output
+
+    pair_heatmap_path = out_dir / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
+    assert pair_heatmap_path.exists()
+    assert pair_heatmap_path.stat().st_size > 0
+
+    corr_result = runner.invoke(
+        main,
+        [
+            "rule-corr-heatmap",
+            "-p",
+            "2",
+            "--rankings-dir",
+            str(out_dir / "rankings"),
+            "--out",
+            str(out_dir),
+            "--dpi",
+            "80",
+        ],
+    )
+
+    assert corr_result.exit_code == 0
+    assert "saved heatmap:" in corr_result.output
+
+    corr_path = out_dir / "heatmaps" / "n2" / "rule_corr_player.png"
+    assert corr_path.exists()
+    assert corr_path.stat().st_size > 0

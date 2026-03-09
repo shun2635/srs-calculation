@@ -118,7 +118,8 @@
 
 現在の判断:
 
-- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `rank-heatmap`, `rule-corr-heatmap`, `pipeline`, `make-figures-png` は root 契約から外し、`legacy/` 配下の archive-only command として扱う
+- `rank-heatmap` と `rule-corr-heatmap` は root の `srs-game-gen` surface に復帰した
+- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `pipeline`, `make-figures-png` は引き続き root 契約から外し、`legacy/` 配下の archive-only command として扱う
 
 完了条件:
 

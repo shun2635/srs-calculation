@@ -100,7 +100,7 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `application/ranking/apply_ranking_rules_to_real_dataset.py` for a dataset-scoped real-data ranking workflow
 - `application/dataset_ingestion/import_feature_mask_table.py` for feature-mask dataset import
 - `application/experiments/run_real_data_experiment.py` for canonical and extra real-data plotting workflows
-- `application/experiments/run_synthetic_experiment.py` for compatibility-format synthetic ranking PNG workflows
+- `application/experiments/run_synthetic_experiment.py` for compatibility-format synthetic ranking PNG workflows and rank-correlation heatmaps
 - `interfaces/cli/real_gen.py` for a partial real-data CLI adapter over that migrated workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
 - parity tests for the first-batch ranking rules on deterministic fixtures
@@ -109,7 +109,7 @@ The next migration steps should build on these modules rather than recreating th
 
 The current CLI migration status is:
 
-- `game-gen`: experimental `gen-games`, `make-figures`, `apply-rules`, and `rank-game` entry points already exist in `src/`
+- `game-gen`: experimental `gen-games`, `make-figures`, `apply-rules`, `rank-game`, `rank-heatmap`, and `rule-corr-heatmap` entry points already exist in `src/`
 - `srs-real-gen`: experimental `import-game`, dataset-scoped `apply-rules`, `make-figures`, and `feature-rule-heatmap` entry points now exist in `src/`
 - `srs-real-gen` main extra figure families
   interaction-index / red-index tables and scatter / shapley values / ordinal banzhaf values / lexcel rank count / rp-index top-k / give top-k

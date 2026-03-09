@@ -3,6 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from srs_calculation.application.experiments import render_synthetic_figures
+from srs_calculation.application.experiments import (
+    render_synthetic_rank_heatmaps,
+    render_synthetic_rule_correlation_heatmaps,
+)
 from srs_calculation.application.experiments import run_synthetic_experiment as module
 
 
@@ -89,3 +93,57 @@ def test_render_synthetic_figures_uses_config_defaults(tmp_path, monkeypatch) ->
     assert seen["rankings_csv"] == rankings_dir / "game_000001.csv"
     assert seen["output_dir"] == tmp_path / "custom_outputs" / "figures" / "n3"
     assert result.written_paths[0] == tmp_path / "custom_outputs" / "figures" / "n3" / "game_000001.png"
+
+
+def test_render_synthetic_rank_heatmaps_writes_png(tmp_path) -> None:
+    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    _write(
+        rankings_dir / "game_000001.csv",
+        [
+            "player1,player2,score,rank,rank_shapley,rank_lexcel",
+            "1,1,4,1,,",
+            "1,0,1,2,1,2",
+            "0,1,1,2,1,1",
+            "0,0,0,3,,",
+        ],
+    )
+
+    result = render_synthetic_rank_heatmaps(
+        players=2,
+        rankings_dir=tmp_path / "outputs" / "rankings",
+        out_dir=tmp_path / "outputs",
+        dpi=80,
+    )
+
+    assert result.written_paths == (
+        tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png",
+    )
+    assert result.written_paths[0].exists()
+    assert result.written_paths[0].stat().st_size > 0
+
+
+def test_render_synthetic_rule_correlation_heatmaps_writes_png(tmp_path) -> None:
+    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    _write(
+        rankings_dir / "game_000001.csv",
+        [
+            "player1,player2,score,rank,rank_shapley,rank_lexcel",
+            "1,1,4,1,,",
+            "1,0,1,2,1,2",
+            "0,1,1,2,2,1",
+            "0,0,0,3,,",
+        ],
+    )
+
+    result = render_synthetic_rule_correlation_heatmaps(
+        players=2,
+        rankings_dir=tmp_path / "outputs" / "rankings",
+        out_dir=tmp_path / "outputs",
+        dpi=80,
+    )
+
+    assert result.written_paths == (
+        tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png",
+    )
+    assert result.written_paths[0].exists()
+    assert result.written_paths[0].stat().st_size > 0

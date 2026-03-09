@@ -22,6 +22,15 @@ class _RenderedSyntheticFiguresStub:
     skipped_count: int
 
 
+@dataclass(frozen=True)
+class _RenderedSyntheticHeatmapsStub:
+    rankings_dir: Path
+    heatmaps_dir: Path
+    written_paths: tuple[Path, ...]
+    pairs: tuple[tuple[str, str], ...] = ()
+    method: str = "spearman"
+
+
 def test_apply_rules_cli_with_explicit_directories(tmp_path) -> None:
     games_dir = tmp_path / "games"
     rankings_dir = tmp_path / "rankings"
@@ -79,6 +88,8 @@ def test_game_gen_cli_help_lists_supported_commands() -> None:
     assert "make-figures" in result.output
     assert "apply-rules" in result.output
     assert "rank-game" in result.output
+    assert "rank-heatmap" in result.output
+    assert "rule-corr-heatmap" in result.output
 
 
 def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
@@ -241,3 +252,92 @@ def test_rank_game_cli_writes_one_rankings_csv(tmp_path) -> None:
     ]
     assert rows[2] == ["1", "0", "1", "2", "1"]
     assert rows[3] == ["0", "1", "1", "2", "1"]
+
+
+def test_rank_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
+    import srs_calculation.interfaces.cli.game_gen as module
+
+    def _fake_render_synthetic_rank_heatmaps(
+        *,
+        players: int,
+        rankings_dir: Path | None,
+        out_dir: Path | None,
+        config_path: Path | None,
+        dpi: int | None,
+    ):
+        target = tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("png", encoding="utf-8")
+        return _RenderedSyntheticHeatmapsStub(
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
+            heatmaps_dir=(out_dir or tmp_path / "outputs") / "heatmaps" / "n2",
+            written_paths=(target,),
+            pairs=(("rank_lexcel", "rank_shapley"),),
+        )
+
+    monkeypatch.setattr(module, "render_synthetic_rank_heatmaps", _fake_render_synthetic_rank_heatmaps)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "rank-heatmap",
+            "-p",
+            "2",
+            "--rankings-dir",
+            str(tmp_path / "outputs" / "rankings"),
+            "--out",
+            str(tmp_path / "outputs"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved heatmap:" in result.output
+    assert (tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png").exists()
+
+
+def test_rule_corr_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
+    import srs_calculation.interfaces.cli.game_gen as module
+
+    def _fake_render_synthetic_rule_correlation_heatmaps(
+        *,
+        players: int,
+        rankings_dir: Path | None,
+        out_dir: Path | None,
+        config_path: Path | None,
+        dpi: int | None,
+        method: str | None,
+    ):
+        target = tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("png", encoding="utf-8")
+        return _RenderedSyntheticHeatmapsStub(
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
+            heatmaps_dir=(out_dir or tmp_path / "outputs") / "heatmaps" / "n2",
+            written_paths=(target,),
+            method=method or "spearman",
+        )
+
+    monkeypatch.setattr(
+        module,
+        "render_synthetic_rule_correlation_heatmaps",
+        _fake_render_synthetic_rule_correlation_heatmaps,
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "rule-corr-heatmap",
+            "-p",
+            "2",
+            "--rankings-dir",
+            str(tmp_path / "outputs" / "rankings"),
+            "--out",
+            str(tmp_path / "outputs"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved heatmap:" in result.output
+    assert (tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png").exists()

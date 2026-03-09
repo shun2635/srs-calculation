@@ -20,11 +20,13 @@
 1. `srs-game-gen gen-games` でゲーム表を生成する。
 2. `srs-game-gen apply-rules` でランキング規則を適用する。
 3. `srs-game-gen make-figures` で ranking figure を出力して確認する。
+4. 必要なら `srs-game-gen rank-heatmap` と `srs-game-gen rule-corr-heatmap` で順位比較を可視化する。
 
 関連ドキュメント:
 
 - root CLI 契約: [`../../README.md`](../../README.md)
 - `src` 実装の入口: [`../../src/README.md`](../../src/README.md)
+- 論文向け methodology spec: [`specs/synthetic-game-methodology.md`](specs/synthetic-game-methodology.md)
 - ルール説明: [`../../legacy/docs/ranking/README.md`](../../legacy/docs/ranking/README.md)
 - 公理説明: [`../../legacy/docs/axioms/README.md`](../../legacy/docs/axioms/README.md)
 

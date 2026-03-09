@@ -92,6 +92,8 @@ Show command-specific help:
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen make-figures --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-heatmap --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rule-corr-heatmap --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen import-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --help
@@ -120,6 +122,8 @@ Current supported root commands:
 - `srs-game-gen make-figures`: render compatibility-format PNG figures from synthetic rankings CSV files
 - `srs-game-gen apply-rules`: apply migrated rules to a directory of compatibility-format game CSV files
 - `srs-game-gen rank-game`: apply one migrated rule to one compatibility-format game CSV file
+- `srs-game-gen rank-heatmap`: render pairwise rank heatmaps from synthetic rankings CSV files
+- `srs-game-gen rule-corr-heatmap`: render rule-rank correlation heatmaps from synthetic rankings CSV files
 - `srs-real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
 - `srs-real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
 - `srs-real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
@@ -130,15 +134,13 @@ Archive-only historical commands are not part of the root CLI contract:
 - `game-gen check-axioms`
 - `game-gen summarize-axioms`
 - `game-gen axiom-summary-heatmap`
-- `game-gen rank-heatmap`
-- `game-gen rule-corr-heatmap`
 - `game-gen pipeline`
 - `game-gen make-figures-png`
 - unpublished real-data commands that exist only under `legacy/`
 
 These commands are closed as archive-only behavior under [`../legacy/`](../legacy/) rather than default migration targets.
 
-`srs-real-gen` is now the published root CLI for real-data workflows in this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some historical compatibility details remain documented only under the archive tree [`../legacy/`](../legacy/).
+`srs-real-gen` is now the published root CLI for real-data workflows in this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, `rank-game`, `rank-heatmap`, and `rule-corr-heatmap` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, the main extra figure family, and the synthetic rank-correlation visualizations are migrated, while some historical compatibility details remain documented only under the archive tree [`../legacy/`](../legacy/).
 
 Compatibility note:
 

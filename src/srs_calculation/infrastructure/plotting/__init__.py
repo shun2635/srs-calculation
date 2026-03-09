@@ -19,6 +19,13 @@ from .heatmap_renderer import (
     normalize_ranks_per_rule,
     render_feature_rule_rank_heatmap,
 )
+from .synthetic_rank_heatmap import (
+    collect_rank_pairs,
+    collect_rule_correlation_matrix,
+    infer_rank_column_scopes,
+    render_correlation_heatmap,
+    render_rank_pair_heatmap,
+)
 
 __all__ = [
     "feature_rule_rank_table",
@@ -35,5 +42,10 @@ __all__ = [
     "generate_shapley_values_plot",
     "generate_synthetic_ranking_figure",
     "normalize_ranks_per_rule",
+    "collect_rank_pairs",
+    "collect_rule_correlation_matrix",
+    "infer_rank_column_scopes",
     "render_feature_rule_rank_heatmap",
+    "render_correlation_heatmap",
+    "render_rank_pair_heatmap",
 ]

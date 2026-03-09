@@ -6,7 +6,11 @@ from pathlib import Path
 
 import click
 
-from ...application.experiments import render_synthetic_figures
+from ...application.experiments import (
+    render_synthetic_figures,
+    render_synthetic_rank_heatmaps,
+    render_synthetic_rule_correlation_heatmaps,
+)
 from ...application.game_generation import generate_synthetic_games
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_to_game_csv,
@@ -188,6 +192,142 @@ def make_figures_command(
         f"generated {len(result.written_paths)} PNG figure(s) under {result.figures_dir} "
         f"(skipped {result.skipped_count} up-to-date)"
     )
+
+
+@main.command(name="rank-heatmap")
+@click.option(
+    "--players",
+    "-p",
+    type=click.IntRange(1, 12),
+    required=True,
+    help="Number of players.",
+)
+@click.option(
+    "--rankings-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Rankings base directory. Defaults to '<output_base>/rankings'.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory for heatmaps. Defaults to explicit config or outputs.",
+)
+@click.option(
+    "--dpi",
+    type=click.IntRange(72, 600),
+    default=None,
+    help="Output PNG DPI. Defaults to explicit config or 150.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
+)
+def rank_heatmap_command(
+    players: int,
+    rankings_dir: Path | None,
+    out_dir: Path | None,
+    dpi: int | None,
+    config_path: Path | None,
+) -> None:
+    """Render pairwise synthetic rank heatmaps from rankings CSV files."""
+
+    try:
+        result = render_synthetic_rank_heatmaps(
+            players=int(players),
+            rankings_dir=rankings_dir,
+            out_dir=out_dir,
+            config_path=config_path,
+            dpi=dpi,
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not result.written_paths:
+        click.echo("no heatmap rendered")
+        return
+
+    for path in result.written_paths:
+        click.echo(f"saved heatmap: {path}")
+
+
+@main.command(name="rule-corr-heatmap")
+@click.option(
+    "--players",
+    "-p",
+    type=click.IntRange(1, 12),
+    required=True,
+    help="Number of players.",
+)
+@click.option(
+    "--rankings-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Rankings base directory. Defaults to '<output_base>/rankings'.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory for heatmaps. Defaults to explicit config or outputs.",
+)
+@click.option(
+    "--dpi",
+    type=click.IntRange(72, 600),
+    default=None,
+    help="Output PNG DPI. Defaults to explicit config or 150.",
+)
+@click.option(
+    "--method",
+    type=str,
+    default=None,
+    help="Correlation method passed to pandas.DataFrame.corr. Defaults to config or 'spearman'.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
+)
+def rule_corr_heatmap_command(
+    players: int,
+    rankings_dir: Path | None,
+    out_dir: Path | None,
+    dpi: int | None,
+    method: str | None,
+    config_path: Path | None,
+) -> None:
+    """Render rule-by-rule synthetic rank-correlation heatmaps."""
+
+    try:
+        result = render_synthetic_rule_correlation_heatmaps(
+            players=int(players),
+            rankings_dir=rankings_dir,
+            out_dir=out_dir,
+            config_path=config_path,
+            dpi=dpi,
+            method=method,
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not result.written_paths:
+        click.echo("no heatmap rendered")
+        return
+
+    for path in result.written_paths:
+        click.echo(f"saved heatmap: {path}")
 
 
 @main.command(name="apply-rules")

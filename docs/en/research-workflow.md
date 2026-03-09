@@ -20,11 +20,13 @@ Typical sequence:
 1. Generate game tables with `srs-game-gen gen-games`.
 2. Apply ranking rules with `srs-game-gen apply-rules`.
 3. Produce ranking figures with `srs-game-gen make-figures`.
+4. When needed, visualize rank comparisons with `srs-game-gen rank-heatmap` and `srs-game-gen rule-corr-heatmap`.
 
 Relevant locations:
 
 - root CLI contract: [`../../README.md`](../../README.md)
 - `src` entry point: [`../../src/README.md`](../../src/README.md)
+- paper-facing methodology spec: [`specs/synthetic-game-methodology.md`](specs/synthetic-game-methodology.md)
 - Rule descriptions: [`../../legacy/docs/ranking/README.md`](../../legacy/docs/ranking/README.md)
 - Axiom descriptions: [`../../legacy/docs/axioms/README.md`](../../legacy/docs/axioms/README.md)
 

@@ -118,7 +118,8 @@ Required work:
 
 Current decision:
 
-- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `rank-heatmap`, `rule-corr-heatmap`, `pipeline`, and `make-figures-png` are retired from the root contract and treated as archive-only under `legacy/`
+- `rank-heatmap` and `rule-corr-heatmap` have been reintroduced into the root `srs-game-gen` surface
+- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `pipeline`, and `make-figures-png` remain archive-only under `legacy/`
 
 Exit criteria:
 
