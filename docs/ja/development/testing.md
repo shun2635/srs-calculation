@@ -13,7 +13,7 @@
 
 ## テスト層
 
-現在のリポジトリでは、主に 3 つのテスト層を使います。
+現在のリポジトリでは、主に 4 つのテスト層を使います。
 
 ### `tests/unit/`
 
@@ -55,6 +55,24 @@ integration test を使う対象:
 - dataset ingestion
 - CLI コマンド挙動
 
+### `tests/e2e/`
+
+役割:
+
+- public な CLI 境界から見た user-facing workflow を検証する
+- 複数層にまたがる実ファイル生成を、核心経路を monkeypatch せずに通す
+- 生成、ranking、描画を組み合わせたときだけ起きる回帰を検出する
+
+例:
+
+- `tests/e2e/interfaces/cli/`
+
+e2e test を使う対象:
+
+- synthetic workflow の game 生成から PNG 出力まで
+- real-data workflow の dataset import から ranking artifact と heatmap 出力まで
+- 共同研究者が直接使うことを想定した重要コマンド列
+
 ### `tests/parity/`
 
 役割:
@@ -84,6 +102,9 @@ tests/
   integration/
     application/
     interfaces/
+  e2e/
+    interfaces/
+      cli/
   parity/
     ranking/
 ```
@@ -93,7 +114,8 @@ tests/
 - 可能な限り source-layer の境界に対応させる
 - domain のテストは `unit/domain` に置く
 - application workflow のテストは `integration/application` に置く
-- CLI テストは `integration/interfaces/cli` に置く
+- CLI の配線テストは `integration/interfaces/cli` に置く
+- 完全な CLI workflow は `e2e/interfaces/cli` に置く
 - `legacy` 比較テストは `parity` に置く
 
 ## 各層で何をテストするか
@@ -135,6 +157,16 @@ tests/
 - command option の配線
 - 期待されるファイル生成副作用
 
+### End-to-end workflow
+
+主に e2e test で次を検証します。
+
+- clean な temp directory で完結する研究 workflow
+- 実際の CSV と PNG artifact が出力されること
+- Poetry から公開している CLI entry point が end-to-end で動くこと
+
+狭い option validation は integration test で足りるので、e2e には持ち込みません。
+
 ## 実行ルール
 
 `src` ベースのテスト実行環境は root Poetry environment を標準とします。
@@ -151,6 +183,7 @@ poetry run srs-test
 ```bash
 poetry run srs-test tests/unit -q
 poetry run srs-test tests/integration/application/ranking/test_apply_ranking_rules.py
+poetry run srs-test tests/e2e -q
 poetry run srs-test tests/parity/ranking -q
 ```
 
@@ -168,6 +201,7 @@ poetry run srs-test tests/parity/ranking -q
 追加または更新するもの:
 
 - integration test
+- researcher workflow の表面を変えるなら e2e test
 - legacy 互換を維持する workflow なら parity test
 
 ### CLI 挙動を変える場合
@@ -175,6 +209,7 @@ poetry run srs-test tests/parity/ranking -q
 追加または更新するもの:
 
 - integration の CLI test
+- サポート対象の研究 workflow に影響するなら e2e test
 - サポートする command surface を説明する docs
 
 ## レビュー観点

@@ -13,7 +13,7 @@ The testing strategy therefore has two simultaneous goals:
 
 ## Test layers
 
-The repository currently uses three main test layers.
+The repository currently uses four main test layers.
 
 ### `tests/unit/`
 
@@ -55,6 +55,24 @@ Use integration tests for:
 - dataset ingestion
 - CLI command behavior
 
+### `tests/e2e/`
+
+Purpose:
+
+- verify user-facing workflows through the public CLI boundary
+- exercise real file generation across multiple layers without monkeypatching the core path
+- catch regressions that only appear when generation, ranking, and rendering are combined
+
+Examples:
+
+- `tests/e2e/interfaces/cli/`
+
+Use end-to-end tests for:
+
+- synthetic workflows from game generation to PNG output
+- real-data workflows from dataset import to ranking artifacts and heatmaps
+- release-critical paths that collaborators are expected to run directly
+
 ### `tests/parity/`
 
 Purpose:
@@ -84,6 +102,9 @@ tests/
   integration/
     application/
     interfaces/
+  e2e/
+    interfaces/
+      cli/
   parity/
     ranking/
 ```
@@ -94,6 +115,7 @@ When adding new tests:
 - keep domain tests under `unit/domain`
 - keep application workflow tests under `integration/application`
 - keep CLI tests under `integration/interfaces/cli`
+- keep full CLI workflows under `e2e/interfaces/cli`
 - keep `legacy` comparison tests under `parity`
 
 ## What to test at each layer
@@ -135,6 +157,16 @@ Prefer integration tests for:
 - command option wiring
 - expected file generation side effects
 
+### End-to-end workflows
+
+Prefer end-to-end tests for:
+
+- one-command or multi-command researcher workflows that should work in a clean temp directory
+- flows that must render actual CSV and PNG artifacts
+- smoke coverage for the supported Poetry CLI entry points
+
+Do not use end-to-end tests for narrow option validation that is already covered by integration tests.
+
 ## Execution rules
 
 The root Poetry environment is the standard execution environment for `src`-based tests.
@@ -151,6 +183,7 @@ Run a subset:
 ```bash
 poetry run srs-test tests/unit -q
 poetry run srs-test tests/integration/application/ranking/test_apply_ranking_rules.py
+poetry run srs-test tests/e2e -q
 poetry run srs-test tests/parity/ranking -q
 ```
 
@@ -168,6 +201,7 @@ Add or update:
 Add or update:
 
 - integration tests
+- end-to-end tests when the change affects a supported researcher workflow
 - parity tests if the workflow is intended to preserve legacy behavior
 
 ### When changing CLI behavior
@@ -175,6 +209,7 @@ Add or update:
 Add or update:
 
 - integration CLI tests
+- end-to-end tests when the change affects a supported researcher workflow
 - docs that describe the supported command surface
 
 ## Review expectations
