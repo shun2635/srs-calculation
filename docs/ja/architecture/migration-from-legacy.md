@@ -74,6 +74,7 @@ domain と application が安定してから進めます。
 - legacy 互換の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
 - legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
 - これらをカバーする `tests/` 配下の unit / integration test
+- 初回バッチの ranking rule を deterministic な fixture で比較する parity test
 
 今後の移行は、このスライスを起点に積み上げる前提で進めます。
 

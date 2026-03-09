@@ -74,6 +74,7 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `application/ranking/apply_ranking_rules_to_game_csv.py` for legacy-style game-CSV workflows
 - `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` for legacy-compatible CSV boundaries
 - `tests/` coverage for the persistence adapters and ranking application workflow
+- parity tests for the first-batch ranking rules on deterministic fixtures
 
 The next migration steps should build on these modules rather than recreating the same slice elsewhere.
 
