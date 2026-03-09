@@ -175,6 +175,19 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 
 `real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game` を root でサポートしますが、旧 `game-gen` 全機能はまだ移行していません。`legacy/` は参照用に残っていますが、root CLI 契約の正本ではありません。
 
+### Minimal `srs-game-gen` examples
+
+```bash
+# Generate synthetic games
+poetry run srs-game-gen gen-games -p 4 -c 100 --out outputs
+
+# Apply migrated ranking rules
+poetry run srs-game-gen apply-rules -p 4 --out outputs
+
+# Render ranking figures
+poetry run srs-game-gen make-figures --rankings-dir outputs/rankings --out outputs
+```
+
 ## Documentation map
 
 - [`docs/ja/README.md`](docs/ja/README.md): Japanese documentation hub

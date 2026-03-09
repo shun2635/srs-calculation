@@ -39,4 +39,5 @@ poetry.toml
 *.log
 
 # Project-generated artifacts
+outputs/
 legacy/outputs/
