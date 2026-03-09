@@ -55,6 +55,18 @@ Only after parity is demonstrated:
 - redirect users to the new CLI
 - reduce legacy code to reference or archival status
 
+## Workflow for making `legacy/` unreachable
+
+To remove `legacy/` from the runtime path over time, follow this sequence:
+
+1. create thin CLI shells in `src/`
+2. move each shell-backed workflow into `application/` and `infrastructure/`
+3. lock parity between the old CLI behavior and the `src/` workflow with tests
+4. move user-facing README and docs entry points to the `src/` path
+5. only then remove the public `legacy` scripts from package metadata
+
+The important constraint is that the public entry point should switch only after the command's underlying use case already exists in `src/`.
+
 ## Mapping hints
 
 - `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`
@@ -74,10 +86,18 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `application/ranking/apply_ranking_rules_to_game_csv.py` for legacy-style game-CSV workflows
 - `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` for legacy-compatible CSV boundaries
 - `interfaces/cli/game_gen.py` for a thin synthetic-game CLI adapter over the migrated ranking workflow
+- `application/ranking/apply_ranking_rules_to_real_dataset.py` for a dataset-scoped real-data ranking workflow
+- `interfaces/cli/real_gen.py` for a partial real-data CLI adapter over that migrated workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
 - parity tests for the first-batch ranking rules on deterministic fixtures
 
 The next migration steps should build on these modules rather than recreating the same slice elsewhere.
+
+The current CLI migration status is:
+
+- `game-gen`: experimental `apply-rules` and `rank-game` entry points already exist in `src/`
+- `real-gen`: an experimental dataset-scoped `apply-rules` entry point now exists in `src/`
+- `real-gen import-game` and figure commands still exist only in `legacy/`
 
 ## Definition of done for a migrated capability
 

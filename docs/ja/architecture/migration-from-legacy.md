@@ -55,6 +55,18 @@ domain と application が安定してから進めます。
 - 利用者を新しい CLI に誘導する
 - `legacy/` を参照または保管用途へ縮退させる
 
+## legacy を到達不能にするための作業フロー
+
+`legacy/` を将来的に実行経路から外すため、次の順で進めます。
+
+1. `src` 側に薄い CLI shell を作る
+2. shell の背後にある workflow を `application/` と `infrastructure/` へ移す
+3. 旧 CLI と `src` 側 workflow の parity をテストで固める
+4. README と利用者向け docs の入口を `src` 側へ寄せる
+5. 最後に package/script 定義から `legacy` の公開入口を外す
+
+重要なのは、CLI 名だけ先に移すのではなく、各コマンドが依存する use case を `src/` に持ってから公開入口を切り替えることです。
+
 ## 対応付けの目安
 
 - `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`
@@ -74,10 +86,18 @@ domain と application が安定してから進めます。
 - legacy 互換の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
 - legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
 - 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
+- dataset-scoped な real-data ranking workflow を担う `application/ranking/apply_ranking_rules_to_real_dataset.py`
+- 移行した ranking workflow に被せる partial な real-data CLI adapter を担う `interfaces/cli/real_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
 - 初回バッチの ranking rule を deterministic な fixture で比較する parity test
 
 今後の移行は、このスライスを起点に積み上げる前提で進めます。
+
+現在の位置づけは次です。
+
+- `game-gen`: `src` 側で `apply-rules` / `rank-game` の実験用入口がある
+- `real-gen`: `src` 側で dataset-scoped な `apply-rules` の実験用入口がある
+- `real-gen import-game` と figure 系コマンドは、まだ `legacy` 側が唯一の実装である
 
 ## ある機能が移行完了とみなせる条件
 

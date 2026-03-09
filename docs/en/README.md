@@ -10,7 +10,8 @@ Structure note: the `en/` and `ja/` documentation trees should stay aligned in s
 
 - A research codebase for cooperative-game-based ranking rules
 - A place for both synthetic experiments and real-data analysis
-- Currently implemented in [`../../legacy/`](../../legacy/)
+- The published Poetry CLI currently lives in [`../../legacy/`](../../legacy/)
+- Experimental entry points for migrated slices also exist in [`../../src/`](../../src/)
 - Documented at the top level so collaborators can navigate the project more easily
 
 ## Main capabilities
@@ -74,6 +75,10 @@ poetry install
 poetry run game-gen --help
 poetry run real-gen --help
 poetry run pytest
+
+# experimental src entry points
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
 ```
 
 ## Minimal examples
@@ -97,4 +102,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `legacy/README.md`: CLI usage for the current codebase
 - `legacy/docs/`: detailed technical and mathematical appendices
 
-This split is intentional while the repository is still centered on the legacy implementation.
+This split is intentional while the repository is still centered on the legacy implementation. The published CLI is still legacy-first, but migrated ranking workflows can already be exercised from `src/`.

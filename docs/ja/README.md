@@ -10,7 +10,8 @@
 
 - 協力ゲームのランキング規則を比較するための研究用コードベースです。
 - 合成ゲーム実験と実データ実験の両方を扱います。
-- 現状の実装本体は [`../../legacy/`](../../legacy/) にあります。
+- 公開されている Poetry CLI は現状 [`../../legacy/`](../../legacy/) にあります。
+- 移行済みスライスの実験用 CLI は [`../../src/`](../../src/) にもあります。
 - 新しい [`../`](../) 配下の docs は、共同研究しやすくするための整理レイヤーです。
 
 ## 何ができるか
@@ -66,6 +67,10 @@ cd legacy
 poetry install
 poetry run game-gen --help
 poetry run real-gen --help
+
+# experimental src entry points
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
 ```
 
 ## 最小限の実行例
@@ -88,4 +93,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `docs/` は「共同研究者向けの案内」と「新規実装の標準文書」
 - `src/` は「新規実装の本体置き場」
 
-コード再編前の段階では、この分担で読むのが最も効率的です。
+現時点では、この分担で読むのが最も効率的です。公開入口はまだ `legacy` ですが、移行済みの ranking workflow は `src` 側から直接試せます。

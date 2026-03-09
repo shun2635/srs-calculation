@@ -2,7 +2,7 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。実行可能な CLI は引き続き [`legacy/`](legacy/) にありますが、次の実装は [`src/`](src/) 配下で進行しており、[`docs/`](docs/) にはその方針と境界を整理しています。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。公開されている Poetry CLI は引き続き [`legacy/`](legacy/) にありますが、次の実装は [`src/`](src/) 配下で進行しており、[`docs/`](docs/) にはその方針と境界を整理しています。
 
 ## Intended audiences
 
@@ -13,9 +13,10 @@ Note: the Japanese and English audience guides are intended to stay content-sync
 
 ## Current repository status
 
-- The executable CLI implementation currently lives in [`legacy/`](legacy/).
+- The published Poetry CLI still lives in [`legacy/`](legacy/).
 - The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
 - The new top-level [`src/`](src/) directory already contains the in-progress next implementation.
+- The `src/` tree already exposes experimental module-entry CLIs for migrated `game-gen` and `real-gen` slices.
 - The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
 
 ## What the code currently does
@@ -131,20 +132,23 @@ poetry run pytest
 
 ## Experimental `src` CLI
 
-`src/` 側には、移行済み ranking slice を叩くための experimental CLI があります。これは `poetry run` の公開 CLI ではなく、`src` を `PYTHONPATH` に載せて module 実行する想定です。
+`src/` 側には、移行済みスライスを叩くための experimental CLI があります。これは `poetry run` の公開 CLI ではなく、`src` を `PYTHONPATH` に載せて module 実行する想定です。
 
 ```bash
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --help
 ```
 
-現時点で使えるのは次の 2 コマンドです。
+現時点で実装されているのは次です。
 
-- `apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
-- `rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+- `game_gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
+- `game_gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+- `real_gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
 
-この CLI は意図的に partial です。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
+この CLI は意図的に partial です。たとえば `real_gen import-game` や figure 系コマンドはまだ移行していません。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
 
 ## Documentation map
 
@@ -161,4 +165,4 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --hel
 
 ## Practical note
 
-This repository is still legacy-first in its executable code, but the next implementation is now being built in `src/` under the documented architecture boundaries.
+This repository is still legacy-first in its published executable surface, but the next implementation is already being built and exercised in `src/` under the documented architecture boundaries.
