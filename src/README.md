@@ -6,7 +6,7 @@ This directory contains the implementation of record for the repository's suppor
 
 - new production code should be added here by default
 - `legacy/` is an archive, not the normal execution surface
-- the repository root Poetry project publishes `real-gen` from this tree
+- the repository root Poetry project publishes `srs-real-gen` from this tree
 - architecture decisions for this tree are documented in [`../docs/en/architecture/`](../docs/en/architecture/) and mirrored in [`../docs/ja/architecture/`](../docs/ja/architecture/)
 
 ## Intended package tree
@@ -60,21 +60,21 @@ The ranking migration slice currently includes:
 - a dataset-ingestion workflow for feature-mask tables under `application/dataset_ingestion/import_feature_mask_table.py`
 - real-data plotting workflows, including canonical and extra figures, under `application/experiments/run_real_data_experiment.py`
 - synthetic ranking-figure workflows under `application/experiments/run_synthetic_experiment.py`
-- thin CLI adapters for migrated `game-gen` and partial `real-gen` workflows under `interfaces/cli`
+- thin CLI adapters for migrated `game-gen` and partial `real-data` workflows under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
 
 ## CLI
 
 The `src` tree includes the published root CLI surface. The authoritative script names are stable:
 
-- `real-gen`
+- `srs-real-gen`
 - `srs-game-gen`
 - `srs-test`
 
 The repository root also publishes:
 
 ```bash
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 poetry run srs-test
 poetry run srs-verify-no-legacy
@@ -120,10 +120,10 @@ Current supported root commands:
 - `srs-game-gen make-figures`: render compatibility-format PNG figures from synthetic rankings CSV files
 - `srs-game-gen apply-rules`: apply migrated rules to a directory of compatibility-format game CSV files
 - `srs-game-gen rank-game`: apply one migrated rule to one compatibility-format game CSV file
-- `real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
-- `real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
-- `real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
-- `real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
+- `srs-real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
+- `srs-real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
+- `srs-real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
+- `srs-real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
 
 Archive-only historical commands are not part of the root CLI contract:
 
@@ -138,7 +138,12 @@ Archive-only historical commands are not part of the root CLI contract:
 
 These commands are closed as archive-only behavior under [`../legacy/`](../legacy/) rather than default migration targets.
 
-`real-gen` is now the published root CLI for this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some historical compatibility details remain documented only under the archive tree [`../legacy/`](../legacy/).
+`srs-real-gen` is now the published root CLI for real-data workflows in this tree. `srs-game-gen` is still intentionally partial, but `gen-games`, `make-figures`, `apply-rules`, and `rank-game` are part of the supported root surface. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, while some historical compatibility details remain documented only under the archive tree [`../legacy/`](../legacy/).
+
+Compatibility note:
+
+- `real-gen` remains available as a compatibility alias
+- use `srs-real-gen` in new docs, scripts, and collaboration notes
 
 Compatibility note:
 

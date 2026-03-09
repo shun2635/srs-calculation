@@ -2,7 +2,7 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。サポート対象の Poetry project はリポジトリ root にあり、`real-gen` と `srs-game-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は履歴資料として保持する archive であり、[`docs/`](docs/) にはその方針と境界を整理しています。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。サポート対象の Poetry project はリポジトリ root にあり、`srs-real-gen` と `srs-game-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は履歴資料として保持する archive であり、[`docs/`](docs/) にはその方針と境界を整理しています。
 
 ## Intended audiences
 
@@ -13,12 +13,12 @@ Note: the Japanese and English audience guides are intended to stay content-sync
 
 ## Current repository status
 
-- The root Poetry project now publishes the `src`-based `real-gen` CLI.
+- The root Poetry project now publishes the `src`-based `srs-real-gen` CLI.
 - The `src/` tree is now the implementation of record for supported workflows.
 - The `legacy/` tree remains under [`legacy/`](legacy/) as a retained archive of historical code, commands, and design notes.
 - The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
 - The top-level [`src/`](src/) directory now contains the implementation of record for supported workflows.
-- The `src/` tree already exposes module-entry CLIs for migrated `game-gen` and `real-gen` slices.
+- The `src/` tree already exposes module-entry CLIs for migrated synthetic and real-data slices.
 - The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
 
 ## What the code currently does
@@ -32,7 +32,7 @@ The synthetic-game pipeline supports:
 - batch axiom checking
 - production of heatmaps and summary figures
 
-### `real-gen`
+### `srs-real-gen`
 
 The real-data pipeline supports:
 
@@ -54,7 +54,7 @@ The real-data pipeline supports:
 
 ```bash
 poetry install
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 poetry run srs-test
 ```
@@ -63,16 +63,16 @@ poetry run srs-test
 
 root [`pyproject.toml`](pyproject.toml) が、共同研究向けにサポートする公開 CLI 契約の正本です。移行中でも script 名は次で固定します。
 
-- `real-gen`
+- `srs-real-gen`
 - `srs-game-gen`
 - `srs-test`
 
 サポート対象コマンドは次です。
 
-- `real-gen import-game`
-- `real-gen apply-rules`
-- `real-gen make-figures`
-- `real-gen feature-rule-heatmap`
+- `srs-real-gen import-game`
+- `srs-real-gen apply-rules`
+- `srs-real-gen make-figures`
+- `srs-real-gen feature-rule-heatmap`
 - `srs-game-gen gen-games`
 - `srs-game-gen apply-rules`
 - `srs-game-gen make-figures`
@@ -113,9 +113,9 @@ root CLI で現在使う主要設定キー:
 
 - `output_base`: 出力ルート。既定は `outputs`
 - `figures.png_dpi`: PNG 出力 DPI。既定は `150`
-- `realgen.import_rank_bins`: `real-gen import-game` の `rank_method: binned` で使う分割数
+- `realgen.import_rank_bins`: `srs-real-gen import-game` の `rank_method: binned` で使う分割数
 
-`real-gen import-game` では各データセットの `schema.yaml` が必須です。主な schema キー:
+`srs-real-gen import-game` では各データセットの `schema.yaml` が必須です。主な schema キー:
 
 - `raw_csv`
 - `score_column`
@@ -134,22 +134,22 @@ root CLI で現在使う主要設定キー:
 
 | コマンド | 設定 | 何がどこに生成されるか |
 | --- | --- | --- |
-| `poetry run real-gen import-game <dataset_id>` | `realgen.import_rank_bins`, `inputs/feature_mask_tables/<dataset_id>/schema.yaml` | `outputs/real/<dataset_id>/games/game_<dataset_id>.csv`、`game_<dataset_id>.features.yaml`、`schema.yaml` のコピーを生成 |
-| `poetry run real-gen apply-rules <dataset_id>` | dataset `schema.yaml` の `rules` または migrated rule defaults | `outputs/real/<dataset_id>/rankings/game_<dataset_id>.csv` を生成または更新。`rank_*` や `score_*` 列を追加 |
-| `poetry run real-gen make-figures <dataset_id>` | dataset `schema.yaml` の `figures.*` | `outputs/real/<dataset_id>/figures/*.png` を生成。基本の ranking 図に加えて、interaction index, red-index, shapley values, ordinal banzhaf values, lexcel rank count, give top-k などの extra figure を best-effort で生成 |
-| `poetry run real-gen feature-rule-heatmap <dataset_id>` | dataset `schema.yaml` の `heatmaps.feature_rule_max_coalition_size` | `outputs/real/<dataset_id>/heatmaps/feature_rule_rank.png` を生成 |
+| `poetry run srs-real-gen import-game <dataset_id>` | `realgen.import_rank_bins`, `inputs/feature_mask_tables/<dataset_id>/schema.yaml` | `outputs/real/<dataset_id>/games/game_<dataset_id>.csv`、`game_<dataset_id>.features.yaml`、`schema.yaml` のコピーを生成 |
+| `poetry run srs-real-gen apply-rules <dataset_id>` | dataset `schema.yaml` の `rules` または migrated rule defaults | `outputs/real/<dataset_id>/rankings/game_<dataset_id>.csv` を生成または更新。`rank_*` や `score_*` 列を追加 |
+| `poetry run srs-real-gen make-figures <dataset_id>` | dataset `schema.yaml` の `figures.*` | `outputs/real/<dataset_id>/figures/*.png` を生成。基本の ranking 図に加えて、interaction index, red-index, shapley values, ordinal banzhaf values, lexcel rank count, give top-k などの extra figure を best-effort で生成 |
+| `poetry run srs-real-gen feature-rule-heatmap <dataset_id>` | dataset `schema.yaml` の `heatmaps.feature_rule_max_coalition_size` | `outputs/real/<dataset_id>/heatmaps/feature_rule_rank.png` を生成 |
 
 補足:
 
-- `legacy/src/realgen/commands/resignation_contrib.py` は実装ファイルがありますが、現時点では `real-gen` CLI に登録されていないため `poetry run real-gen ...` では呼べません
+- `legacy/src/realgen/commands/resignation_contrib.py` は実装ファイルがありますが、現時点では `srs-real-gen` CLI に登録されていないため `poetry run srs-real-gen ...` では呼べません
 - archive-only command examples are collected in [`legacy/README.md`](legacy/README.md)
 
 ## `src` CLI
 
-`src/` 側 CLI は module 実行でも叩けます。`real-gen` と `srs-game-gen` は root Poetry project から呼ぶのが標準です。
+`src/` 側 CLI は module 実行でも叩けます。`srs-real-gen` と `srs-game-gen` は root Poetry project から呼ぶのが標準です。
 
 ```bash
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen make-figures --help
@@ -168,12 +168,17 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 - `srs-game-gen make-figures`: synthetic rankings CSV から compatibility-format PNG figure を `outputs/figures/nN/` に生成する
 - `srs-game-gen apply-rules`: compatibility-format game CSV ディレクトリに対して migrated rules を適用する
 - `srs-game-gen rank-game`: compatibility-format game CSV 1 件に対して migrated rule 1 つを適用する
-- `real-gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
-- `real-gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
-- `real-gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
-- `real-gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
+- `srs-real-gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
+- `srs-real-gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
+- `srs-real-gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
+- `srs-real-gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
 
-`real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game` を root でサポートしますが、旧 `game-gen` 全機能はまだ移行していません。`legacy/` は参照用に残っていますが、root CLI 契約の正本ではありません。
+`srs-real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game` を root でサポートしますが、旧 `game-gen` 全機能はまだ移行していません。`legacy/` は参照用に残っていますが、root CLI 契約の正本ではありません。
+
+互換メモ:
+
+- `real-gen` は既存利用者向けの compatibility alias として残しています
+- root docs では並列な命名である `srs-real-gen` / `srs-game-gen` を正本として使います
 
 ### Minimal `srs-game-gen` examples
 

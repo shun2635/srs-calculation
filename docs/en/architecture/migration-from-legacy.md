@@ -110,15 +110,16 @@ The next migration steps should build on these modules rather than recreating th
 The current CLI migration status is:
 
 - `game-gen`: experimental `gen-games`, `make-figures`, `apply-rules`, and `rank-game` entry points already exist in `src/`
-- `real-gen`: experimental `import-game`, dataset-scoped `apply-rules`, `make-figures`, and `feature-rule-heatmap` entry points now exist in `src/`
-- `real-gen` main extra figure families
+- `srs-real-gen`: experimental `import-game`, dataset-scoped `apply-rules`, `make-figures`, and `feature-rule-heatmap` entry points now exist in `src/`
+- `srs-real-gen` main extra figure families
   interaction-index / red-index tables and scatter / shapley values / ordinal banzhaf values / lexcel rank count / rp-index top-k / give top-k
   are also migrated into `src/`
 - some legacy-only rendering compatibility details and peripheral options still remain
 
 The current published-entry-point state is:
 
-- the root `pyproject.toml` now publishes `real-gen` from the `src` CLI
+- the root `pyproject.toml` now publishes `srs-real-gen` from the `src` CLI
+- the root `pyproject.toml` keeps `real-gen` as a compatibility alias to the same CLI
 - the root `pyproject.toml` also publishes `srs-game-gen` as the partial synthetic CLI from `src`
 - `legacy/pyproject.toml` still exists in the archive tree, but it is no longer documented as a supported execution surface
 

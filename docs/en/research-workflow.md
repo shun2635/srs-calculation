@@ -40,9 +40,9 @@ Use this when the research question starts from model evaluation tables or featu
 Typical sequence:
 
 1. Place raw inputs under [`../../inputs/feature_mask_tables/`](../../inputs/feature_mask_tables/).
-2. Normalize them with `real-gen import-game`.
-3. Apply ranking rules with `real-gen apply-rules`.
-4. Create figures and heatmaps with `real-gen make-figures` and `real-gen feature-rule-heatmap`.
+2. Normalize them with `srs-real-gen import-game`.
+3. Apply ranking rules with `srs-real-gen apply-rules`.
+4. Create figures and heatmaps with `srs-real-gen make-figures` and `srs-real-gen feature-rule-heatmap`.
 
 Relevant locations:
 

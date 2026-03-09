@@ -68,7 +68,7 @@ def main() -> int:
 
     poetry_bin = _resolve_poetry_bin()
     commands = [
-        [poetry_bin, "run", "real-gen", "--help"],
+        [poetry_bin, "run", "srs-real-gen", "--help"],
         [poetry_bin, "run", "srs-game-gen", "--help"],
         [poetry_bin, "run", "srs-test"],
         [poetry_bin, "run", "srs-test", "tests/e2e", "-q"],

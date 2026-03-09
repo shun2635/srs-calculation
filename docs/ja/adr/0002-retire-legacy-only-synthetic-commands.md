@@ -8,7 +8,7 @@ Accepted
 
 このリポジトリでは、root CLI 契約を次に絞って定義しています。
 
-- `real-gen`
+- `srs-real-gen`
 - `srs-game-gen`
 - `srs-test`
 

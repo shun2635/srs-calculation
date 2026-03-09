@@ -19,6 +19,7 @@ ruff = "^0.6"
 mypy = "^1.11"
 
 [tool.poetry.scripts]
+"srs-real-gen" = "srs_calculation.interfaces.cli.real_gen:main"
 "real-gen" = "srs_calculation.interfaces.cli.real_gen:main"
 "srs-game-gen" = "srs_calculation.interfaces.cli.game_gen:main"
 "srs-test" = "srs_calculation.interfaces.cli.test_runner:main"

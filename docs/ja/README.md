@@ -11,7 +11,7 @@
 - 協力ゲームのランキング規則を比較するための研究用コードベースです。
 - 合成ゲーム実験と実データ実験の両方を扱います。
 - サポート対象の Poetry CLI は repository root にあります。
-- `real-gen` は root の Poetry project から `src` 側実装へ接続されています。
+- `srs-real-gen` は root の Poetry project から `src` 側実装へ接続されています。
 - 移行済みスライスの module-entry CLI は [`../../src/`](../../src/) からも直接叩けます。
 - 新しい [`../`](../) 配下の docs は、共同研究しやすくするための整理レイヤーです。
 
@@ -29,7 +29,7 @@ root CLI 契約に含まれる `srs-game-gen` により、以下を実行でき�
 
 ### 2. 実データ実験
 
-`real-gen` により、以下を実行できます。
+`srs-real-gen` により、以下を実行できます。
 
 - 特徴量マスク性能表を協力ゲーム形式へ変換
 - 移行済みのランキング規則を再利用
@@ -67,7 +67,7 @@ root CLI 契約に含まれる `srs-game-gen` により、以下を実行でき�
 
 ```bash
 poetry install
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 ```
 
@@ -81,9 +81,9 @@ poetry run srs-game-gen make-figures --rankings-dir outputs/rankings --out outpu
 
 # 実データ実験
 mkdir -p inputs/feature_mask_tables/<dataset_id>
-poetry run real-gen import-game <dataset_id>
-poetry run real-gen apply-rules <dataset_id>
-poetry run real-gen make-figures <dataset_id>
+poetry run srs-real-gen import-game <dataset_id>
+poetry run srs-real-gen apply-rules <dataset_id>
+poetry run srs-real-gen make-figures <dataset_id>
 ```
 
 ## 読み替えの指針

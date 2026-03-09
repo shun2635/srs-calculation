@@ -11,7 +11,7 @@
 - root Poetry project だけがサポート対象の runtime entry point である
 - サポート対象の研究 workflow がすべて `src/` 経由で動く
 - root test が `legacy/src` を `sys.path` に足さなくても通る
-- `legacy/` ディレクトリを消しても `real-gen`、`srs-game-gen`、`srs-test` が壊れない
+- `legacy/` ディレクトリを消しても `srs-real-gen`、`srs-game-gen`、`srs-test` が壊れない
 - 共同研究者向け docs が通常運用のために `legacy/` を要求しない
 
 ## 現在の状態
@@ -156,7 +156,7 @@
 必要作業:
 
 - `legacy/` を一時的に隠すか rename する検証 job または script を追加する
-- `poetry run real-gen --help` を通す
+- `poetry run srs-real-gen --help` を通す
 - `poetry run srs-game-gen --help` を通す
 - `poetry run srs-test` を通す
 - e2e suite を通す
@@ -166,7 +166,7 @@
 ```bash
 poetry run srs-test
 poetry run srs-test tests/e2e -q
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 ```
 

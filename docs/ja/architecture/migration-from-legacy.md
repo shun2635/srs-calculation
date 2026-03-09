@@ -110,15 +110,16 @@ domain と application が安定してから進めます。
 現在の位置づけは次です。
 
 - `game-gen`: `src` 側で `gen-games` / `make-figures` / `apply-rules` / `rank-game` の実験用入口がある
-- `real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` / `make-figures` / `feature-rule-heatmap` の実験用入口がある
-- `real-gen` の main な extra figure 群
+- `srs-real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` / `make-figures` / `feature-rule-heatmap` の実験用入口がある
+- `srs-real-gen` の main な extra figure 群
   interaction index / red-index tables and scatter / shapley values / ordinal banzhaf values / lexcel rank count / rp-index top-k / give top-k
   も `src` 側へ移行済みである
 - ただし legacy 側にしかない細かな描画互換や周辺オプションはまだ残る
 
 公開入口の状態は次です。
 
-- root `pyproject.toml` から `real-gen` は `src` 側 CLI を公開している
+- root `pyproject.toml` から `srs-real-gen` は `src` 側 CLI を公開している
+- root `pyproject.toml` には同じ CLI への compatibility alias として `real-gen` も残している
 - root `pyproject.toml` から `srs-game-gen` は `src` 側の partial な synthetic CLI を公開している
 - `legacy/pyproject.toml` は archive tree に残っているが、サポート対象の execution surface としては docs していない
 

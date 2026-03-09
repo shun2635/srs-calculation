@@ -11,7 +11,7 @@ Structure note: the `en/` and `ja/` documentation trees should stay aligned in s
 - A research codebase for cooperative-game-based ranking rules
 - A place for both synthetic experiments and real-data analysis
 - The supported Poetry CLI is now published from the repository root
-- `real-gen` is already wired to the `src` implementation from that root project
+- `srs-real-gen` is already wired to the `src` implementation from that root project
 - Module-entry points for migrated slices also exist in [`../../src/`](../../src/)
 - Documented at the top level so collaborators can navigate the project more easily
 
@@ -29,7 +29,7 @@ Axiom evaluation and some aggregate synthetic commands are not yet part of the s
 
 ### Real-data experiments
 
-The `real-gen` CLI can:
+The `srs-real-gen` CLI can:
 
 - import feature-mask performance tables as coalition-game data
 - reuse the migrated ranking rules exposed from `src`
@@ -73,7 +73,7 @@ Read:
 
 ```bash
 poetry install
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 poetry run srs-test
 ```
@@ -88,9 +88,9 @@ poetry run srs-game-gen make-figures --rankings-dir outputs/rankings --out outpu
 
 # Real-data pipeline
 mkdir -p inputs/feature_mask_tables/<dataset_id>
-poetry run real-gen import-game <dataset_id>
-poetry run real-gen apply-rules <dataset_id>
-poetry run real-gen make-figures <dataset_id>
+poetry run srs-real-gen import-game <dataset_id>
+poetry run srs-real-gen apply-rules <dataset_id>
+poetry run srs-real-gen make-figures <dataset_id>
 ```
 
 ## Interpretation of the documentation layers

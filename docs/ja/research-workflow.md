@@ -40,9 +40,9 @@
 典型的な流れ:
 
 1. raw 入力を [`../../inputs/feature_mask_tables/`](../../inputs/feature_mask_tables/) に置く。
-2. `real-gen import-game` で正規化する。
-3. `real-gen apply-rules` でランキング規則を適用する。
-4. `real-gen make-figures` と `real-gen feature-rule-heatmap` で図表を作成する。
+2. `srs-real-gen import-game` で正規化する。
+3. `srs-real-gen apply-rules` でランキング規則を適用する。
+4. `srs-real-gen make-figures` と `srs-real-gen feature-rule-heatmap` で図表を作成する。
 
 関連ドキュメント:
 

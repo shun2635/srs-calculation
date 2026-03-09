@@ -8,7 +8,7 @@ Accepted
 
 The repository now has an explicit root CLI contract centered on:
 
-- `real-gen`
+- `srs-real-gen`
 - `srs-game-gen`
 - `srs-test`
 

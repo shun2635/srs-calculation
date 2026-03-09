@@ -11,7 +11,7 @@ The repository reaches the target state only when all of the following are true:
 - the root Poetry project is the only supported runtime entry point
 - all supported researcher workflows run through `src/` only
 - root tests pass without adding `legacy/src` to `sys.path`
-- removing the `legacy/` directory does not break `real-gen`, `srs-game-gen`, or `srs-test`
+- removing the `legacy/` directory does not break `srs-real-gen`, `srs-game-gen`, or `srs-test`
 - collaborator-facing docs no longer require `legacy/` for normal operation
 
 ## Current status
@@ -156,7 +156,7 @@ Goal:
 Required work:
 
 - add a verification job or script that temporarily hides or renames `legacy/`
-- run `poetry run real-gen --help`
+- run `poetry run srs-real-gen --help`
 - run `poetry run srs-game-gen --help`
 - run `poetry run srs-test`
 - run the e2e suite
@@ -166,7 +166,7 @@ Recommended verification command shape:
 ```bash
 poetry run srs-test
 poetry run srs-test tests/e2e -q
-poetry run real-gen --help
+poetry run srs-real-gen --help
 poetry run srs-game-gen --help
 ```
 
