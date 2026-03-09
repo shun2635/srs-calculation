@@ -8,9 +8,23 @@
 src/
   srs_calculation/
     domain/
+      games/
+      ranking/
+        rules/
+      axioms/
     application/
+      ranking/
+      game_generation/
+      axiom_evaluation/
+      dataset_ingestion/
+      experiments/
     infrastructure/
+      config/
+      persistence/
+      plotting/
+      datasets/
     interfaces/
+      cli/
 ```
 
 ## 境界定義
@@ -20,8 +34,8 @@ src/
 役割:
 
 - 中核となるビジネス概念と数理概念
-- 連合モデル
-- ランキング規則
+- 協力ゲームモデル
+- ランキング概念と規則
 - 公理定義
 
 ルール:
@@ -30,6 +44,8 @@ src/
 - ファイルシステムアクセスを持たせない
 - 描画処理を入れない
 - 決定的でテストしやすいロジックを優先する
+- `games/` や `ranking/` のような feature-oriented なパッケージを優先する
+- `models/`、`utils/`、`common/` のような汎用バケットは避ける
 
 ### `application/`
 
@@ -44,6 +60,7 @@ src/
 - `domain/` に依存してよい
 - CLI の直接解析を持たない
 - ワークフロー制御を保存詳細から切り離す
+- `apply_ranking_rules.py` のようにユースケース名でモジュールを切る
 
 ### `infrastructure/`
 
@@ -59,6 +76,7 @@ src/
 - `domain/` と `application/` に依存してよい
 - 外部副作用をこの層に閉じ込める
 - 他層には狭いインターフェースだけを公開する
+- `config/`、`persistence/`、`plotting/` のように技術責務で整理する
 
 ### `interfaces/`
 
@@ -73,6 +91,7 @@ src/
 - 薄い層に保つ
 - ビジネスロジックは `application/` に委譲する
 - 既に別箇所で表現されている検証やワークフロー制御を重複させない
+- 外部互換の名前変換が必要ならこの層で吸収する
 
 ## 依存方向
 

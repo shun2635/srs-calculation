@@ -8,9 +8,23 @@ This document defines the intended package boundaries for code under [`../../../
 src/
   srs_calculation/
     domain/
+      games/
+      ranking/
+        rules/
+      axioms/
     application/
+      ranking/
+      game_generation/
+      axiom_evaluation/
+      dataset_ingestion/
+      experiments/
     infrastructure/
+      config/
+      persistence/
+      plotting/
+      datasets/
     interfaces/
+      cli/
 ```
 
 ## Boundary definitions
@@ -20,8 +34,8 @@ src/
 Purpose:
 
 - core business and mathematical concepts
-- coalition models
-- ranking rules
+- cooperative-game models
+- ranking concepts and rules
 - axiom definitions
 
 Rules:
@@ -30,6 +44,8 @@ Rules:
 - no filesystem access
 - no plotting concerns
 - prefer deterministic, testable logic
+- prefer feature-oriented packages such as `games/` and `ranking/`
+- avoid generic buckets such as `models/`, `utils/`, or `common/`
 
 ### `application/`
 
@@ -44,6 +60,7 @@ Rules:
 - may depend on `domain/`
 - should not contain direct CLI parsing
 - should isolate workflow coordination from storage details
+- should use explicit use-case module names such as `apply_ranking_rules.py`
 
 ### `infrastructure/`
 
@@ -59,6 +76,7 @@ Rules:
 - may depend on `domain/` and `application/`
 - should keep external side effects contained
 - should expose narrow interfaces to the rest of the codebase
+- should be organized by technical concern such as `config/`, `persistence/`, and `plotting/`
 
 ### `interfaces/`
 
@@ -73,6 +91,7 @@ Rules:
 - should be thin
 - should delegate business logic to `application/`
 - should not duplicate validation or workflow logic already expressed elsewhere
+- should translate external compatibility names only at this boundary when necessary
 
 ## Dependency direction
 

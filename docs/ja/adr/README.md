@@ -30,3 +30,7 @@
 ## テンプレート
 
 新しい ADR は [`0000-template.md`](0000-template.md) をベースに作成します。
+
+## 現在の ADR
+
+- [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): ranking domain foundation を `src/` への最初の移行スライスとして定義する

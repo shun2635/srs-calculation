@@ -24,6 +24,10 @@ Use descriptive file names such as:
 
 Specs should be reviewed before implementation begins for larger changes. The goal is to reduce ambiguity across collaborators, not to create bureaucracy for trivial edits.
 
+## Current specs
+
+- [`ranking-domain-foundation.md`](ranking-domain-foundation.md): first concrete migration slice for the new `src/` implementation
+
 ## Template
 
 Start from [`TEMPLATE.md`](TEMPLATE.md).

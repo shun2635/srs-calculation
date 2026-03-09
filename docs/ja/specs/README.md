@@ -24,6 +24,10 @@
 
 大きな変更の spec は、実装前にレビューされるべきです。目的は共同開発者間の曖昧さを減らすことであり、軽微な変更に形式だけを増やすことではありません。
 
+## 現在の spec
+
+- [`ranking-domain-foundation.md`](ranking-domain-foundation.md): 新しい `src/` 実装に向けた最初の具体的な移行スライス
+
 ## テンプレート
 
 [`TEMPLATE.md`](TEMPLATE.md) を起点にしてください。

@@ -1,0 +1,1 @@
+"""General figure rendering adapter."""

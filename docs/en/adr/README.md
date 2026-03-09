@@ -30,3 +30,7 @@ Keep titles short and decision-oriented.
 ## Starting point
 
 Use [`0000-template.md`](0000-template.md) as the template for new ADRs.
+
+## Current ADRs
+
+- [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): makes ranking domain foundation the first migration slice into `src/`

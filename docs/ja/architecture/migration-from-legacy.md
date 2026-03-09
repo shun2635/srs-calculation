@@ -57,11 +57,12 @@ domain と application が安定してから進めます。
 
 ## 対応付けの目安
 
-- `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/rules`
+- `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`
+- 連合やゲーム表現 -> `src/srs_calculation/domain/games`
 - `legacy/src/gamegen/axioms` -> `src/srs_calculation/domain/axioms`
 - `legacy/src/gamegen/commands` -> `src/srs_calculation/interfaces/cli`
-- `legacy/src/gamegen/io` -> `src/srs_calculation/infrastructure/io`
-- `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` と `application/`
+- `legacy/src/gamegen/io` -> `src/srs_calculation/infrastructure/persistence`
+- `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` と `src/srs_calculation/application/`
 - `legacy/config.yaml` 読み込み -> `src/srs_calculation/infrastructure/config`
 
 ## ある機能が移行完了とみなせる条件

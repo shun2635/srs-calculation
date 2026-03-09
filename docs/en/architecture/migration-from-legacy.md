@@ -57,11 +57,12 @@ Only after parity is demonstrated:
 
 ## Mapping hints
 
-- `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/rules`
+- `legacy/src/gamegen/rules` -> `src/srs_calculation/domain/ranking/rules`
+- coalition and game representations -> `src/srs_calculation/domain/games`
 - `legacy/src/gamegen/axioms` -> `src/srs_calculation/domain/axioms`
 - `legacy/src/gamegen/commands` -> `src/srs_calculation/interfaces/cli`
-- `legacy/src/gamegen/io` -> `src/srs_calculation/infrastructure/io`
-- `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` plus `application/`
+- `legacy/src/gamegen/io` -> `src/srs_calculation/infrastructure/persistence`
+- `legacy/src/realgen/commands` -> `src/srs_calculation/interfaces/cli` plus `src/srs_calculation/application/`
 - `legacy/config.yaml` loading -> `src/srs_calculation/infrastructure/config`
 
 ## Definition of done for a migrated capability
