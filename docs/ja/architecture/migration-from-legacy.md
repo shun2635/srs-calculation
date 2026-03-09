@@ -97,7 +97,7 @@ domain と application が安定してから進めます。
 
 現在の位置づけは次です。
 
-- `game-gen`: `src` 側で `apply-rules` / `rank-game` の実験用入口がある
+- `game-gen`: `src` 側で `gen-games` / `apply-rules` / `rank-game` の実験用入口がある
 - `real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` / `make-figures` / `feature-rule-heatmap` の実験用入口がある
 - `real-gen` の main な extra figure 群
   interaction index / red-index tables and scatter / shapley values / ordinal banzhaf values / lexcel rank count / rp-index top-k / give top-k

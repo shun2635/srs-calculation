@@ -93,6 +93,7 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 
 Current supported commands:
 
+- `srs-game-gen gen-games`: generate complete synthetic game CSV files under `outputs/games/nN/`
 - `srs-game-gen apply-rules`: apply migrated rules to a directory of legacy-style game CSV files
 - `srs-game-gen rank-game`: apply one migrated rule to one legacy-style game CSV file
 - `real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
@@ -100,7 +101,7 @@ Current supported commands:
 - `real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
 - `real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
 
-`real-gen` is now the published root CLI for this tree. `srs-game-gen` is intentionally partial. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full legacy production surface still lives under [`../legacy/`](../legacy/).
+`real-gen` is now the published root CLI for this tree. `srs-game-gen` is intentionally partial, but `gen-games`, `apply-rules`, and `rank-game` are already migrated. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full legacy production surface still lives under [`../legacy/`](../legacy/).
 
 ## Important rule
 

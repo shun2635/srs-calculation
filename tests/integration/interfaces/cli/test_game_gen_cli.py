@@ -65,8 +65,37 @@ def test_game_gen_cli_help_lists_supported_commands() -> None:
     result = runner.invoke(main, ["--help"])
 
     assert result.exit_code == 0
+    assert "gen-games" in result.output
     assert "apply-rules" in result.output
     assert "rank-game" in result.output
+
+
+def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
+    runner = CliRunner()
+    out_dir = tmp_path / "outputs"
+    result = runner.invoke(
+        main,
+        [
+            "gen-games",
+            "-p",
+            "2",
+            "-c",
+            "2",
+            "--max-score",
+            "3",
+            "--seed",
+            "1",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "wrote 2 game(s)" in result.output
+
+    game_dir = out_dir / "games" / "n2"
+    files = sorted(game_dir.glob("game_*.csv"))
+    assert len(files) == 2
 
 
 def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:

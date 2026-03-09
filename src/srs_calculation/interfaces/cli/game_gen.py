@@ -6,6 +6,7 @@ from pathlib import Path
 
 import click
 
+from ...application.game_generation import generate_synthetic_games
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_to_game_csv,
     apply_ranking_rules_in_directory,
@@ -61,6 +62,78 @@ def _resolve_apply_rules_dirs(
 @click.group()
 def main() -> None:
     """Entry point for the new synthetic-game CLI adapters."""
+
+
+@main.command(name="gen-games")
+@click.option(
+    "--players",
+    "-p",
+    type=click.IntRange(1, 12),
+    required=True,
+    help="Number of players.",
+)
+@click.option(
+    "--count",
+    "-c",
+    type=click.IntRange(1, None),
+    default=None,
+    help="Number of games to generate. Defaults to config or 1.",
+)
+@click.option(
+    "--max-score",
+    type=click.IntRange(0, None),
+    default=None,
+    help="Maximum coalition score. Defaults to config or 2^n - 1.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=None,
+    help="Optional random seed. Defaults to config.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory. Defaults to config or outputs.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional config.yaml path.",
+)
+def gen_games_command(
+    players: int,
+    count: int | None,
+    max_score: int | None,
+    seed: int | None,
+    out_dir: Path | None,
+    config_path: Path | None,
+) -> None:
+    """Generate complete synthetic game CSV files."""
+
+    try:
+        result = generate_synthetic_games(
+            players=int(players),
+            count=count,
+            max_score=max_score,
+            seed=seed,
+            out_dir=out_dir,
+            config_path=config_path,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not result.written_paths:
+        click.echo("no games generated")
+        return
+    click.echo(
+        f"wrote {len(result.written_paths)} game(s) to {result.games_dir} "
+        f"(players={result.player_count}, max_score={result.max_score})"
+    )
 
 
 @main.command(name="apply-rules")
