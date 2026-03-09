@@ -40,7 +40,7 @@ def main() -> None:
     "config_path",
     type=click.Path(path_type=Path),
     default=None,
-    help="Optional config.yaml path used for import_rank_bins.",
+    help="Optional explicit root config.yaml path used for import_rank_bins.",
 )
 def import_game_command(
     dataset_id: str,

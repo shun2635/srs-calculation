@@ -105,6 +105,13 @@ poetry run srs-test
 poetry run srs-test tests/unit -q
 ```
 
+Config rule for the root CLI:
+
+- configuration is loaded only when `--config <path>` is passed explicitly
+- there is no implicit lookup of `legacy/config.yaml`
+- there is no implicit lookup of `./config.yaml`
+- otherwise the root CLI uses built-in defaults from `src/`
+
 Current supported root commands:
 
 - `srs-game-gen gen-games`: generate complete synthetic game CSV files under `outputs/games/nN/`

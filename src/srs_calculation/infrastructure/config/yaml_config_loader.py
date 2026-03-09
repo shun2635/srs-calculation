@@ -9,7 +9,11 @@ import yaml
 
 
 def load_yaml_config(path: Path | None) -> dict[str, Any]:
-    """Load a YAML config file as a mapping, or return an empty mapping."""
+    """Load an explicitly provided YAML config file, or return an empty mapping.
+
+    The root CLI does not implicitly consult `legacy/config.yaml` or a repository-level
+    `config.yaml`. Configuration is opt-in through an explicit `--config` path.
+    """
 
     if path is None:
         return {}
@@ -20,7 +24,7 @@ def load_yaml_config(path: Path | None) -> dict[str, Any]:
 
 
 def get_realgen_import_rank_bins(path: Path | None, *, default: int = 5) -> int:
-    """Read realgen.import_rank_bins from a config file when present."""
+    """Read realgen.import_rank_bins from an explicitly provided config file."""
 
     config = load_yaml_config(path)
     realgen = config.get("realgen")

@@ -104,7 +104,7 @@ def main() -> None:
     "config_path",
     type=click.Path(path_type=Path),
     default=None,
-    help="Optional config.yaml path.",
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
 def gen_games_command(
     players: int,
@@ -149,20 +149,20 @@ def gen_games_command(
     "out_dir",
     type=click.Path(path_type=Path),
     default=None,
-    help="Output base directory for figures. Defaults to config or outputs.",
+    help="Output base directory for figures. Defaults to explicit config or outputs.",
 )
 @click.option(
     "--dpi",
     type=click.IntRange(72, 600),
     default=None,
-    help="Output PNG DPI. Defaults to config or 150.",
+    help="Output PNG DPI. Defaults to explicit config or 150.",
 )
 @click.option(
     "--config",
     "config_path",
     type=click.Path(path_type=Path),
     default=None,
-    help="Optional config.yaml path.",
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
 def make_figures_command(
     rankings_dir: Path | None,

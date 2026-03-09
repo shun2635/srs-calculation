@@ -137,6 +137,12 @@ Exit criteria:
 
 - normal root CLI usage does not rely on files under `legacy/`
 
+Current implementation note:
+
+- the supported root config lookup order is: explicit CLI arguments -> explicit `--config <path>` -> built-in defaults
+- there is no implicit lookup of `legacy/config.yaml`
+- there is no implicit lookup of repository-level `./config.yaml`
+
 ### Step 7. Prove removability in CI and local verification
 
 Goal:

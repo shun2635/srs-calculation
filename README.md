@@ -102,6 +102,12 @@ archive-only として `legacy/` 側に閉じる旧コマンドは、root CLI �
 2. `--config` で指定した YAML
 3. コード内の組み込み既定値
 
+補足:
+
+- root CLI は `legacy/config.yaml` を暗黙には読みません
+- root CLI は repository root の `./config.yaml` も自動探索しません
+- YAML 設定を使う場合は、必ず `--config <path>` を明示してください
+
 root CLI で現在使う主要設定キー:
 
 - `output_base`: 出力ルート。既定は `outputs`

@@ -137,6 +137,12 @@
 
 - 通常の root CLI 利用が `legacy/` 配下ファイルを要求しない
 
+現在の実装メモ:
+
+- サポート対象 root config lookup order は、明示 CLI 引数 -> 明示 `--config <path>` -> built-in default
+- `legacy/config.yaml` の暗黙 lookup は行わない
+- repository root の `./config.yaml` も自動探索しない
+
 ### Step 7. CI とローカルで「消せる」ことを証明する
 
 目的:
