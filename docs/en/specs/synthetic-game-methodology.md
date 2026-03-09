@@ -2,19 +2,21 @@
 
 ## Summary
 
-This document specifies the current synthetic-game workflow exposed through the root `srs-game-gen` CLI at a level suitable for papers, appendices, and research notes.
+This document fixes the current `srs-game-gen` synthetic-game workflow at a level suitable for papers, appendices, and research notes.
 
 It covers:
 
 - simulation settings
-- game-score and base-rank generation
-- ranking-rule output generation
-- randomization
-- rank-correlation handling
+- game generation and randomization
+- base-rank and rule-specific rank generation
+- the calculation methods behind `rank-heatmap` and `rule-corr-heatmap`
+- the minimum information required for reproducibility
+
+This is the English version. Its content is intended to stay synchronized with the [Japanese version](../../ja/specs/synthetic-game-methodology.md). When one changes, the other should be reviewed.
 
 ## Scope
 
-This specification covers the root-supported commands:
+This specification covers the root-supported synthetic commands:
 
 - `srs-game-gen gen-games`
 - `srs-game-gen apply-rules`
@@ -25,34 +27,57 @@ This specification covers the root-supported commands:
 
 Out of scope:
 
-- archive-only axiom-checking and related historical commands
+- archive-only `game-gen check-axioms`
+- archive-only `game-gen summarize-axioms`
+- archive-only `game-gen axiom-summary-heatmap`
+- archive-only `game-gen pipeline`
+- archive-only `game-gen make-figures-png`
 
-## 1. Simulation settings
+## 1. Workflow overview
 
-### 1.1 Number of players
+The current synthetic workflow is normally used in four stages:
 
-- specified by `--players` / `-p`
+1. generate complete game CSV files with `srs-game-gen gen-games`
+2. apply ranking rules with `srs-game-gen apply-rules`
+3. render table figures with `srs-game-gen make-figures`
+4. when needed, visualize rank comparisons with `srs-game-gen rank-heatmap` and `srs-game-gen rule-corr-heatmap`
+
+The default output layout is:
+
+- games: `outputs/games/nN/game_*.csv`
+- rankings: `outputs/rankings/nN/game_*.csv`
+- figures: `outputs/figures/nN/game_*.png`
+- heatmaps: `outputs/heatmaps/nN/*.png`
+
+Here `N` is the number of players.
+
+## 2. Simulation settings
+
+### 2.1 Number of players
+
+- specified by `--players` or `-p`
 - current CLI range: `1 <= n <= 12`
+- each generated game is treated as a complete cooperative game with `n` players
 
-### 1.2 Number of games
+### 2.2 Number of games
 
-- specified by `--count` / `-c`
+- specified by `--count` or `-c` in `gen-games`
 - default: `config.gen_games.count`
 - fallback default: `1`
 
-### 1.3 Maximum score
+### 2.3 Maximum score
 
-- specified by `--max-score`
+- specified by `--max-score` in `gen-games`
 - default: `config.gen_games.max_score`
 - fallback default: `2^n - 1`
 
-### 1.4 Output base
+### 2.4 Output base
 
 - specified by `--out`
 - default: `config.output_base`
 - fallback default: `outputs`
 
-### 1.5 Config precedence
+### 2.5 Config precedence
 
 The root CLI resolves configuration in this order:
 
@@ -60,37 +85,41 @@ The root CLI resolves configuration in this order:
 2. explicit YAML passed with `--config <path>`
 3. built-in defaults from `src`
 
-The root CLI does not implicitly read `legacy/config.yaml` or repository-level `./config.yaml`.
+Notes:
 
-## 2. Game generation
+- the root CLI does not implicitly read `legacy/config.yaml`
+- it does not auto-discover repository-level `./config.yaml`
+- when `output_base` is relative and `--config` is used, it is resolved relative to the config file location
 
-### 2.1 Game definition
+## 3. Game generation
 
-Each generated game is treated as a complete cooperative game over `N = {1, ..., n}`.
+### 3.1 Game definition
 
-- coalitions are represented by bitmasks
+Each synthetic game is represented as a complete cooperative game over `N = {1, ..., n}`.
+
+- coalitions are encoded as bitmasks
 - `player1` corresponds to bit 0, `player2` to bit 1, and so on
 - each game contains all `2^n` coalitions
 
-### 2.2 Score generation
+### 3.2 Random coalition-score generation
 
-For each coalition `S ⊆ N`, the workflow independently samples an integer coalition score.
+For each coalition `S ⊆ N`, the workflow independently samples a coalition score `v(S)`.
 
-- RNG: `random.Random(seed)`
+- RNG: Python standard-library `random.Random(seed)`
 - distribution: discrete uniform on `{0, 1, ..., M}`
-- `M = max_score`
+- where `M = max_score`
 
-Implementation-wise, the workflow calls `rng.randint(0, max_score)` once per coalition mask.
+Implementation-wise, the workflow calls `rng.randint(0, max_score)` once per coalition mask and stores the result as `float`.
 
-Important note:
+Important notes:
 
-- the empty coalition is randomized in the same way as other coalitions
-- the current root workflow does not enforce `v(∅)=0`
-- no monotonicity, superadditivity, convexity, or similar structural game constraints are imposed
+- the empty coalition is randomized in the same way as every other coalition
+- the current workflow does not enforce `v(∅)=0`
+- no monotonicity, superadditivity, convexity, simplicity, or similar structural game constraints are imposed
 
 So the current root synthetic workflow samples unconstrained complete game tables from an iid discrete-uniform coalition-score model.
 
-### 2.3 Multiple games and RNG consumption
+### 3.3 RNG consumption for multiple games
 
 When `--count K` is used:
 
@@ -98,207 +127,296 @@ When `--count K` is used:
 - games are generated sequentially
 - each game consumes the next segment of the same RNG stream
 
-Therefore, the tuple `(n, count, max_score, seed)` determines a reproducible sequence of game CSV files.
+Therefore, the tuple `(n, count, max_score, seed)` determines the reproducible random stream.
 
-### 2.4 File naming
+### 3.4 File naming and indexing
 
-Generated files are written as `game_000001.csv`, `game_000002.csv`, and so on.
+Generated files are named `game_000001.csv`, `game_000002.csv`, and so on.
 
-- if files already exist, the workflow fills the lowest unused indices
-- filenames are therefore stable, but the RNG stream still depends on execution order
+- when files already exist, the workflow fills the smallest unused indices
+- the numeric indices therefore depend on the existing directory state
+- the RNG stream itself still depends on the execution order within the run
 
-## 3. Base-rank generation
+For paper-grade reproducibility, it is therefore more important to control the seed and generation parameters on a clean target directory than to rely only on filenames.
 
-### 3.1 Row order
+## 4. Game-CSV serialization rules
 
-Rows in the game CSV are written in the following order:
+### 4.1 Row order
 
-1. descending coalition score
+Coalition rows in the game CSV are written in the following order:
+
+1. descending `score`
 2. ascending coalition bitmask as a deterministic tie-break
 
-### 3.2 Base `rank` column
+This tie-break exists only to make equal-score ordering deterministic.
 
-The base `rank` column in the game CSV is a dense descending rank over coalition scores.
+### 4.2 Base `rank` column
+
+The game CSV `rank` column is the dense descending rank of coalition scores.
 
 - best score gets rank `1`
 - ties share the same rank
-- the rank increases by `1` when the score value changes
+- the rank increases by `1` whenever the score value changes
 
 Example:
 
 - `score = [10, 10, 8, 3, 3]`
 - `rank = [1, 1, 2, 3, 3]`
 
-This base `rank` column is the coalition-score rank of the generated game itself, not a rule-specific ranking output.
+This base `rank` is the coalition-score rank of the generated game itself, not a rule-specific output.
 
-## 4. Ranking-rule output generation
+### 4.3 Game-CSV columns
 
-### 4.1 Current root-supported rules
+The default game-CSV header is:
 
-If `srs-game-gen apply-rules` is called without explicit `--rule` arguments, it applies all rules in the current default registry:
+- `player1`, `player2`, ..., `playerN`
+- `score`
+- `rank`
+
+Each `playeri` column is a 0/1 coalition-membership indicator.
+
+## 5. Ranking-rule application
+
+### 5.1 Current root-supported rules
+
+If `apply-rules` is called without explicit `--rule` arguments, it applies all rules in the current default registry:
 
 - `shapley`
 - `banzhaf`
 - `lexcel`
 - `ordinal_banzhaf`
 
-### 4.2 Rule meanings
+### 5.2 `shapley`
 
-#### `shapley`
-
-For each player `i`, sum the marginal contributions
+For each player `i`, the workflow evaluates the marginal contribution
 
 `v(S ∪ {i}) - v(S)`
 
-over all `S ⊆ N \\ {i}`, weighted by the Shapley coefficient
+over all `S ⊆ N \ {i}` and weights it by the Shapley coefficient
 
 `|S|! (n-|S|-1)! / n!`.
 
-#### `banzhaf`
+The resulting player scores are then ranked by dense descending order.
 
-For each player `i`, sum
+### 5.3 `banzhaf`
+
+For each player `i`, the workflow sums
 
 `v(S ∪ {i}) - v(S)`
 
-over all `S ⊆ N \\ {i}` and divide by `2^(n-1)`.
+over all `S ⊆ N \ {i}` and divides by `2^(n-1)`.
 
-#### `lexcel`
+The resulting player scores are then ranked by dense descending order.
 
-Assign score levels `1, 2, ...` to distinct coalition scores from best to worst. For each player, build a `theta` vector counting how many coalitions containing that player appear at each level. Rank players by lexicographic descending comparison of these vectors.
+### 5.4 `lexcel`
 
-#### `ordinal_banzhaf`
+The workflow first assigns score levels `1, 2, ...` to distinct coalition-score values from best to worst.
 
-Assign score levels `1, 2, ...` to distinct coalition scores from best to worst. For each player `i`, count:
+For each player, it constructs a `theta` vector
 
-- `u_plus(i)`: cases where adding `i` improves the coalition level
-- `u_minus(i)`: cases where adding `i` worsens the coalition level
+`theta_i = (c_{i,1}, c_{i,2}, ..., c_{i,L})`
 
-and define the score as
+where `c_{i,l}` counts coalitions at level `l` that include player `i`.
+
+Players are ranked by lexicographic descending comparison of these `theta` vectors. In the current compatibility CSV, `lexcel` writes only a rank column and no score column.
+
+### 5.5 `ordinal_banzhaf`
+
+The workflow first assigns score levels `1, 2, ...` to distinct coalition-score values from best to worst.
+
+For each player `i` and each `S ⊆ N \ {i}`:
+
+- count one `u_plus(i)` when adding `i` improves the level
+- count one `u_minus(i)` when adding `i` worsens the level
+
+The score is then defined as
 
 `u_plus(i) - u_minus(i)`.
 
-### 4.3 Internal ranks vs serialized CSV ranks
+The resulting player scores are ranked by dense descending order.
 
-The rule implementations internally produce dense player ranks:
+### 5.6 Complete-game requirement
 
-- `shapley`, `banzhaf`, `ordinal_banzhaf`: dense descending rank of player scores
-- `lexcel`: dense lexicographic descending rank of the `theta` vectors
+By default, `apply-rules` and `rank-game` require a complete game table.
 
-However, the serialized `rank_*` columns in the rankings CSV depend on `--rank-style`:
+- default behavior: `--require-complete`
+- exception: incomplete tables are allowed only with `--allow-incomplete`
+
+For normal synthetic-paper workflows, complete games should be assumed.
+
+## 6. Rankings-CSV serialization rules
+
+### 6.1 Base columns
+
+The rankings CSV preserves the base game columns:
+
+- `score`
+- `rank`
+
+These remain coalition-score columns, not rule-output columns.
+
+### 6.2 Rule-output columns
+
+Under the current compatibility format, rules are serialized as:
+
+- `shapley` -> `score_shapley`, `rank_shapley`
+- `banzhaf` -> `score_banzhaf`, `rank_banzhaf`
+- `lexcel` -> `rank_lexcel`
+- `ordinal_banzhaf` -> `rank_o-banzhaf`
+
+Notes:
+
+- `ordinal_banzhaf` internally has a score, but the current compatibility CSV does not write `score_o-banzhaf`
+- derived-column order is fixed by the canonical compatibility order
+
+### 6.3 Why values appear only on singleton rows
+
+All currently migrated synthetic rules are player-scope rules. Therefore:
+
+- `score_*` and `rank_*` are written only on singleton coalition rows
+- all non-singleton coalition rows are left blank for those rule columns
+
+This is a deliberate compatibility decision inherited from the historical CSV surface.
+
+### 6.4 `rank_style`
+
+The internal rule ranks are dense ranks, but serialized `rank_*` columns depend on `--rank-style`.
 
 - default: `competition`
 - alternative: `dense`
 
-Under `competition`, ties leave gaps:
+Example:
 
 - dense: `1, 1, 2, 3`
 - competition: `1, 1, 3, 4`
 
-### 4.4 How `rank_*` and `score_*` columns are filled
+When papers refer to serialized rule ranks, they should state whether `competition` or `dense` formatting was used. The root default is `competition`.
 
-All currently migrated synthetic rules are player-scope rules. Therefore, in the rankings CSV:
+## 7. Meaning of `make-figures`
 
-- `score_*` and `rank_*` values are written only on singleton rows
-- all non-singleton coalition rows are left blank for those rule columns
-
-Current compatibility column names are:
-
-- `score_shapley`, `rank_shapley`
-- `score_banzhaf`, `rank_banzhaf`
-- `rank_lexcel`
-- `rank_o-banzhaf`
-
-`ordinal_banzhaf` internally computes a score, but the current compatibility CSV serialization does not write a `score_o-banzhaf` column.
-
-## 5. Meaning of `make-figures`
-
-`srs-game-gen make-figures` renders PNG table figures from rankings CSV files.
+`srs-game-gen make-figures` converts rankings CSV files into PNG table figures.
 
 - input: `outputs/rankings/**/game_*.csv`
 - output: `outputs/figures/**/game_*.png`
 
-The command reorganizes and renders:
+This command does not compute additional rank statistics or correlation statistics. It only renders:
 
-- the base coalition `rank` and `score`
+- the base `score` and `rank`
 - the available `rank_*` columns
 
-It does not compute new correlation statistics or additional ranking summaries.
+## 8. Rank-correlation and rank-comparison methods
 
-## 6. Rank-correlation handling
+### 8.1 Effective-rank definition
 
-### 6.1 Current root `srs-game-gen`
+`rank-heatmap` and `rule-corr-heatmap` do not compare serialized rank labels directly. They first convert each `rank_*` column into an effective rank.
 
-The current root-supported `srs-game-gen` surface includes:
-
-- `srs-game-gen rank-heatmap`
-- `srs-game-gen rule-corr-heatmap`
-
-Both commands first convert historical `rank_*` columns into effective ranks instead of comparing the serialized rank labels directly.
-
-The effective rank uses the competition-style definition:
+The definition is:
 
 `effective_rank(A) = 1 + |{B : rank(B) < rank(A)}|`
 
-This absorbs differences between dense and serialized competition ranks and compares tied items by the start position of each tie block.
+This is the number of strictly better items plus one, corresponding to the start position of the competition-style tie block.
 
-### 6.2 `rank-heatmap`
+This preprocessing:
 
-`rank-heatmap` takes one pair of `rank_*` columns and counts the frequency of effective-rank pairs `(r_x, r_y)`, then renders the result as a 2D heatmap.
+- absorbs representation differences between dense and competition ranks
+- stabilizes comparisons in the presence of ties
 
-In the current implementation:
+### 8.2 Scope handling
 
-- player-scope rules use singleton rows only
-- coalition-scope rules use non-empty coalition rows
-- the default pair is `rank_lexcel` versus `rank_shapley`
-- if config sets `rank_heatmap.pairs: all` or `auto`, all within-scope pairs are rendered
+The plotting code infers a scope for each rank column.
 
-The default output directory is `outputs/heatmaps/nN/`.
+- if a rank column has values outside singleton rows, it is treated as coalition-scope
+- if values appear only on singleton rows, it is treated as player-scope
 
-### 6.3 `rule-corr-heatmap`
+All currently migrated synthetic rules are player-scope, so singleton rows are normally the only active rows.
 
-`rule-corr-heatmap` vertically concatenates rankings CSV files and computes a rule-by-rule correlation matrix over effective-rank columns.
+### 8.3 `rank-heatmap`
+
+For a selected pair of rank columns `x_col` and `y_col`, `rank-heatmap` performs the following, file by file:
+
+1. restrict rows to the target scope
+2. keep only rows where both `x_col` and `y_col` are non-null
+3. convert `x_col` and `y_col` separately into effective ranks within that file and valid row subset
+4. count the frequency of each effective-rank pair `(r_x, r_y)`
+5. sum those frequencies across files
+
+The result is rendered as a frequency matrix heatmap.
+
+Current defaults:
+
+- default pair: `rank_lexcel` vs `rank_shapley`
+- default output: `outputs/heatmaps/nN/<x_col>_vs_<y_col>.png`
+- default DPI: `150`
+
+Config `rank_heatmap.pairs` can also be used:
+
+- explicit list: fixes the pairs to render
+- `all` or `auto`: renders every within-scope pair
+
+### 8.4 `rule-corr-heatmap`
+
+`rule-corr-heatmap` computes rule-by-rule correlation matrices by vertically concatenating rankings CSV files.
 
 The computation is:
 
-1. convert each `rank_*` column, per file, into effective ranks
+1. for each file, convert each `rank_*` column into effective ranks on the valid rows for its scope
 2. restrict player-scope rules to singleton rows and coalition-scope rules to non-empty coalition rows
-3. concatenate the selected rows across files
-4. compute the rule-by-rule matrix with `pandas.DataFrame.corr(method=...)`
+3. concatenate the resulting effective-rank tables across files
+4. compute the rule-by-rule matrix with `pandas.DataFrame.corr(method=..., min_periods=1)`
 
-The default method is `spearman`. It can be overridden by CLI `--method` or by config `rule_corr_heatmap.method`.
+Correlation method:
 
-### 6.4 Relationship to the historical archive
+- default: `spearman`
+- override via CLI `--method`
+- also configurable through `rule_corr_heatmap.method`
 
-The historical archive command `legacy game-gen rule-corr-heatmap` used the following method:
+Outputs are scope-specific:
 
-1. convert each `rank_*` column, per file and per column, into an effective competition-style rank  
-   `effective_rank(A) = 1 + |{B : rank(B) < rank(A)}|`
-2. restrict to singleton rows for player rules, or non-empty coalition rows for coalition rules
-3. concatenate the selected rows across all ranking CSV files
-4. apply `pandas.DataFrame.corr(method=...)`
-5. use `spearman` by default
+- `rule_corr_player.png` if player-scope columns exist
+- `rule_corr_coalition.png` if coalition-scope columns exist
 
-The current root implementation is an explicit migration of this historical method into `src/`. In papers, it can now be described as part of the current root-supported workflow.
+With the current migrated synthetic rules, `rule_corr_player.png` is the usual output.
 
-## 7. Reproducibility checklist
+### 8.5 Relation to the historical method
 
-For papers and appendices, record at least:
+This rank-correlation method is an explicit migration into `src/` of the approach historically implemented in `legacy/src/gamegen/rank_heatmap.py`.
 
-- commit hash
-- command line
-- `n`
+Therefore, papers may describe it either as:
+
+- the current root-supported workflow method
+- a historically derived method that has been explicitly reimplemented in `src/`
+
+At the current repository state, it is accurate to describe it as part of the present root-supported workflow.
+
+## 9. Important CLI defaults
+
+For paper-grade reproducibility, the following defaults should not be left implicit.
+
+- `apply-rules --rank-style` defaults to `competition`
+- `rank-heatmap --dpi` defaults to `150` or `config.figures.png_dpi`
+- `rule-corr-heatmap --method` defaults to `spearman`
+- `make-figures --dpi` defaults to `150` or `config.figures.png_dpi`
+
+## 10. Minimum reproducibility record
+
+At minimum, keep:
+
+- repository commit hash
+- full CLI commands
+- `players`
 - `count`
 - `max_score`
 - `seed`
 - `rank_style`
 - applied rule list
 - YAML contents when `--config` is used
+- preserved output directory
 
-## 8. Recommended paper wording
+## 11. Concise paper-ready method paragraph
 
-One concise description of the current root workflow is:
+One compact formulation is:
 
-> We generated complete cooperative games with `2^n` coalitions. For each coalition, we sampled an integer score independently and uniformly from `{0, ..., M}` using Python's `random.Random(seed)`. Coalition rows were ordered by descending score with bitmask-based tie-breaking, and the base coalition rank column was assigned as a dense descending rank. Player-level ranking rules were then applied to each generated game, and their serialized output ranks were reported in competition-rank format unless otherwise specified.
+> We generated complete cooperative games with `2^n` coalitions for `n` players. Each coalition score was sampled independently and uniformly from `{0, ..., M}` using Python's `random.Random(seed)` without imposing structural game constraints such as monotonicity or convexity. Coalition rows were ordered by descending score with a bitmask-based deterministic tie-break, and the base coalition-rank column was assigned as a dense descending rank. We then applied player-level ranking rules and serialized their output ranks in competition-rank format unless otherwise stated. For rank-comparison analyses, we transformed each serialized `rank_*` column into an effective rank defined by `1 + |{B : rank(B) < rank(A)}|`, and computed pairwise heatmaps or rule-correlation matrices from those effective ranks.
 
 ## Related documents
 
