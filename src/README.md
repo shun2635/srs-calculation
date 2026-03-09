@@ -56,6 +56,7 @@ The ranking migration slice currently includes:
 - application services for in-memory rule execution and legacy-style game-CSV workflows under `application/ranking`
 - persistence adapters for legacy-compatible game CSV and rankings CSV files under `infrastructure/persistence`
 - a dataset-scoped real-data ranking workflow under `application/ranking/apply_ranking_rules_to_real_dataset.py`
+- a dataset-ingestion workflow for feature-mask tables under `application/dataset_ingestion/import_feature_mask_table.py`
 - thin CLI adapters for migrated `game-gen` and partial `real-gen` workflows under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
 
@@ -75,6 +76,7 @@ Show command-specific help:
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen import-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --help
 ```
 
@@ -82,9 +84,10 @@ Current supported commands:
 
 - `apply-rules`: apply migrated rules to a directory of legacy-style game CSV files
 - `rank-game`: apply one migrated rule to one legacy-style game CSV file
+- `real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
 - `real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
 
-This CLI is intentionally partial. The real-data `import-game` and figure commands are not migrated yet. The full production CLI surface still lives under [`../legacy/`](../legacy/).
+This CLI is intentionally partial. The real-data figure and heatmap commands are not migrated yet. The full production CLI surface still lives under [`../legacy/`](../legacy/).
 
 ## Important rule
 

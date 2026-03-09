@@ -93,4 +93,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `docs/` は「共同研究者向けの案内」と「新規実装の標準文書」
 - `src/` は「新規実装の本体置き場」
 
-現時点では、この分担で読むのが最も効率的です。公開入口はまだ `legacy` ですが、移行済みの ranking workflow は `src` 側から直接試せます。
+現時点では、この分担で読むのが最も効率的です。公開入口はまだ `legacy` ですが、移行済みの ranking workflow と real-data import は `src` 側から直接試せます。

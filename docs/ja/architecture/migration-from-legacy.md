@@ -87,6 +87,7 @@ domain と application が安定してから進めます。
 - legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
 - 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
 - dataset-scoped な real-data ranking workflow を担う `application/ranking/apply_ranking_rules_to_real_dataset.py`
+- feature-mask table の import workflow を担う `application/dataset_ingestion/import_feature_mask_table.py`
 - 移行した ranking workflow に被せる partial な real-data CLI adapter を担う `interfaces/cli/real_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
 - 初回バッチの ranking rule を deterministic な fixture で比較する parity test
@@ -96,8 +97,8 @@ domain と application が安定してから進めます。
 現在の位置づけは次です。
 
 - `game-gen`: `src` 側で `apply-rules` / `rank-game` の実験用入口がある
-- `real-gen`: `src` 側で dataset-scoped な `apply-rules` の実験用入口がある
-- `real-gen import-game` と figure 系コマンドは、まだ `legacy` 側が唯一の実装である
+- `real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` の実験用入口がある
+- `real-gen` の figure 系コマンドと heatmap 系コマンドは、まだ `legacy` 側が唯一の実装である
 
 ## ある機能が移行完了とみなせる条件
 

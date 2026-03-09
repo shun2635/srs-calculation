@@ -102,4 +102,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `legacy/README.md`: CLI usage for the current codebase
 - `legacy/docs/`: detailed technical and mathematical appendices
 
-This split is intentional while the repository is still centered on the legacy implementation. The published CLI is still legacy-first, but migrated ranking workflows can already be exercised from `src/`.
+This split is intentional while the repository is still centered on the legacy implementation. The published CLI is still legacy-first, but migrated ranking workflows and real-data import can already be exercised from `src/`.

@@ -6,12 +6,60 @@ from pathlib import Path
 
 import click
 
+from ...application.dataset_ingestion import import_feature_mask_dataset
 from ...application.ranking import apply_ranking_rules_to_real_dataset
 
 
 @click.group()
 def main() -> None:
     """Entry point for the new real-data CLI adapters."""
+
+
+@main.command(name="import-game")
+@click.argument("dataset_id", type=str)
+@click.option(
+    "--inputs-root",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Inputs root containing feature-mask datasets.",
+)
+@click.option(
+    "--out",
+    "out_root",
+    type=click.Path(path_type=Path),
+    default=Path("outputs") / "real",
+    show_default=True,
+    help="Real-data output root or one dataset directory.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional config.yaml path used for import_rank_bins.",
+)
+def import_game_command(
+    dataset_id: str,
+    inputs_root: Path | None,
+    out_root: Path,
+    config_path: Path | None,
+) -> None:
+    """Import one feature-mask dataset into a dataset-scoped game CSV."""
+
+    try:
+        result = import_feature_mask_dataset(
+            dataset_id,
+            inputs_root=inputs_root,
+            out_root=out_root,
+            config_path=config_path,
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"wrote game CSV to {result.game_csv_path}")
+    click.echo(f"wrote feature labels to {result.features_yaml_path}")
 
 
 @main.command(name="apply-rules")
@@ -44,6 +92,13 @@ def main() -> None:
     help="Optional schema.yaml path used to resolve default rules.",
 )
 @click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Reserved for future config-backed defaults.",
+)
+@click.option(
     "--rule",
     "--rules",
     "rule_ids",
@@ -69,6 +124,7 @@ def apply_rules_command(
     games_dir: Path | None,
     rankings_dir: Path | None,
     schema_path: Path | None,
+    config_path: Path | None,
     rule_ids: tuple[str, ...],
     rank_style: str,
     allow_incomplete: bool,

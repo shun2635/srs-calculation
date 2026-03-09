@@ -139,6 +139,7 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen import-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --help
 ```
 
@@ -146,9 +147,10 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --h
 
 - `game_gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
 - `game_gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+- `real_gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
 - `real_gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
 
-この CLI は意図的に partial です。たとえば `real_gen import-game` や figure 系コマンドはまだ移行していません。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
+この CLI は意図的に partial です。`real_gen` では figure 系コマンドや heatmap 系コマンドはまだ移行していません。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
 
 ## Documentation map
 

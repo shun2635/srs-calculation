@@ -99,10 +99,16 @@ def read_legacy_game_csv(
 def write_legacy_game_csv(
     path: Path,
     game: CoalitionGame,
+    *,
+    ranks_by_mask: dict[int, int] | None = None,
 ) -> None:
     """Write a CoalitionGame as a legacy-compatible game CSV."""
 
-    base_ranks_by_mask = _dense_base_ranks_by_mask(game)
+    effective_ranks_by_mask = (
+        {int(mask): int(rank) for mask, rank in ranks_by_mask.items()}
+        if ranks_by_mask is not None
+        else _dense_base_ranks_by_mask(game)
+    )
     ordered_masks = _ordered_masks_for_output(game)
     header = [f"player{i + 1}" for i in range(game.player_count)] + ["score", "rank"]
 
@@ -116,7 +122,7 @@ def write_legacy_game_csv(
                 membership
                 + [
                     _format_score(game.coalition_value(mask)),
-                    str(int(base_ranks_by_mask[int(mask)])),
+                    str(int(effective_ranks_by_mask[int(mask)])),
                 ]
             )
 

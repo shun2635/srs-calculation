@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 
 from ...domain.ranking.registry import build_default_ranking_rule_registry
+from ...infrastructure.datasets import resolve_real_dataset_out_base
 from .apply_ranking_rules_to_game_csv import (
     AppliedRankingCsvResult,
     apply_ranking_rules_in_directory,
@@ -24,14 +25,6 @@ class AppliedRealDatasetRankingResult:
     rankings_dir: Path
     rule_ids: tuple[str, ...]
     csv_results: tuple[AppliedRankingCsvResult, ...]
-
-
-def resolve_real_dataset_out_base(dataset_id: str, *, out_root: Path | None = None) -> Path:
-    """Resolve the dataset-scoped output directory for the real-data workflow."""
-
-    root = Path("outputs") / "real" if out_root is None else Path(out_root)
-    return root if root.name == str(dataset_id) else root / str(dataset_id)
-
 
 def _load_rule_ids_from_schema(schema_path: Path) -> list[str]:
     raw = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
