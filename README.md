@@ -198,6 +198,7 @@ Use the root Poetry environment for `src`-based tests.
 ```bash
 poetry install
 poetry run srs-test
+poetry run srs-verify-no-legacy
 ```
 
 You can also forward normal pytest arguments:
@@ -206,3 +207,5 @@ You can also forward normal pytest arguments:
 poetry run srs-test tests/unit -q
 poetry run srs-test tests/integration/application/ranking/test_apply_ranking_rules.py
 ```
+
+`poetry run srs-verify-no-legacy` temporarily hides the `legacy/` directory, runs the root CLI help commands, runs the full root test suite, and then restores `legacy/`.

@@ -77,6 +77,7 @@ The repository root also publishes:
 poetry run real-gen --help
 poetry run srs-game-gen --help
 poetry run srs-test
+poetry run srs-verify-no-legacy
 ```
 
 Show the top-level help:
@@ -103,6 +104,7 @@ Run the root test suite through Poetry:
 ```bash
 poetry run srs-test
 poetry run srs-test tests/unit -q
+poetry run srs-verify-no-legacy
 ```
 
 Config rule for the root CLI:

@@ -22,6 +22,7 @@ mypy = "^1.11"
 "real-gen" = "srs_calculation.interfaces.cli.real_gen:main"
 "srs-game-gen" = "srs_calculation.interfaces.cli.game_gen:main"
 "srs-test" = "srs_calculation.interfaces.cli.test_runner:main"
+"srs-verify-no-legacy" = "srs_calculation.interfaces.cli.verify_without_legacy:main"
 
 [build-system]
 requires = ["poetry-core>=1.8.0"]
