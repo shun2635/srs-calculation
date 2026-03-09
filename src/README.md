@@ -57,7 +57,7 @@ The ranking migration slice currently includes:
 - persistence adapters for legacy-compatible game CSV and rankings CSV files under `infrastructure/persistence`
 - a dataset-scoped real-data ranking workflow under `application/ranking/apply_ranking_rules_to_real_dataset.py`
 - a dataset-ingestion workflow for feature-mask tables under `application/dataset_ingestion/import_feature_mask_table.py`
-- real-data plotting workflows under `application/experiments/run_real_data_experiment.py`
+- real-data plotting workflows, including canonical and extra figures, under `application/experiments/run_real_data_experiment.py`
 - thin CLI adapters for migrated `game-gen` and partial `real-gen` workflows under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
 
@@ -89,10 +89,10 @@ Current supported commands:
 - `rank-game`: apply one migrated rule to one legacy-style game CSV file
 - `real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
 - `real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
-- `real-gen make-figures`: render canonical table-style PNG figures from `outputs/real/<dataset_id>/rankings/`
+- `real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
 - `real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
 
-This CLI is intentionally partial. Canonical real-data figures and the feature-rule heatmap are migrated, but the larger family of best-effort extra figures is not. The full production CLI surface still lives under [`../legacy/`](../legacy/).
+This CLI is intentionally partial. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full production CLI surface still lives under [`../legacy/`](../legacy/).
 
 ## Important rule
 

@@ -151,10 +151,10 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 - `game_gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
 - `real_gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
 - `real_gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
-- `real_gen make-figures`: dataset-scoped な rankings CSV から table-style PNG を生成する
+- `real_gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
 - `real_gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
 
-この CLI は意図的に partial です。`real_gen` では canonical な figure / heatmap 経路は移行済みですが、interaction index や red-index 系などの extra 図表群はまだ移行していません。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
+この CLI は意図的に partial です。`real_gen` では canonical な figure / heatmap と、interaction index・red-index・Shapley values・Ordinal Banzhaf values・Lexcel rank count・RP Index top-k・Give top-k などの extra 図表群まで移行済みですが、legacy 側の周辺オプションや細かな描画互換はまだ残っています。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
 
 ## Documentation map
 
