@@ -78,7 +78,8 @@ src/
 - 外部副作用をこの層に閉じ込める
 - 他層には狭いインターフェースだけを公開する
 - `config/`、`persistence/`、`plotting/` のように技術責務で整理する
-- CSV 列名の互換維持のような legacy 互換ロジックは、`domain/` ではなくこの層に閉じ込める
+- CSV 列名の互換維持のような compatibility-format ロジックは、`domain/` ではなくこの層に閉じ込める
+- 歴史的な CSV 互換は `src/` が所有する compatibility layer として扱い、`legacy/` パッケージへの依存理由にしない
 
 ### `interfaces/`
 
@@ -124,7 +125,7 @@ tests/
 
 ## `src/` に入れないもの
 
-- `legacy/` 挙動を一時的に維持するためだけの互換コード
+- `legacy/` パッケージへの直接 runtime 依存
 - 大きな生成物
 - `docs/` に置くべき断片的な研究メモ
 - 生の外部データセット

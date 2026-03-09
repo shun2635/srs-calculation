@@ -80,7 +80,7 @@ def import_game_command(
     "--games-dir",
     type=click.Path(path_type=Path),
     default=None,
-    help="Directory containing legacy-style game CSV files for the dataset.",
+    help="Directory containing compatibility-format game CSV files for the dataset.",
 )
 @click.option(
     "--rankings-dir",

@@ -223,4 +223,4 @@ Reviewers should ask:
 
 ## Current limitation
 
-The current suite is still migration-oriented. Some tests intentionally reflect legacy-compatible behavior rather than the final ideal architecture. As the `src/` implementation becomes authoritative, some parity tests may later be retired or narrowed.
+The current suite is still migration-oriented. Some tests intentionally reflect compatibility-format behavior rather than the final ideal architecture. As the `src/` implementation becomes authoritative, some parity tests may later be retired or narrowed.

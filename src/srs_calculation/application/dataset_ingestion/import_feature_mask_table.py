@@ -14,7 +14,7 @@ from ...infrastructure.datasets import (
     resolve_real_dataset_out_base,
     write_feature_labels_yaml,
 )
-from ...infrastructure.persistence import write_legacy_game_csv
+from ...infrastructure.persistence import write_compatible_game_csv
 
 
 @dataclass(frozen=True)
@@ -431,7 +431,7 @@ def import_feature_mask_dataset(
     features_yaml_path = game_csv_path.with_suffix(".features.yaml")
     copied_schema_path = dataset_out_base / "schema.yaml"
 
-    write_legacy_game_csv(
+    write_compatible_game_csv(
         game_csv_path,
         imported_game.game,
         ranks_by_mask=imported_game.ranks_by_mask,

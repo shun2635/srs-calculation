@@ -34,3 +34,4 @@
 ## 現在の ADR
 
 - [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): ranking domain foundation を `src/` への最初の移行スライスとして定義する
+- [`0002-retire-legacy-only-synthetic-commands.md`](0002-retire-legacy-only-synthetic-commands.md): 一部の historical な synthetic commands を root CLI へ移さず archive-only として閉じる

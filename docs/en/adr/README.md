@@ -34,3 +34,4 @@ Use [`0000-template.md`](0000-template.md) as the template for new ADRs.
 ## Current ADRs
 
 - [`0001-ranking-domain-foundation.md`](0001-ranking-domain-foundation.md): makes ranking domain foundation the first migration slice into `src/`
+- [`0002-retire-legacy-only-synthetic-commands.md`](0002-retire-legacy-only-synthetic-commands.md): closes selected historical synthetic commands as archive-only instead of migrating them into the root CLI contract

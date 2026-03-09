@@ -1,4 +1,4 @@
-"""CSV persistence adapter for coalition games."""
+"""CSV persistence adapter for compatibility-format coalition-game files."""
 
 from __future__ import annotations
 
@@ -54,12 +54,12 @@ def _format_score(value: float) -> str:
     return str(float(value))
 
 
-def read_legacy_game_csv(
+def read_compatible_game_csv(
     path: Path,
     *,
     require_complete: bool = True,
 ) -> CoalitionGame:
-    """Read a legacy-compatible game CSV into a CoalitionGame."""
+    """Read a compatibility-format game CSV into a CoalitionGame."""
 
     with path.open("r", encoding="utf-8", newline="") as fh:
         reader = csv.reader(fh)
@@ -96,13 +96,13 @@ def read_legacy_game_csv(
     return game
 
 
-def write_legacy_game_csv(
+def write_compatible_game_csv(
     path: Path,
     game: CoalitionGame,
     *,
     ranks_by_mask: dict[int, int] | None = None,
 ) -> None:
-    """Write a CoalitionGame as a legacy-compatible game CSV."""
+    """Write a CoalitionGame as a compatibility-format game CSV."""
 
     effective_ranks_by_mask = (
         {int(mask): int(rank) for mask, rank in ranks_by_mask.items()}
@@ -126,5 +126,13 @@ def write_legacy_game_csv(
                 ]
             )
 
+read_legacy_game_csv = read_compatible_game_csv
+write_legacy_game_csv = write_compatible_game_csv
 
-__all__ = ["read_legacy_game_csv", "write_legacy_game_csv"]
+
+__all__ = [
+    "read_compatible_game_csv",
+    "write_compatible_game_csv",
+    "read_legacy_game_csv",
+    "write_legacy_game_csv",
+]

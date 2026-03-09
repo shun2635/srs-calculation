@@ -77,7 +77,7 @@ root [`pyproject.toml`](pyproject.toml) が、共同研究向けにサポート�
 - `srs-game-gen make-figures`
 - `srs-game-gen rank-game`
 
-保留または未サポートの旧コマンドは、root CLI 契約には含めません。
+archive-only として `legacy/` 側に閉じる旧コマンドは、root CLI 契約には含めません。
 
 - `game-gen check-axioms`
 - `game-gen summarize-axioms`
@@ -88,7 +88,13 @@ root [`pyproject.toml`](pyproject.toml) が、共同研究向けにサポート�
 - `game-gen make-figures-png`
 - `legacy/src/realgen/commands/resignation_contrib.py` 相当の未公開コマンド
 
-`legacy/` は参照用に残していますが、通常運用では root CLI を先に見てください。
+これらは `src/` への通常の移行対象ではなく、archive behavior として扱います。通常運用では root CLI を先に見てください。
+
+互換境界に関する補足:
+
+- `player*`, `score`, `rank`, `rank_*`, `score_*` を使う歴史的な CSV 命名は、`src` 側の compatibility format として維持しています
+- その責務は [`src/srs_calculation/infrastructure/persistence/`](src/srs_calculation/infrastructure/persistence/) に閉じ込めています
+- これは `legacy/` パッケージへの runtime 依存ではありません
 
 設定の優先順位は共通で次です。
 
@@ -152,9 +158,9 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 現時点で root CLI 契約に含めているのは次です。
 
 - `srs-game-gen gen-games`: complete synthetic game CSV を `outputs/games/nN/` に生成する
-- `srs-game-gen make-figures`: synthetic rankings CSV から legacy-style PNG figure を `outputs/figures/nN/` に生成する
-- `srs-game-gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
-- `srs-game-gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+- `srs-game-gen make-figures`: synthetic rankings CSV から compatibility-format PNG figure を `outputs/figures/nN/` に生成する
+- `srs-game-gen apply-rules`: compatibility-format game CSV ディレクトリに対して migrated rules を適用する
+- `srs-game-gen rank-game`: compatibility-format game CSV 1 件に対して migrated rule 1 つを適用する
 - `real-gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
 - `real-gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
 - `real-gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する

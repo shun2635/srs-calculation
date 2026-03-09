@@ -36,7 +36,7 @@
 
 - `src/srs_calculation/domain/` に置く連合ゲームとランキング規則の基盤
 - in-memory のゲーム表現に対して規則を適用する最小限の `src/srs_calculation/application/` サービス
-- legacy 互換の game CSV を読み、legacy 互換の rankings CSV を書くための最小限の `src/srs_calculation/infrastructure/persistence/` アダプタ
+- compatibility-format の game CSV を読み、compatibility-format の rankings CSV を書くための最小限の `src/srs_calculation/infrastructure/persistence/` アダプタ
 - 移行した ranking workflow を叩くための薄い `src/srs_calculation/interfaces/cli/` アダプタ
 - 移行した規則の同等性テスト
 - この移行対象を説明する docs 更新
@@ -145,14 +145,14 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 また、最初の移行スライスでは file-based な application use case として次も許容します。
 
-- legacy 互換の game CSV を `CoalitionGame` に読む
+- compatibility-format の game CSV を `CoalitionGame` に読む
 - application サービス経由で規則を適用する
-- infrastructure アダプタで legacy 互換の `rank_*` / `score_*` 列へ serialize する
+- infrastructure アダプタで compatibility-format の `rank_*` / `score_*` 列へ serialize する
 
 この slice に薄い CLI adapter を付ける場合、最初は次のような狭い command surface から始める想定とします。
 
-- legacy 互換 game CSV ディレクトリに対する `apply-rules`
-- 1 つの legacy 互換 game CSV に対する `rank-game`
+- compatibility-format game CSV ディレクトリに対する `apply-rules`
+- 1 つの compatibility-format game CSV に対する `rank-game`
 
 ## Data and interfaces
 
@@ -166,8 +166,8 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 移行境界では、次の file-based contract も持ってよいものとします。
 
-- 入力: `player*`, `score`, `rank` を持つ legacy 互換 game CSV
-- 出力: 既存の `rank_*` / `score_*` 命名を維持した legacy 互換 rankings CSV
+- 入力: `player*`, `score`, `rank` を持つ compatibility-format game CSV
+- 出力: 既存の `rank_*` / `score_*` 命名を維持した compatibility-format rankings CSV
 
 互換性メモ:
 
@@ -196,7 +196,7 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 ### Step 4
 
-新しい ranking slice を legacy 互換ファイルへ接続する最小限の CSV アダプタを追加する。
+新しい ranking slice を compatibility-format ファイルへ接続する最小限の CSV アダプタを追加する。
 
 ### Step 5
 
@@ -217,7 +217,7 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 - 連合ゲーム domain model の unit test
 - 各 rule の unit test
 - application 層の rule runner の integration test
-- legacy 互換 CSV の read/write と file-based ranking application の integration test
+- compatibility-format CSV の read/write と file-based ranking application の integration test
 - 移行した ranking workflow に委譲する薄い CLI adapter の integration test
 - 代表的な小規模ゲームに対する `legacy` 比較の parity test
 

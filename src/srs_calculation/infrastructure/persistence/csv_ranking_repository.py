@@ -1,4 +1,4 @@
-"""CSV persistence adapter for ranking outputs."""
+"""CSV persistence adapter for compatibility-format ranking outputs."""
 
 from __future__ import annotations
 
@@ -14,45 +14,45 @@ RankingScope = Literal["player", "coalition"]
 
 
 @dataclass(frozen=True)
-class LegacyRankingRuleSpec:
-    """Mapping from internal rule identifiers to legacy CSV columns."""
+class CompatibleRankingRuleSpec:
+    """Mapping from internal rule identifiers to compatibility-format CSV columns."""
 
     internal_rule_id: str
-    legacy_rule_id: str
+    compatible_rule_id: str
     scope: RankingScope
     write_score_column: bool = False
     write_rank_column: bool = True
 
     @property
     def rank_column_name(self) -> str:
-        return f"rank_{self.legacy_rule_id}"
+        return f"rank_{self.compatible_rule_id}"
 
     @property
     def score_column_name(self) -> str:
-        return f"score_{self.legacy_rule_id}"
+        return f"score_{self.compatible_rule_id}"
 
 
-_LEGACY_RULE_SPECS: dict[str, LegacyRankingRuleSpec] = {
-    "shapley": LegacyRankingRuleSpec(
+_COMPATIBILITY_RULE_SPECS: dict[str, CompatibleRankingRuleSpec] = {
+    "shapley": CompatibleRankingRuleSpec(
         internal_rule_id="shapley",
-        legacy_rule_id="shapley",
+        compatible_rule_id="shapley",
         scope="player",
         write_score_column=True,
     ),
-    "banzhaf": LegacyRankingRuleSpec(
+    "banzhaf": CompatibleRankingRuleSpec(
         internal_rule_id="banzhaf",
-        legacy_rule_id="banzhaf",
+        compatible_rule_id="banzhaf",
         scope="player",
         write_score_column=True,
     ),
-    "lexcel": LegacyRankingRuleSpec(
+    "lexcel": CompatibleRankingRuleSpec(
         internal_rule_id="lexcel",
-        legacy_rule_id="lexcel",
+        compatible_rule_id="lexcel",
         scope="player",
     ),
-    "ordinal_banzhaf": LegacyRankingRuleSpec(
+    "ordinal_banzhaf": CompatibleRankingRuleSpec(
         internal_rule_id="ordinal_banzhaf",
-        legacy_rule_id="o-banzhaf",
+        compatible_rule_id="o-banzhaf",
         scope="player",
     ),
 }
@@ -88,18 +88,18 @@ _CANONICAL_DERIVED_COLUMN_ORDER: tuple[str, ...] = (
 )
 
 
-def get_legacy_ranking_rule_spec(rule_id: str) -> LegacyRankingRuleSpec:
-    """Return the legacy CSV mapping for a supported ranking rule."""
+def get_compatible_ranking_rule_spec(rule_id: str) -> CompatibleRankingRuleSpec:
+    """Return the compatibility-format CSV mapping for a supported ranking rule."""
 
     try:
-        return _LEGACY_RULE_SPECS[str(rule_id)]
+        return _COMPATIBILITY_RULE_SPECS[str(rule_id)]
     except KeyError as exc:
-        known = ", ".join(sorted(_LEGACY_RULE_SPECS))
-        raise KeyError(f"no legacy CSV mapping for rule_id '{rule_id}'; known rules: {known}") from exc
+        known = ", ".join(sorted(_COMPATIBILITY_RULE_SPECS))
+        raise KeyError(f"no compatibility CSV mapping for rule_id '{rule_id}'; known rules: {known}") from exc
 
 
-def ordered_legacy_derived_columns(column_names: Iterable[str]) -> list[str]:
-    """Return derived columns in the legacy-preferred display order."""
+def ordered_compatible_derived_columns(column_names: Iterable[str]) -> list[str]:
+    """Return derived columns in the compatibility-format display order."""
 
     remaining = list(dict.fromkeys(str(name) for name in column_names))
     ordered: list[str] = []
@@ -205,18 +205,18 @@ def _serialize_player_rank_column(
     return column
 
 
-def serialize_legacy_ranking_columns(
+def serialize_compatible_ranking_columns(
     game: CoalitionGame,
     result: RankingResult,
     *,
     rank_style: str = "dense",
 ) -> dict[str, dict[int, str]]:
-    """Serialize one ranking result into legacy-compatible derived columns."""
+    """Serialize one ranking result into compatibility-format derived columns."""
 
-    spec = get_legacy_ranking_rule_spec(result.rule_id)
+    spec = get_compatible_ranking_rule_spec(result.rule_id)
     if spec.scope != "player":
         raise NotImplementedError(
-            f"legacy CSV serialization for scope '{spec.scope}' is not implemented yet"
+            f"compatibility CSV serialization for scope '{spec.scope}' is not implemented yet"
         )
 
     columns: dict[str, dict[int, str]] = {}
@@ -234,24 +234,24 @@ def serialize_legacy_ranking_columns(
     return columns
 
 
-def write_legacy_rankings_csv(
+def write_compatible_rankings_csv(
     rankings_path: Path,
     game: CoalitionGame,
     results: Iterable[RankingResult],
     *,
     rank_style: str = "dense",
 ) -> tuple[str, ...]:
-    """Write a full legacy-style rankings CSV from domain results."""
+    """Write a full compatibility-format rankings CSV from domain results."""
 
     derived_columns_by_name: dict[str, dict[int, str]] = {}
     for result in results:
-        serialized = serialize_legacy_ranking_columns(game, result, rank_style=rank_style)
+        serialized = serialize_compatible_ranking_columns(game, result, rank_style=rank_style)
         for column_name, values_by_mask in serialized.items():
             if column_name in derived_columns_by_name:
                 raise ValueError(f"duplicate derived column generated: {column_name}")
             derived_columns_by_name[column_name] = values_by_mask
 
-    ordered_columns = tuple(ordered_legacy_derived_columns(derived_columns_by_name))
+    ordered_columns = tuple(ordered_compatible_derived_columns(derived_columns_by_name))
     base_ranks_by_mask = _dense_base_ranks_by_mask(game)
     masks_in_output_order = _ordered_masks_for_output(game)
 
@@ -272,8 +272,19 @@ def write_legacy_rankings_csv(
 
     return ordered_columns
 
+LegacyRankingRuleSpec = CompatibleRankingRuleSpec
+get_legacy_ranking_rule_spec = get_compatible_ranking_rule_spec
+ordered_legacy_derived_columns = ordered_compatible_derived_columns
+serialize_legacy_ranking_columns = serialize_compatible_ranking_columns
+write_legacy_rankings_csv = write_compatible_rankings_csv
+
 
 __all__ = [
+    "CompatibleRankingRuleSpec",
+    "get_compatible_ranking_rule_spec",
+    "ordered_compatible_derived_columns",
+    "serialize_compatible_ranking_columns",
+    "write_compatible_rankings_csv",
     "LegacyRankingRuleSpec",
     "get_legacy_ranking_rule_spec",
     "ordered_legacy_derived_columns",

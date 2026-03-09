@@ -5,12 +5,12 @@ import csv
 from srs_calculation.domain.games.coalition_game import CoalitionGame
 from srs_calculation.domain.ranking.result import RankingResult, RuleRankSet, RuleScoreSet
 from srs_calculation.infrastructure.persistence.csv_ranking_repository import (
-    serialize_legacy_ranking_columns,
-    write_legacy_rankings_csv,
+    serialize_compatible_ranking_columns,
+    write_compatible_rankings_csv,
 )
 
 
-def test_serialize_legacy_ranking_columns_for_shapley_dense() -> None:
+def test_serialize_compatible_ranking_columns_for_shapley_dense() -> None:
     game = CoalitionGame.from_scores_by_mask(
         player_count=3,
         scores_by_mask={
@@ -30,7 +30,7 @@ def test_serialize_legacy_ranking_columns_for_shapley_dense() -> None:
         rank_set=RuleRankSet.from_mapping({0: 1, 1: 2, 2: 3}),
     )
 
-    columns = serialize_legacy_ranking_columns(game, result, rank_style="dense")
+    columns = serialize_compatible_ranking_columns(game, result, rank_style="dense")
 
     assert set(columns) == {"score_shapley", "rank_shapley"}
     assert columns["score_shapley"] == {
@@ -55,7 +55,7 @@ def test_serialize_legacy_ranking_columns_for_shapley_dense() -> None:
     }
 
 
-def test_serialize_legacy_ranking_columns_for_ordinal_banzhaf_uses_legacy_name() -> None:
+def test_serialize_compatible_ranking_columns_for_ordinal_banzhaf_uses_compatible_name() -> None:
     game = CoalitionGame.from_scores_by_mask(
         player_count=2,
         scores_by_mask={
@@ -71,7 +71,7 @@ def test_serialize_legacy_ranking_columns_for_ordinal_banzhaf_uses_legacy_name()
         rank_set=RuleRankSet.from_mapping({0: 1, 1: 2}),
     )
 
-    columns = serialize_legacy_ranking_columns(game, result)
+    columns = serialize_compatible_ranking_columns(game, result)
 
     assert set(columns) == {"rank_o-banzhaf"}
     assert columns["rank_o-banzhaf"] == {
@@ -82,7 +82,7 @@ def test_serialize_legacy_ranking_columns_for_ordinal_banzhaf_uses_legacy_name()
     }
 
 
-def test_write_legacy_rankings_csv_writes_competition_ranks_and_canonical_header(tmp_path) -> None:
+def test_write_compatible_rankings_csv_writes_competition_ranks_and_canonical_header(tmp_path) -> None:
     game = CoalitionGame.from_scores_by_mask(
         player_count=3,
         scores_by_mask={
@@ -109,7 +109,7 @@ def test_write_legacy_rankings_csv_writes_competition_ranks_and_canonical_header
     ]
 
     output_path = tmp_path / "rankings.csv"
-    written_columns = write_legacy_rankings_csv(
+    written_columns = write_compatible_rankings_csv(
         output_path,
         game,
         results,

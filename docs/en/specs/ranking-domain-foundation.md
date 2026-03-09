@@ -36,7 +36,7 @@ In scope:
 
 - `src/srs_calculation/domain/` foundations for coalition games and ranking rules
 - a minimal `src/srs_calculation/application/` service for applying selected rules to an in-memory game representation
-- minimal `src/srs_calculation/infrastructure/persistence/` adapters needed to read legacy-style game CSV files and serialize legacy-style rankings CSV files
+- minimal `src/srs_calculation/infrastructure/persistence/` adapters needed to read compatibility-format game CSV files and serialize compatibility-format rankings CSV files
 - a thin `src/srs_calculation/interfaces/cli/` adapter for the migrated ranking workflow
 - parity-oriented tests for the migrated rules
 - documentation updates needed to explain the migrated slice
@@ -145,14 +145,14 @@ This service exists to prevent future interface code from calling rule modules a
 
 The first migrated workflow may also include a file-based application use case that:
 
-- reads a legacy-compatible game CSV into the new `CoalitionGame`
+- reads a compatibility-format game CSV into the new `CoalitionGame`
 - applies selected rules through the application service
-- serializes legacy-compatible `rank_*` and `score_*` columns through infrastructure adapters
+- serializes compatibility-format `rank_*` and `score_*` columns through infrastructure adapters
 
 If a thin CLI adapter is added for this slice, it should start with narrow commands such as:
 
-- `apply-rules` for a directory of legacy-style game CSV files
-- `rank-game` for one legacy-style game CSV
+- `apply-rules` for a directory of compatibility-format game CSV files
+- `rank-game` for one compatibility-format game CSV
 
 ## Data and interfaces
 
@@ -166,8 +166,8 @@ Instead, the main interface contract is:
 
 At the migration boundary, the slice may also expose:
 
-- input: a legacy-compatible game CSV with `player*`, `score`, and `rank`
-- output: a legacy-compatible rankings CSV that preserves the existing `rank_*` and `score_*` naming scheme
+- input: a compatibility-format game CSV with `player*`, `score`, and `rank`
+- output: a compatibility-format rankings CSV that preserves the existing `rank_*` and `score_*` naming scheme
 
 Compatibility note:
 
@@ -196,7 +196,7 @@ Create an application-layer rule runner that uses the new registry.
 
 ### Step 4
 
-Add the minimal CSV persistence adapters needed to connect the new ranking slice to legacy-compatible files.
+Add the minimal CSV persistence adapters needed to connect the new ranking slice to compatibility-format files.
 
 ### Step 5
 
@@ -217,7 +217,7 @@ The migrated slice should include:
 - unit tests for coalition-game domain models
 - unit tests for each migrated rule
 - integration tests for the application-layer rule runner
-- integration tests for legacy-compatible CSV read/write and file-based ranking application
+- integration tests for compatibility-format CSV read/write and file-based ranking application
 - integration tests for thin CLI adapters that delegate into the migrated ranking workflow
 - parity tests against `legacy` on representative small games
 

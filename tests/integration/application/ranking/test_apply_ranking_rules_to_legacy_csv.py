@@ -5,11 +5,11 @@ import csv
 from srs_calculation.application.ranking.apply_ranking_rules import apply_ranking_rules
 from srs_calculation.domain.games.coalition_game import CoalitionGame
 from srs_calculation.infrastructure.persistence.csv_ranking_repository import (
-    write_legacy_rankings_csv,
+    write_compatible_rankings_csv,
 )
 
 
-def test_apply_ranking_rules_can_be_serialized_to_legacy_rankings_csv(tmp_path) -> None:
+def test_apply_ranking_rules_can_be_serialized_to_compatible_rankings_csv(tmp_path) -> None:
     game = CoalitionGame.from_scores_by_mask(
         3,
         {
@@ -30,7 +30,7 @@ def test_apply_ranking_rules_can_be_serialized_to_legacy_rankings_csv(tmp_path) 
     )
 
     output_path = tmp_path / "rankings.csv"
-    written_columns = write_legacy_rankings_csv(
+    written_columns = write_compatible_rankings_csv(
         output_path,
         game,
         results.values(),

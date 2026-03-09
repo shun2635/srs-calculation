@@ -85,13 +85,13 @@ The repository already contains a first migrated ranking slice in `src/`:
 
 - `domain/games` and `domain/ranking` for the in-memory ranking core
 - `application/ranking/apply_ranking_rules.py` for rule execution on `CoalitionGame`
-- `application/ranking/apply_ranking_rules_to_game_csv.py` for legacy-style game-CSV workflows
-- `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` for legacy-compatible CSV boundaries
+- `application/ranking/apply_ranking_rules_to_game_csv.py` for compatibility-format game-CSV workflows
+- `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` as the compatibility-format CSV boundary owned by `src/`
 - `interfaces/cli/game_gen.py` for a thin synthetic-game CLI adapter over the migrated ranking workflow
 - `application/ranking/apply_ranking_rules_to_real_dataset.py` for a dataset-scoped real-data ranking workflow
 - `application/dataset_ingestion/import_feature_mask_table.py` for feature-mask dataset import
 - `application/experiments/run_real_data_experiment.py` for canonical and extra real-data plotting workflows
-- `application/experiments/run_synthetic_experiment.py` for legacy-style synthetic ranking PNG workflows
+- `application/experiments/run_synthetic_experiment.py` for compatibility-format synthetic ranking PNG workflows
 - `interfaces/cli/real_gen.py` for a partial real-data CLI adapter over that migrated workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
 - parity tests for the first-batch ranking rules on deterministic fixtures

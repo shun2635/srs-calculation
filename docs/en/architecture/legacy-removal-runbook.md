@@ -20,7 +20,7 @@ As of now, the main blockers are:
 
 - parity tests still import `legacy` modules directly
 - test bootstrap still injects `legacy/src` into `sys.path`
-- `src/` still exposes legacy-compatible file formats and naming at the persistence boundary
+- `src/` still exposes historical file formats and naming at the compatibility boundary
 - some collaborator docs still treat `legacy/` as the practical CLI reference
 - the root CLI surface is still intentionally partial for synthetic workflows
 
@@ -83,7 +83,7 @@ Exit criteria:
 - `tests/` no longer imports from `legacy`
 - `poetry run srs-test` passes with only `src/` on the test path
 
-### Step 4. Isolate legacy-compatible I/O as an explicit compatibility layer
+### Step 4. Isolate compatibility-format I/O as an explicit compatibility layer
 
 Goal:
 
@@ -92,8 +92,8 @@ Goal:
 Required work:
 
 - keep compatibility code inside `src/srs_calculation/infrastructure/persistence/`
-- document that `legacy-style` CSV support is a compatibility format, not a package dependency
-- avoid spreading `legacy-style` assumptions further into `domain/` or `application/`
+- document that historical CSV support is a compatibility format, not a package dependency
+- avoid spreading compatibility-format assumptions further into `domain/` or `application/`
 
 Exit criteria:
 
@@ -111,6 +111,10 @@ Required work:
 - either migrate the remaining required `game-gen` commands into `src/`
 - or explicitly retire them and remove them from supported workflow docs
 - add integration and e2e coverage for every retained root CLI workflow
+
+Current decision:
+
+- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `rank-heatmap`, `rule-corr-heatmap`, `pipeline`, and `make-figures-png` are retired from the root contract and treated as archive-only under `legacy/`
 
 Exit criteria:
 
@@ -200,6 +204,6 @@ Reviewers should reject a removal PR if any of the following is still true:
 
 ## Non-goal
 
-This runbook does not require the repository to abandon legacy-compatible CSV column names immediately.
+This runbook does not require the repository to abandon compatibility-format CSV column names immediately.
 
 Those compatibility names may remain in `src/` after `legacy/` is removed, as long as they are treated as a compatibility format owned by the new implementation.

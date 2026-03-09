@@ -85,13 +85,13 @@ domain と application が安定してから進めます。
 
 - in-memory の ranking core を担う `domain/games` と `domain/ranking`
 - `CoalitionGame` に対する rule 実行を担う `application/ranking/apply_ranking_rules.py`
-- legacy 互換の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
-- legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
+- compatibility-format の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
+- `src/` が所有する compatibility-format CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
 - 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
 - dataset-scoped な real-data ranking workflow を担う `application/ranking/apply_ranking_rules_to_real_dataset.py`
 - feature-mask table の import workflow を担う `application/dataset_ingestion/import_feature_mask_table.py`
 - canonical と extra figure 群を含む real-data plotting workflow を担う `application/experiments/run_real_data_experiment.py`
-- synthetic rankings CSV から legacy-style PNG figure を出す workflow を担う `application/experiments/run_synthetic_experiment.py`
+- synthetic rankings CSV から compatibility-format PNG figure を出す workflow を担う `application/experiments/run_synthetic_experiment.py`
 - 移行した ranking workflow に被せる partial な real-data CLI adapter を担う `interfaces/cli/real_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
 - 初回バッチの ranking rule を deterministic な fixture で比較する parity test

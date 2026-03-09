@@ -196,7 +196,7 @@ def make_figures_command(
     "-p",
     type=click.IntRange(1, 12),
     default=None,
-    help="Number of players. Used to resolve legacy-style directories under --out.",
+    help="Number of players. Used to resolve compatibility-format directories under --out.",
 )
 @click.option(
     "--out",
@@ -210,13 +210,13 @@ def make_figures_command(
     "--games-dir",
     type=click.Path(path_type=Path),
     default=None,
-    help="Directory containing legacy-style game CSV files.",
+    help="Directory containing compatibility-format game CSV files.",
 )
 @click.option(
     "--rankings-dir",
     type=click.Path(path_type=Path),
     default=None,
-    help="Directory where legacy-style rankings CSV files will be written.",
+    help="Directory where compatibility-format rankings CSV files will be written.",
 )
 @click.option(
     "--rule",
@@ -248,7 +248,7 @@ def apply_rules_command(
     rank_style: str,
     allow_incomplete: bool,
 ) -> None:
-    """Apply migrated ranking rules to legacy-style game CSV files."""
+    """Apply migrated ranking rules to compatibility-format game CSV files."""
 
     resolved_games_dir, resolved_rankings_dir = _resolve_apply_rules_dirs(
         players=players,
@@ -294,14 +294,14 @@ def apply_rules_command(
     "game_csv_path",
     type=click.Path(path_type=Path, exists=True),
     required=True,
-    help="Path to one legacy-style game CSV.",
+    help="Path to one compatibility-format game CSV.",
 )
 @click.option(
     "--rankings",
     "rankings_csv_path",
     type=click.Path(path_type=Path),
     default=None,
-    help="Output rankings CSV path. Defaults to the legacy-style sibling rankings location.",
+    help="Output rankings CSV path. Defaults to the compatibility-format sibling rankings location.",
 )
 @click.option(
     "--rule",
@@ -330,7 +330,7 @@ def rank_game_command(
     rank_style: str,
     allow_incomplete: bool,
 ) -> None:
-    """Apply one migrated ranking rule to one legacy-style game CSV."""
+    """Apply one migrated ranking rule to one compatibility-format game CSV."""
 
     resolved_rankings_csv_path = (
         rankings_csv_path

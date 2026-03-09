@@ -17,16 +17,21 @@
 
 典型的な流れ:
 
-1. `game-gen gen-games` でゲーム表を生成する。
-2. `game-gen apply-rules` または `game-gen pipeline` でランキング規則を適用する。
-3. `game-gen check-axioms` で公理適合率を評価する。
-4. ヒートマップやサマリ図を出力して確認する。
+1. `srs-game-gen gen-games` でゲーム表を生成する。
+2. `srs-game-gen apply-rules` でランキング規則を適用する。
+3. `srs-game-gen make-figures` で ranking figure を出力して確認する。
 
 関連ドキュメント:
 
-- CLI リファレンス: [`../../legacy/README.md`](../../legacy/README.md)
+- root CLI 契約: [`../../README.md`](../../README.md)
+- `src` 実装の入口: [`../../src/README.md`](../../src/README.md)
 - ルール説明: [`../../legacy/docs/ranking/README.md`](../../legacy/docs/ranking/README.md)
 - 公理説明: [`../../legacy/docs/axioms/README.md`](../../legacy/docs/axioms/README.md)
+
+補足:
+
+- `check-axioms` などの synthetic 周辺コマンドは archive-only であり、root CLI 契約には含めていません
+- 数理定義の確認には引き続き `legacy/docs` を参照します
 
 ### 2. 実データ実験
 
@@ -34,14 +39,15 @@
 
 典型的な流れ:
 
-1. raw 入力を [`../../legacy/inputs/feature_mask_tables/`](../../legacy/inputs/feature_mask_tables/) に置く。
+1. raw 入力を [`../../inputs/feature_mask_tables/`](../../inputs/feature_mask_tables/) に置く。
 2. `real-gen import-game` で正規化する。
 3. `real-gen apply-rules` でランキング規則を適用する。
 4. `real-gen make-figures` と `real-gen feature-rule-heatmap` で図表を作成する。
 
 関連ドキュメント:
 
-- 入力データの説明: [`../../legacy/inputs/README.md`](../../legacy/inputs/README.md)
+- root CLI 契約: [`../../README.md`](../../README.md)
+- 入力データ配置: [`../../src/README.md`](../../src/README.md)
 - 実データ設計メモ: [`../../legacy/docs/design/real_data.md`](../../legacy/docs/design/real_data.md)
 
 ## 再現性チェックリスト
@@ -60,9 +66,9 @@ CMIS Lab 内での議論でも、LAMSADE との議論でも、基本の進め方
 
 1. まずこの `ja/` 配下、または英語が必要なら [`../en/`](../en/) を読む。
 2. 研究課題に応じて、合成ゲーム実験か実データ実験の流れを選ぶ。
-3. ルール定義や公理条件を厳密に確認したくなった段階で `legacy/docs` を参照する。
-4. リポジトリ再編が完了するまでは、[`../../legacy/`](../../legacy/) を実装上の正本として扱う。
+3. 実行は root CLI を使い、実装確認は `src/` を優先して見る。
+4. ルール定義や公理条件を厳密に確認したくなった段階で `legacy/docs` を appendix として参照する。
 
 ## この構成を採っている理由
 
-コード配置はまだ歴史的な `legacy/` 中心ですが、共同研究の要件はすでに現在進行形です。そのため、`docs/ja` と `docs/en` を入口にして、全面的なコード移行を待たずにオンボーディングしやすくしています。
+コード配置にはまだ移行途中の要素が残りますが、共同研究の一次導線はすでに root CLI と `docs/` に寄せています。そのため、全面的なコード移行を待たずにオンボーディングしやすくしています。

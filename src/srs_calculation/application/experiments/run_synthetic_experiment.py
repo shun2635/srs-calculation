@@ -46,7 +46,7 @@ def render_synthetic_figures(
     config_path: Path | None = None,
     dpi: int | None = None,
 ) -> RenderedSyntheticFigures:
-    """Render PNG figures from legacy-style synthetic rankings CSV files."""
+    """Render PNG figures from compatibility-format synthetic rankings CSV files."""
 
     base_out = Path(out_dir) if out_dir is not None else _default_output_base(config_path)
     resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else base_out / "rankings"

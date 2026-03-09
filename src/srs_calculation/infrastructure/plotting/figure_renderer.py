@@ -419,7 +419,7 @@ def generate_synthetic_ranking_figure(
     output_dir: Path,
     dpi: int = 150,
 ) -> Path:
-    """Render one legacy-style synthetic ranking PNG from a rankings CSV."""
+    """Render one compatibility-format synthetic ranking PNG from a rankings CSV."""
 
     df = _read_rankings_df(rankings_csv)
     player_cols = _player_columns(df.columns)

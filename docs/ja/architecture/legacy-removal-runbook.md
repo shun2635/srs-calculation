@@ -20,7 +20,7 @@
 
 - parity test がまだ `legacy` モジュールを直接 import している
 - test bootstrap がまだ `legacy/src` を `sys.path` に追加している
-- `src/` が persistence 境界で legacy 互換のファイル形式と命名をまだ露出している
+- `src/` が compatibility 境界で歴史的なファイル形式と命名をまだ露出している
 - 共同研究向け docs の一部が、実用上の CLI リファレンスをまだ `legacy` に寄せている
 - synthetic workflow の root CLI surface がまだ intentionally partial である
 
@@ -83,7 +83,7 @@
 - `tests/` が `legacy` を import しない
 - `poetry run srs-test` が `src/` だけで通る
 
-### Step 4. legacy 互換 I/O を明示的な compatibility layer に閉じ込める
+### Step 4. compatibility-format I/O を明示的な compatibility layer に閉じ込める
 
 目的:
 
@@ -92,8 +92,8 @@
 必要作業:
 
 - compatibility code を `src/srs_calculation/infrastructure/persistence/` に閉じ込める
-- `legacy-style` CSV support が package dependency ではなく compatibility format だと docs で明記する
-- `legacy-style` 前提をこれ以上 `domain/` や `application/` に広げない
+- 歴史的な CSV support が package dependency ではなく compatibility format だと docs で明記する
+- compatibility-format 前提をこれ以上 `domain/` や `application/` に広げない
 
 完了条件:
 
@@ -111,6 +111,10 @@
 - 必要な `game-gen` コマンドを `src/` に移植する
 - もしくは、未移行コマンドを明示的に廃止し、サポート対象 docs から外す
 - 維持する root CLI workflow ごとに integration test と e2e test を足す
+
+現在の判断:
+
+- `check-axioms`, `summarize-axioms`, `axiom-summary-heatmap`, `rank-heatmap`, `rule-corr-heatmap`, `pipeline`, `make-figures-png` は root 契約から外し、`legacy/` 配下の archive-only command として扱う
 
 完了条件:
 

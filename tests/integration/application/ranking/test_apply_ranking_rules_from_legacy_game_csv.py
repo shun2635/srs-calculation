@@ -4,14 +4,14 @@ import csv
 
 from srs_calculation.application.ranking.apply_ranking_rules import apply_ranking_rules
 from srs_calculation.infrastructure.persistence.csv_game_repository import (
-    read_legacy_game_csv,
+    read_compatible_game_csv,
 )
 from srs_calculation.infrastructure.persistence.csv_ranking_repository import (
-    write_legacy_rankings_csv,
+    write_compatible_rankings_csv,
 )
 
 
-def test_apply_ranking_rules_from_legacy_game_csv_round_trip(tmp_path) -> None:
+def test_apply_ranking_rules_from_compatible_game_csv_round_trip(tmp_path) -> None:
     game_csv_path = tmp_path / "game.csv"
     game_csv_path.write_text(
         "\n".join(
@@ -31,11 +31,11 @@ def test_apply_ranking_rules_from_legacy_game_csv_round_trip(tmp_path) -> None:
         encoding="utf-8",
     )
 
-    game = read_legacy_game_csv(game_csv_path)
+    game = read_compatible_game_csv(game_csv_path)
     results = apply_ranking_rules(game, ["shapley", "banzhaf"])
 
     rankings_csv_path = tmp_path / "rankings.csv"
-    write_legacy_rankings_csv(
+    write_compatible_rankings_csv(
         rankings_csv_path,
         game,
         results.values(),

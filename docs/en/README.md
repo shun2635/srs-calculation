@@ -19,19 +19,20 @@ Structure note: the `en/` and `ja/` documentation trees should stay aligned in s
 
 ### Synthetic experiments
 
-The `game-gen` CLI can:
+The root CLI contract currently supports the following synthetic workflow through `srs-game-gen`:
 
 - generate complete coalition game tables
 - compute ranking columns for multiple rules
-- check axiom satisfaction in batch
-- create heatmaps and summary figures
+- create ranking figures
+
+Axiom evaluation and some aggregate synthetic commands are not yet part of the supported root CLI surface.
 
 ### Real-data experiments
 
 The `real-gen` CLI can:
 
 - import feature-mask performance tables as coalition-game data
-- reuse the ranking rules defined in `gamegen`
+- reuse the migrated ranking rules exposed from `src`
 - generate figures and heatmaps for each dataset
 
 ## Recommended reading order
@@ -41,7 +42,7 @@ The `real-gen` CLI can:
 3. [`architecture/README.md`](architecture/README.md)
 4. [`../../src/README.md`](../../src/README.md)
 5. [`research-workflow.md`](research-workflow.md)
-6. [`../../legacy/docs/README.md`](../../legacy/docs/README.md) when detailed rule descriptions are needed
+6. [`../../legacy/docs/README.md`](../../legacy/docs/README.md) only when detailed rule descriptions are needed
 
 ## Where to look depending on your question
 
@@ -51,8 +52,8 @@ Read [`architecture.md`](architecture.md), then inspect:
 
 - [`architecture/module-boundaries.md`](architecture/module-boundaries.md)
 - [`../../src/README.md`](../../src/README.md)
-- [`../../legacy/src/gamegen`](../../legacy/src/gamegen)
-- [`../../legacy/src/realgen`](../../legacy/src/realgen)
+- [`../../src/`](../../src/) as the default implementation target
+- [`../../legacy/src/gamegen`](../../legacy/src/gamegen) and [`../../legacy/src/realgen`](../../legacy/src/realgen) only when historical implementation detail is required
 
 ### I want the mathematical rule descriptions
 
@@ -66,7 +67,7 @@ Read:
 Read:
 
 - [`research-workflow.md`](research-workflow.md)
-- [`../../legacy/config.yaml`](../../legacy/config.yaml)
+- the root CLI contract in [`../../README.md`](../../README.md)
 
 ## Setup
 
@@ -74,20 +75,22 @@ Read:
 poetry install
 poetry run real-gen --help
 poetry run srs-game-gen --help
-python -m pytest tests
+poetry run srs-test
 ```
 
 ## Minimal examples
 
 ```bash
-cd legacy
-
-# Synthetic pipeline
-poetry run game-gen pipeline -p 4 -c 100 --out outputs
+# Synthetic workflow
+poetry run srs-game-gen gen-games -p 4 -c 100 --out outputs
+poetry run srs-game-gen apply-rules -p 4 --out outputs
+poetry run srs-game-gen make-figures --rankings-dir outputs/rankings --out outputs
 
 # Real-data pipeline
+mkdir -p inputs/feature_mask_tables/<dataset_id>
 poetry run real-gen import-game <dataset_id>
 poetry run real-gen apply-rules <dataset_id>
+poetry run real-gen make-figures <dataset_id>
 ```
 
 ## Interpretation of the documentation layers
@@ -95,7 +98,7 @@ poetry run real-gen apply-rules <dataset_id>
 - `docs/en/` and `docs/ja/`: language-specific documentation entry points
 - `docs/en/architecture`, `docs/en/development`, `docs/en/adr`, `docs/en/specs`: standards for the new implementation
 - `src/`: target source tree for new code
-- `legacy/README.md`: CLI usage for the current codebase
+- `legacy/README.md`: historical CLI reference
 - `legacy/docs/`: detailed technical and mathematical appendices
 
-This split is intentional while the repository is still mid-migration. `real-gen` is already published from `src`, while `srs-game-gen` currently covers `gen-games`, `make-figures`, `apply-rules`, and `rank-game` as the migrated synthetic entry surface.
+This split is intentional while the repository is still mid-migration. Normal collaborator workflows should start from the root CLI and `docs/`, while `legacy/` is now an archive-oriented reference rather than a primary entry point.

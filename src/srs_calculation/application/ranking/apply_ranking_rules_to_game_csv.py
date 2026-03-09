@@ -1,4 +1,4 @@
-"""Application use case for applying ranking rules to legacy-style game CSV files."""
+"""Application use case for applying ranking rules to compatibility-format game CSV files."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from typing import Iterable
 
 from ...domain.ranking.registry import RankingRuleRegistry
 from ...domain.ranking.result import RankingResult
-from ...infrastructure.persistence.csv_game_repository import read_legacy_game_csv
-from ...infrastructure.persistence.csv_ranking_repository import write_legacy_rankings_csv
+from ...infrastructure.persistence.csv_game_repository import read_compatible_game_csv
+from ...infrastructure.persistence.csv_ranking_repository import write_compatible_rankings_csv
 from .apply_ranking_rules import apply_ranking_rules
 
 
@@ -34,7 +34,7 @@ def apply_ranking_rules_to_game_csv(
 ) -> AppliedRankingCsvResult:
     """Read one game CSV, apply ranking rules, and write a rankings CSV."""
 
-    game = read_legacy_game_csv(
+    game = read_compatible_game_csv(
         game_csv_path,
         require_complete=require_complete,
     )
@@ -43,7 +43,7 @@ def apply_ranking_rules_to_game_csv(
         rule_ids,
         registry=registry,
     )
-    written_columns = write_legacy_rankings_csv(
+    written_columns = write_compatible_rankings_csv(
         rankings_csv_path,
         game,
         results_by_rule_id.values(),

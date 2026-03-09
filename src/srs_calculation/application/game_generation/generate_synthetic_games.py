@@ -9,7 +9,7 @@ from pathlib import Path
 
 from ...domain.games.coalition_game import CoalitionGame
 from ...infrastructure.config import load_yaml_config
-from ...infrastructure.persistence import write_legacy_game_csv
+from ...infrastructure.persistence import write_compatible_game_csv
 
 
 @dataclass(frozen=True)
@@ -95,7 +95,7 @@ def generate_synthetic_games(
     out_dir: Path | None = None,
     config_path: Path | None = None,
 ) -> GeneratedSyntheticGamesResult:
-    """Generate one or more complete synthetic games as legacy-style CSV files."""
+    """Generate one or more complete synthetic games as compatibility-format CSV files."""
 
     effective_count, effective_max_score, effective_seed, effective_out_dir = _effective_gen_games_config(
         players=players,
@@ -117,7 +117,7 @@ def generate_synthetic_games(
             rng=rng,
         )
         path = games_dir / f"game_{index:06d}.csv"
-        write_legacy_game_csv(path, game)
+        write_compatible_game_csv(path, game)
         written_paths.append(path)
 
     return GeneratedSyntheticGamesResult(

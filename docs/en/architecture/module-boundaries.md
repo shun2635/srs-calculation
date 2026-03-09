@@ -78,7 +78,8 @@ Rules:
 - should keep external side effects contained
 - should expose narrow interfaces to the rest of the codebase
 - should be organized by technical concern such as `config/`, `persistence/`, and `plotting/`
-- may carry legacy compatibility mappings, such as CSV column naming, when that behavior is intentionally isolated from `domain/`
+- may carry compatibility-format mappings, such as historical CSV column naming, when that behavior is intentionally isolated from `domain/`
+- should treat historical CSV support as a compatibility layer owned by `src/`, not as a dependency on the `legacy/` package tree
 
 ### `interfaces/`
 
@@ -124,7 +125,7 @@ tests/
 
 ## What should stay out of `src/`
 
-- historical compatibility code that exists only to preserve `legacy/` behavior temporarily
+- direct runtime dependencies on the `legacy/` package tree
 - large generated outputs
 - ad hoc research notes that belong in `docs/`
 - raw external datasets
