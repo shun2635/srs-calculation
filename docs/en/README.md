@@ -98,4 +98,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `legacy/README.md`: CLI usage for the current codebase
 - `legacy/docs/`: detailed technical and mathematical appendices
 
-This split is intentional while the repository is still mid-migration. `real-gen` is already published from `src`, while `game-gen` still remains legacy-first.
+This split is intentional while the repository is still mid-migration. `real-gen` is already published from `src`, while `srs-game-gen` currently covers `gen-games`, `make-figures`, `apply-rules`, and `rank-game` as the migrated synthetic entry surface.

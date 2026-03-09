@@ -1,7 +1,8 @@
-"""General figure rendering adapters for real-data workflows."""
+"""Figure rendering adapters for synthetic and real-data workflows."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from itertools import combinations
 from pathlib import Path
 from typing import Sequence
@@ -100,6 +101,152 @@ def _canonical_rank_column_order(columns: list[str]) -> list[str]:
     ordered = [column for column in preferred if column in columns]
     ordered.extend(column for column in columns if column not in ordered)
     return ordered
+
+
+@dataclass(frozen=True)
+class _SyntheticTableSpec:
+    title: str
+    col_labels: list[str]
+    rows: list[list[str]]
+
+
+def _synthetic_coalition_label(row, player_cols: list[str]) -> str:
+    members: list[str] = []
+    for index, column in enumerate(player_cols, start=1):
+        try:
+            value = int(row[column])
+        except Exception:
+            value = 0
+        if value != 0:
+            members.append(str(index))
+    return "{" + ",".join(members) + "}"
+
+
+def _synthetic_table_col_widths(spec: _SyntheticTableSpec) -> list[float]:
+    widths: list[float] = []
+    for column_index, label in enumerate(spec.col_labels):
+        max_len = len(str(label))
+        for row in spec.rows:
+            if column_index < len(row):
+                max_len = max(max_len, len(str(row[column_index])))
+        if str(label) in {"team", "player(s)"}:
+            widths.append(max(4.0, float(max_len) * 0.75))
+        elif str(label) in {"rank", "score"}:
+            widths.append(max(2.8, float(max_len) * 0.6))
+        else:
+            widths.append(max(5.0, float(max_len)))
+    total = sum(widths) or 1.0
+    return [width / total for width in widths]
+
+
+def _render_horizontal_tables(
+    *,
+    out_path: Path,
+    tables: list[_SyntheticTableSpec],
+    dpi: int,
+) -> Path:
+    import matplotlib.pyplot as plt
+
+    if not tables:
+        raise ValueError("no tables available for rendering")
+
+    table_count = len(tables)
+    max_rows = max((len(spec.rows) for spec in tables), default=1)
+    fig_width = max(4.0, 4.2 * table_count)
+    fig_height = max(3.0, min(max_rows, 50) * 0.6 + 0.6)
+    fig, axes = plt.subplots(1, table_count, figsize=(fig_width, fig_height), constrained_layout=True)
+    if table_count == 1:
+        axes = [axes]
+
+    for ax, spec in zip(axes, tables):
+        ax.axis("off")
+        table = ax.table(
+            cellText=spec.rows,
+            colLabels=spec.col_labels,
+            loc="center",
+            cellLoc="center",
+            colLoc="center",
+            colWidths=_synthetic_table_col_widths(spec),
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(9)
+        table.scale(1.0, 1.25)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def _synthetic_team_performance_table(df, player_cols: list[str], *, limit: int | None) -> _SyntheticTableSpec:
+    import pandas as pd
+
+    dfx = df.copy()
+    dfx["rank"] = pd.to_numeric(dfx["rank"], errors="coerce")
+    dfx["score"] = pd.to_numeric(dfx["score"], errors="coerce")
+    dfx = dfx.sort_values(["rank", "score"], ascending=[True, False], kind="mergesort")
+    if limit is not None:
+        dfx = dfx.head(limit)
+
+    rows: list[list[str]] = []
+    for _, row in dfx.iterrows():
+        rows.append(
+            [
+                _synthetic_coalition_label(row, player_cols),
+                "" if pd.isna(row["rank"]) else str(int(float(row["rank"]))),
+                _format_score_cell(row["score"]),
+            ]
+        )
+    return _SyntheticTableSpec(
+        title="team ranking",
+        col_labels=["team", "rank", "score"],
+        rows=rows,
+    )
+
+
+def _synthetic_contribution_table(
+    df,
+    player_cols: list[str],
+    *,
+    rank_column: str,
+    limit: int | None,
+) -> _SyntheticTableSpec | None:
+    import pandas as pd
+
+    if rank_column not in df.columns:
+        return None
+    dfx = df.copy()
+    dfx[rank_column] = pd.to_numeric(dfx[rank_column], errors="coerce")
+    dfx = dfx[pd.notna(dfx[rank_column])]
+    if dfx.empty:
+        return None
+
+    def _sort_key(record: dict[str, object]) -> tuple[int, int, list[int]]:
+        members: list[int] = []
+        for index, column in enumerate(player_cols, start=1):
+            try:
+                value = int(record[column])  # type: ignore[arg-type]
+            except Exception:
+                value = 0
+            if value != 0:
+                members.append(index)
+        return (int(float(record[rank_column])), len(members), members)
+
+    records = sorted(dfx.to_dict("records"), key=_sort_key)
+    rows: list[list[str]] = []
+    for record in records[:limit]:
+        series = pd.Series(record)
+        rows.append(
+            [
+                _synthetic_coalition_label(series, player_cols),
+                str(int(float(record[rank_column]))),
+            ]
+        )
+    return _SyntheticTableSpec(
+        title=rank_column,
+        col_labels=["player(s)", rank_column],
+        rows=rows,
+    )
 
 
 def _render_table_figure(
@@ -264,6 +411,44 @@ def _theta_vectors(level_of_mask: dict[int, int], player_count: int) -> list[lis
             if (int(mask) >> player) & 1:
                 theta[player][level_index] += 1
     return theta
+
+
+def generate_synthetic_ranking_figure(
+    *,
+    rankings_csv: Path,
+    output_dir: Path,
+    dpi: int = 150,
+) -> Path:
+    """Render one legacy-style synthetic ranking PNG from a rankings CSV."""
+
+    df = _read_rankings_df(rankings_csv)
+    player_cols = _player_columns(df.columns)
+    if not player_cols:
+        raise ValueError("CSV missing player columns (player1, ...)")
+
+    row_limit = 30 if len(player_cols) >= 8 else None
+    rank_columns = _canonical_rank_column_order(
+        [str(column) for column in df.columns if str(column).startswith("rank_")]
+    )
+
+    tables: list[_SyntheticTableSpec] = [
+        _synthetic_team_performance_table(df, player_cols, limit=row_limit)
+    ]
+    for rank_column in rank_columns:
+        table = _synthetic_contribution_table(
+            df,
+            player_cols,
+            rank_column=rank_column,
+            limit=row_limit,
+        )
+        if table is not None:
+            tables.append(table)
+
+    return _render_horizontal_tables(
+        out_path=output_dir / f"{rankings_csv.stem}.png",
+        tables=tables,
+        dpi=dpi,
+    )
 
 
 def generate_real_ranking_figure(
@@ -819,4 +1004,5 @@ __all__ = [
     "generate_rp_index_top_size2_figure",
     "generate_shapley_values_plot",
     "generate_ordinal_banzhaf_values_plot",
+    "generate_synthetic_ranking_figure",
 ]

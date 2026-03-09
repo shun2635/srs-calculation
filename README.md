@@ -145,6 +145,7 @@ python -m pytest tests
 poetry run real-gen --help
 poetry run srs-game-gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
+PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen make-figures --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen --help
@@ -157,6 +158,7 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 現時点で `src` 側に実装されているのは次です。
 
 - `srs-game-gen gen-games`: complete synthetic game CSV を `outputs/games/nN/` に生成する
+- `srs-game-gen make-figures`: synthetic rankings CSV から legacy-style PNG figure を `outputs/figures/nN/` に生成する
 - `srs-game-gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
 - `srs-game-gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
 - `real_gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
@@ -164,7 +166,7 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 - `real_gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
 - `real_gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
 
-`real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `apply-rules`, `rank-game` まで移行済みですが、legacy 側の `game-gen` 全機能をまだ置き換えていません。`real-gen` でも周辺オプションや細かな描画互換の一部は legacy 側に残っています。
+`real-gen` は root から公開されています。`srs-game-gen` は `gen-games`, `make-figures`, `apply-rules`, `rank-game` まで移行済みですが、legacy 側の `game-gen` 全機能をまだ置き換えていません。`real-gen` でも周辺オプションや細かな描画互換の一部は legacy 側に残っています。
 
 ## Documentation map
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import click
 
+from ...application.experiments import render_synthetic_figures
 from ...application.game_generation import generate_synthetic_games
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_to_game_csv,
@@ -133,6 +134,59 @@ def gen_games_command(
     click.echo(
         f"wrote {len(result.written_paths)} game(s) to {result.games_dir} "
         f"(players={result.player_count}, max_score={result.max_score})"
+    )
+
+
+@main.command(name="make-figures")
+@click.option(
+    "--rankings-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Rankings base directory. Defaults to '<output_base>/rankings'.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory for figures. Defaults to config or outputs.",
+)
+@click.option(
+    "--dpi",
+    type=click.IntRange(72, 600),
+    default=None,
+    help="Output PNG DPI. Defaults to config or 150.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional config.yaml path.",
+)
+def make_figures_command(
+    rankings_dir: Path | None,
+    out_dir: Path | None,
+    dpi: int | None,
+    config_path: Path | None,
+) -> None:
+    """Render PNG figures from synthetic rankings CSV files."""
+
+    try:
+        result = render_synthetic_figures(
+            rankings_dir=rankings_dir,
+            out_dir=out_dir,
+            config_path=config_path,
+            dpi=dpi,
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(
+        f"generated {len(result.written_paths)} PNG figure(s) under {result.figures_dir} "
+        f"(skipped {result.skipped_count} up-to-date)"
     )
 
 

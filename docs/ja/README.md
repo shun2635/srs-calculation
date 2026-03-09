@@ -89,4 +89,4 @@ poetry run real-gen apply-rules <dataset_id>
 - `docs/` は「共同研究者向けの案内」と「新規実装の標準文書」
 - `src/` は「新規実装の本体置き場」
 
-現時点では、この分担で読むのが最も効率的です。`real-gen` の公開入口はすでに `src` 側へ切り替わっており、`game-gen` はまだ legacy-first です。
+現時点では、この分担で読むのが最も効率的です。`real-gen` の公開入口はすでに `src` 側へ切り替わっており、synthetic 側も `srs-game-gen` で `gen-games` / `make-figures` / `apply-rules` / `rank-game` まで移行済みです。

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
+from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -10,6 +12,14 @@ from srs_calculation.interfaces.cli.game_gen import main
 def _write_game_csv(path, rows: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+@dataclass(frozen=True)
+class _RenderedSyntheticFiguresStub:
+    rankings_dir: Path
+    figures_dir: Path
+    written_paths: tuple[Path, ...]
+    skipped_count: int
 
 
 def test_apply_rules_cli_with_explicit_directories(tmp_path) -> None:
@@ -66,6 +76,7 @@ def test_game_gen_cli_help_lists_supported_commands() -> None:
 
     assert result.exit_code == 0
     assert "gen-games" in result.output
+    assert "make-figures" in result.output
     assert "apply-rules" in result.output
     assert "rank-game" in result.output
 
@@ -142,6 +153,51 @@ def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
     ]
     assert rows[2] == ["1", "0", "1", "2", "2", "1"]
     assert rows[3] == ["0", "1", "1", "2", "2", "1"]
+
+
+def test_make_figures_cli_writes_pngs(tmp_path, monkeypatch) -> None:
+    import srs_calculation.interfaces.cli.game_gen as module
+
+    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    _write_game_csv(
+        rankings_dir / "game_000001.csv",
+        [
+            "player1,player2,score,rank,rank_shapley",
+            "0,0,0,4,",
+            "1,0,1,3,2",
+            "0,1,2,2,1",
+            "1,1,3,1,1",
+        ],
+    )
+
+    def _fake_render_synthetic_figures(*, rankings_dir: Path | None, out_dir: Path | None, config_path: Path | None, dpi: int | None):
+        target = tmp_path / "outputs" / "figures" / "n2" / "game_000001.png"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("png", encoding="utf-8")
+        return _RenderedSyntheticFiguresStub(
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
+            figures_dir=(out_dir or tmp_path / "outputs") / "figures",
+            written_paths=(target,),
+            skipped_count=0,
+        )
+
+    monkeypatch.setattr(module, "render_synthetic_figures", _fake_render_synthetic_figures)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "make-figures",
+            "--rankings-dir",
+            str(tmp_path / "outputs" / "rankings"),
+            "--out",
+            str(tmp_path / "outputs"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "generated 1 PNG figure(s)" in result.output
+    assert (tmp_path / "outputs" / "figures" / "n2" / "game_000001.png").exists()
 
 
 def test_rank_game_cli_writes_one_rankings_csv(tmp_path) -> None:
