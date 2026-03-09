@@ -5,13 +5,15 @@
 ## 事前に読むもの
 
 1. [`contributing.md`](contributing.md)
-2. [`../architecture/README.md`](../architecture/README.md)
-3. [`../adr/README.md`](../adr/README.md)
-4. [`../specs/README.md`](../specs/README.md)
+2. [`testing.md`](testing.md)
+3. [`../architecture/README.md`](../architecture/README.md)
+4. [`../adr/README.md`](../adr/README.md)
+5. [`../specs/README.md`](../specs/README.md)
 
 ## ここで扱う標準
 
 - コントリビューションの流れ
+- テスト方針と実行ルール
 - レビュー期待値
 - ドキュメント更新ルール
 - ADR を書く条件

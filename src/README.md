@@ -72,6 +72,7 @@ The repository root also publishes:
 ```bash
 poetry run real-gen --help
 poetry run srs-game-gen --help
+poetry run srs-test
 ```
 
 Show the top-level help:
@@ -91,6 +92,13 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen import-game --h
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen make-figures --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-heatmap --help
+```
+
+Run the root test suite through Poetry:
+
+```bash
+poetry run srs-test
+poetry run srs-test tests/unit -q
 ```
 
 Current supported commands:

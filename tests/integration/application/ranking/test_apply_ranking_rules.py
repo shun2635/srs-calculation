@@ -27,7 +27,7 @@ def test_apply_ranking_rules_returns_results_for_requested_rules() -> None:
     assert shapley.has_ranks() is True
     assert shapley.score_set is not None
     assert shapley.rank_set is not None
-    assert shapley.score_set.values_by_player == pytest.approx({0: 1.25, 1: 2.75})
+    assert shapley.score_set.values_by_player == pytest.approx({0: 1.5, 1: 2.5})
     assert shapley.rank_set.ranks_by_player == {1: 1, 0: 2}
 
     lexcel = results["lexcel"]

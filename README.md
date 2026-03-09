@@ -55,7 +55,7 @@ The real-data pipeline supports:
 poetry install
 poetry run real-gen --help
 poetry run srs-game-gen --help
-python -m pytest tests
+poetry run srs-test
 ```
 
 `legacy` 側 CLI を使う場合は、引き続き `cd legacy && poetry install` です。
@@ -184,3 +184,19 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 ## Practical note
 
 The repository has started switching its published executable surface to `src/`: `real-gen` is now rooted at the top-level Poetry project, while `game-gen` still remains legacy-first.
+
+## Testing
+
+Use the root Poetry environment for `src`-based tests.
+
+```bash
+poetry install
+poetry run srs-test
+```
+
+You can also forward normal pytest arguments:
+
+```bash
+poetry run srs-test tests/unit -q
+poetry run srs-test tests/integration/application/ranking/test_apply_ranking_rules.py
+```

@@ -52,6 +52,8 @@
 - domain ロジックには unit test を追加する
 - I/O や CLI 配線には integration test を追加する
 - 複数層にまたがる主要フローには end-to-end test を追加する
+- root Poetry 環境では `poetry run srs-test` を使ってテストを実行する
+- 層ごとの詳細ルールは [`testing.md`](testing.md) に従う
 
 ## 新規作業の基本配置先
 

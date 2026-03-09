@@ -52,6 +52,8 @@ Reviewers should check:
 - add unit tests for domain logic
 - add integration tests for I/O and CLI wiring
 - add end-to-end tests for major workflows when behavior crosses multiple layers
+- run the root test suite with `poetry run srs-test`
+- follow the layer-specific rules in [`testing.md`](testing.md)
 
 ## Default path for new work
 
