@@ -37,12 +37,13 @@ In scope:
 - `src/srs_calculation/domain/` foundations for coalition games and ranking rules
 - a minimal `src/srs_calculation/application/` service for applying selected rules to an in-memory game representation
 - minimal `src/srs_calculation/infrastructure/persistence/` adapters needed to read legacy-style game CSV files and serialize legacy-style rankings CSV files
+- a thin `src/srs_calculation/interfaces/cli/` adapter for the migrated ranking workflow
 - parity-oriented tests for the migrated rules
 - documentation updates needed to explain the migrated slice
 
 Out of scope:
 
-- direct CLI migration
+- full replacement of the current `game-gen` CLI
 - broad persistence work beyond the ranking-slice CSV adapters needed for migration
 - real-data import and visualization flows
 - axiom checking logic
@@ -75,6 +76,9 @@ src/srs_calculation/
     persistence/
       csv_game_repository.py
       csv_ranking_repository.py
+  interfaces/
+    cli/
+      game_gen.py
 ```
 
 The intent is to group domain code by feature area rather than under generic buckets such as `models/` or `rules/`.
@@ -148,6 +152,7 @@ The first migrated workflow may also include a file-based application use case t
 ## Data and interfaces
 
 This phase should not define a new public CLI.
+It may define thin CLI adapters for the migrated slice as long as they delegate directly into `application/` and do not recreate the full legacy command surface.
 
 Instead, the main interface contract is:
 
@@ -194,6 +199,10 @@ Add parity tests that compare `src/` outputs against `legacy` behavior on shared
 
 ### Step 6
 
+Add a thin CLI adapter for the migrated ranking workflow if it helps exercise the new slice end to end.
+
+### Step 7
+
 Document any intentional differences and decide whether a follow-up ADR is needed.
 
 ## Testing plan
@@ -204,6 +213,7 @@ The migrated slice should include:
 - unit tests for each migrated rule
 - integration tests for the application-layer rule runner
 - integration tests for legacy-compatible CSV read/write and file-based ranking application
+- integration tests for thin CLI adapters that delegate into the migrated ranking workflow
 - parity tests against `legacy` on representative small games
 
 Recommended parity strategy:

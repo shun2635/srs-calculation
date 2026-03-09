@@ -93,6 +93,7 @@ Rules:
 - should delegate business logic to `application/`
 - should not duplicate validation or workflow logic already expressed elsewhere
 - should translate external compatibility names only at this boundary when necessary
+- may initially expose only a partial command surface during migration, provided the supported commands are explicit
 
 ## Dependency direction
 

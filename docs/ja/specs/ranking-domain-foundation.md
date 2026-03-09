@@ -37,12 +37,13 @@
 - `src/srs_calculation/domain/` に置く連合ゲームとランキング規則の基盤
 - in-memory のゲーム表現に対して規則を適用する最小限の `src/srs_calculation/application/` サービス
 - legacy 互換の game CSV を読み、legacy 互換の rankings CSV を書くための最小限の `src/srs_calculation/infrastructure/persistence/` アダプタ
+- 移行した ranking workflow を叩くための薄い `src/srs_calculation/interfaces/cli/` アダプタ
 - 移行した規則の同等性テスト
 - この移行対象を説明する docs 更新
 
 対象外:
 
-- CLI の直接移行
+- 現在の `game-gen` CLI 全体の置き換え
 - ranking slice の移行に必要な CSV アダプタを超える広い永続化対応
 - 実データ import と可視化
 - 公理チェックの移行
@@ -75,6 +76,9 @@ src/srs_calculation/
     persistence/
       csv_game_repository.py
       csv_ranking_repository.py
+  interfaces/
+    cli/
+      game_gen.py
 ```
 
 `models/` や `rules/` のような汎用バケットではなく、feature ごとのまとまりで切ることを前提にします。
@@ -148,6 +152,7 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 ## Data and interfaces
 
 このフェーズでは新しい公開 CLI は定義しません。
+ただし、`application/` に直接委譲する薄い CLI adapter を migration slice の検証用に追加することは許容します。
 
 代わりに主なインターフェース契約は次です。
 
@@ -194,6 +199,10 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 
 ### Step 6
 
+必要に応じて、移行した ranking workflow を end-to-end で叩く薄い CLI adapter を追加する。
+
+### Step 7
+
 意図的な差分があれば文書化し、必要に応じて後続 ADR を起票する。
 
 ## Testing plan
@@ -204,6 +213,7 @@ domain 層では、CSV や pandas に依存しない in-memory の協力ゲー�
 - 各 rule の unit test
 - application 層の rule runner の integration test
 - legacy 互換 CSV の read/write と file-based ranking application の integration test
+- 移行した ranking workflow に委譲する薄い CLI adapter の integration test
 - 代表的な小規模ゲームに対する `legacy` 比較の parity test
 
 推奨する parity 方針:

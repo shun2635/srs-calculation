@@ -73,6 +73,7 @@ domain と application が安定してから進めます。
 - `CoalitionGame` に対する rule 実行を担う `application/ranking/apply_ranking_rules.py`
 - legacy 互換の game CSV ワークフローを担う `application/ranking/apply_ranking_rules_to_game_csv.py`
 - legacy 互換 CSV 境界を担う `infrastructure/persistence/csv_game_repository.py` と `csv_ranking_repository.py`
+- 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
 - 初回バッチの ranking rule を deterministic な fixture で比較する parity test
 

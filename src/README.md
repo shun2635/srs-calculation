@@ -55,6 +55,7 @@ The ranking migration slice currently includes:
 - domain models and first-batch ranking rules under `domain/games` and `domain/ranking`
 - application services for in-memory rule execution and legacy-style game-CSV workflows under `application/ranking`
 - persistence adapters for legacy-compatible game CSV and rankings CSV files under `infrastructure/persistence`
+- a thin synthetic-game CLI adapter for the migrated ranking workflow under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
 
 ## Important rule

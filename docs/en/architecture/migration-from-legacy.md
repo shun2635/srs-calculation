@@ -73,6 +73,7 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `application/ranking/apply_ranking_rules.py` for rule execution on `CoalitionGame`
 - `application/ranking/apply_ranking_rules_to_game_csv.py` for legacy-style game-CSV workflows
 - `infrastructure/persistence/csv_game_repository.py` and `csv_ranking_repository.py` for legacy-compatible CSV boundaries
+- `interfaces/cli/game_gen.py` for a thin synthetic-game CLI adapter over the migrated ranking workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
 - parity tests for the first-batch ranking rules on deterministic fixtures
 
