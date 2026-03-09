@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
 import yaml
+
+
+@dataclass(frozen=True)
+class FeatureLabel:
+    """Player-to-feature metadata entry."""
+
+    player: str
+    column: str
+    label: str = ""
+    description: str = ""
 
 
 def default_feature_mask_inputs_root() -> Path:
@@ -57,8 +68,43 @@ def write_feature_labels_yaml(
     )
 
 
+def read_feature_labels_yaml(path: Path) -> list[FeatureLabel]:
+    """Read player-to-feature metadata from a features.yaml file."""
+
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or "features" not in raw:
+        raise ValueError("Invalid features.yaml: expected mapping with 'features'.")
+    items = raw["features"]
+    if not isinstance(items, list):
+        raise ValueError("Invalid features.yaml: 'features' must be a list.")
+
+    labels: list[FeatureLabel] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        player = str(item.get("player", "")).strip()
+        column = str(item.get("column", "")).strip()
+        label = str(item.get("label", "")).strip()
+        description = str(item.get("description", "")).strip()
+        if not player or not column:
+            continue
+        labels.append(
+            FeatureLabel(
+                player=player,
+                column=column,
+                label=label,
+                description=description,
+            )
+        )
+    if not labels:
+        raise ValueError("Invalid features.yaml: no valid feature entries.")
+    return labels
+
+
 __all__ = [
+    "FeatureLabel",
     "default_feature_mask_inputs_root",
+    "read_feature_labels_yaml",
     "resolve_feature_mask_dataset_dir",
     "resolve_real_dataset_out_base",
     "write_feature_labels_yaml",

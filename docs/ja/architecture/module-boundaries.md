@@ -61,6 +61,7 @@ src/
 - CLI の直接解析を持たない
 - ワークフロー制御を保存詳細から切り離す
 - `apply_ranking_rules_to_game_csv.py` のようにユースケース名でモジュールを切る
+- plotting command の orchestration は `application/experiments/` 側に置き、描画ライブラリ依存は `infrastructure/plotting/` に残す
 
 ### `infrastructure/`
 

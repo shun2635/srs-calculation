@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import csv
+from pathlib import Path
 
 from click.testing import CliRunner
 
 from srs_calculation.interfaces.cli.real_gen import main
+from srs_calculation.interfaces.cli import real_gen as module
 
 
 def _write(path, rows: list[str]) -> None:
@@ -19,6 +21,8 @@ def test_real_gen_cli_help_lists_supported_commands() -> None:
     assert result.exit_code == 0
     assert "import-game" in result.output
     assert "apply-rules" in result.output
+    assert "make-figures" in result.output
+    assert "feature-rule-heatmap" in result.output
 
 
 def test_real_gen_import_game_writes_dataset_artifacts(tmp_path) -> None:
@@ -109,3 +113,69 @@ def test_real_gen_apply_rules_uses_dataset_layout_and_schema_rules(tmp_path) -> 
         "rank",
         "rank_lexcel",
     ]
+
+
+def test_real_gen_make_figures_writes_png(tmp_path, monkeypatch) -> None:
+    out_root = tmp_path / "outputs" / "real"
+    dataset_base = out_root / "wine"
+    target_png = dataset_base / "figures" / "game_wine.png"
+
+    class _Result:
+        written_paths = (target_png,)
+
+    def _fake_render_real_dataset_figures(*_args, **_kwargs):
+        target_png.parent.mkdir(parents=True, exist_ok=True)
+        target_png.write_text("png", encoding="utf-8")
+        return _Result()
+
+    monkeypatch.setattr(module, "render_real_dataset_figures", _fake_render_real_dataset_figures)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "make-figures",
+            "wine",
+            "--out",
+            str(out_root),
+            "--dpi",
+            "80",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved figure:" in result.output
+    assert target_png.exists()
+
+
+def test_real_gen_feature_rule_heatmap_writes_png(tmp_path, monkeypatch) -> None:
+    out_root = tmp_path / "outputs" / "real"
+    dataset_base = out_root / "wine"
+    target_png = dataset_base / "heatmaps" / "feature_rule_rank.png"
+
+    class _Result:
+        out_path = target_png
+
+    def _fake_render_real_dataset_feature_rule_heatmap(*_args, **_kwargs):
+        target_png.parent.mkdir(parents=True, exist_ok=True)
+        target_png.write_text("png", encoding="utf-8")
+        return _Result()
+
+    monkeypatch.setattr(module, "render_real_dataset_feature_rule_heatmap", _fake_render_real_dataset_feature_rule_heatmap)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "feature-rule-heatmap",
+            "wine",
+            "--out",
+            str(out_root),
+            "--dpi",
+            "80",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved heatmap:" in result.output
+    assert target_png.exists()

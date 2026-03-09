@@ -88,6 +88,7 @@ The repository already contains a first migrated ranking slice in `src/`:
 - `interfaces/cli/game_gen.py` for a thin synthetic-game CLI adapter over the migrated ranking workflow
 - `application/ranking/apply_ranking_rules_to_real_dataset.py` for a dataset-scoped real-data ranking workflow
 - `application/dataset_ingestion/import_feature_mask_table.py` for feature-mask dataset import
+- `application/experiments/run_real_data_experiment.py` for canonical real-data plotting workflows
 - `interfaces/cli/real_gen.py` for a partial real-data CLI adapter over that migrated workflow
 - `tests/` coverage for the persistence adapters and ranking application workflow
 - parity tests for the first-batch ranking rules on deterministic fixtures
@@ -97,8 +98,8 @@ The next migration steps should build on these modules rather than recreating th
 The current CLI migration status is:
 
 - `game-gen`: experimental `apply-rules` and `rank-game` entry points already exist in `src/`
-- `real-gen`: experimental `import-game` and dataset-scoped `apply-rules` entry points now exist in `src/`
-- `real-gen` figure and heatmap commands still exist only in `legacy/`
+- `real-gen`: experimental `import-game`, dataset-scoped `apply-rules`, `make-figures`, and `feature-rule-heatmap` entry points now exist in `src/`
+- `real-gen` extra figure families such as interaction-index and red-index outputs still exist only in `legacy/`
 
 ## Definition of done for a migrated capability
 

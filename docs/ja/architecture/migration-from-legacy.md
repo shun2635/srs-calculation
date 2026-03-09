@@ -88,6 +88,7 @@ domain と application が安定してから進めます。
 - 移行した ranking workflow に被せる薄い synthetic-game CLI adapter を担う `interfaces/cli/game_gen.py`
 - dataset-scoped な real-data ranking workflow を担う `application/ranking/apply_ranking_rules_to_real_dataset.py`
 - feature-mask table の import workflow を担う `application/dataset_ingestion/import_feature_mask_table.py`
+- canonical な real-data plotting workflow を担う `application/experiments/run_real_data_experiment.py`
 - 移行した ranking workflow に被せる partial な real-data CLI adapter を担う `interfaces/cli/real_gen.py`
 - これらをカバーする `tests/` 配下の unit / integration test
 - 初回バッチの ranking rule を deterministic な fixture で比較する parity test
@@ -97,8 +98,8 @@ domain と application が安定してから進めます。
 現在の位置づけは次です。
 
 - `game-gen`: `src` 側で `apply-rules` / `rank-game` の実験用入口がある
-- `real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` の実験用入口がある
-- `real-gen` の figure 系コマンドと heatmap 系コマンドは、まだ `legacy` 側が唯一の実装である
+- `real-gen`: `src` 側で `import-game` / dataset-scoped な `apply-rules` / `make-figures` / `feature-rule-heatmap` の実験用入口がある
+- `real-gen` の interaction index や red-index 系などの extra 図表群は、まだ `legacy` 側が唯一の実装である
 
 ## ある機能が移行完了とみなせる条件
 

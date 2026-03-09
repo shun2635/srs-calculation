@@ -72,6 +72,14 @@ def apply_ranking_rules_to_real_dataset(
             require_complete=require_complete,
         )
     )
+    for csv_result in csv_results:
+        source_features_yaml = csv_result.game_csv_path.with_suffix(".features.yaml")
+        target_features_yaml = csv_result.rankings_csv_path.with_suffix(".features.yaml")
+        if source_features_yaml.exists() and not target_features_yaml.exists():
+            target_features_yaml.write_text(
+                source_features_yaml.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
     return AppliedRealDatasetRankingResult(
         dataset_id=str(dataset_id),
         dataset_out_base=dataset_out_base,

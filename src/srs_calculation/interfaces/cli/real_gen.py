@@ -7,6 +7,10 @@ from pathlib import Path
 import click
 
 from ...application.dataset_ingestion import import_feature_mask_dataset
+from ...application.experiments import (
+    render_real_dataset_feature_rule_heatmap,
+    render_real_dataset_figures,
+)
 from ...application.ranking import apply_ranking_rules_to_real_dataset
 
 
@@ -162,6 +166,91 @@ def apply_rules_command(
         f"processed {len(result.csv_results)} game(s) for dataset {result.dataset_id} "
         f"with {len(result.rule_ids)} rule(s) into {result.rankings_dir}"
     )
+
+
+@main.command(name="make-figures")
+@click.argument("dataset_id", type=str)
+@click.option(
+    "--out",
+    "out_root",
+    type=click.Path(path_type=Path),
+    default=Path("outputs") / "real",
+    show_default=True,
+    help="Real-data output root or one dataset directory.",
+)
+@click.option("--dpi", type=click.IntRange(72, 600), default=150, show_default=True)
+@click.option(
+    "--max-coalition-size",
+    type=click.IntRange(1, 30),
+    default=3,
+    show_default=True,
+    help="Visualization-only filter: show coalitions up to this size.",
+)
+def make_figures_command(
+    dataset_id: str,
+    out_root: Path,
+    dpi: int,
+    max_coalition_size: int,
+) -> None:
+    """Render table-style ranking figures for one real-data dataset."""
+
+    try:
+        result = render_real_dataset_figures(
+            dataset_id,
+            out_root=out_root,
+            dpi=int(dpi),
+            max_coalition_size=int(max_coalition_size),
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not result.written_paths:
+        click.echo(f"no rankings CSV found under {result.rankings_dir}")
+        return
+    for path in result.written_paths:
+        click.echo(f"saved figure: {path}")
+
+
+@main.command(name="feature-rule-heatmap")
+@click.argument("dataset_id", type=str)
+@click.option(
+    "--out",
+    "out_root",
+    type=click.Path(path_type=Path),
+    default=Path("outputs") / "real",
+    show_default=True,
+    help="Real-data output root or one dataset directory.",
+)
+@click.option("--dpi", type=click.IntRange(72, 600), default=200, show_default=True)
+@click.option(
+    "--max-coalition-size",
+    type=click.IntRange(1, 30),
+    default=None,
+    help="Show coalitions up to this size. Defaults to schema heatmaps.feature_rule_max_coalition_size or 2.",
+)
+def feature_rule_heatmap_command(
+    dataset_id: str,
+    out_root: Path,
+    dpi: int,
+    max_coalition_size: int | None,
+) -> None:
+    """Render a feature-by-rule rank heatmap for one dataset."""
+
+    try:
+        result = render_real_dataset_feature_rule_heatmap(
+            dataset_id,
+            out_root=out_root,
+            dpi=int(dpi),
+            max_coalition_size=max_coalition_size,
+        )
+    except FileNotFoundError as exc:
+        raise click.ClickException(str(exc)) from exc
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"saved heatmap: {result.out_path}")
 
 
 __all__ = ["main"]

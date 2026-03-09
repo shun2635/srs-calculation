@@ -61,6 +61,7 @@ Rules:
 - should not contain direct CLI parsing
 - should isolate workflow coordination from storage details
 - should use explicit use-case module names such as `apply_ranking_rules_to_game_csv.py`
+- should keep plotting workflow orchestration in `application/experiments/` while leaving plotting-library details in `infrastructure/plotting/`
 
 ### `infrastructure/`
 

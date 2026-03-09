@@ -31,6 +31,16 @@ def test_apply_ranking_rules_to_real_dataset_uses_schema_rules_by_default(tmp_pa
             "  - ordinal_banzhaf",
         ],
     )
+    _write(
+        dataset_base / "games" / "game_toy.features.yaml",
+        [
+            "features:",
+            "- player: player1",
+            "  column: a",
+            "- player: player2",
+            "  column: b",
+        ],
+    )
 
     result = apply_ranking_rules_to_real_dataset(
         "toy",
@@ -53,3 +63,4 @@ def test_apply_ranking_rules_to_real_dataset_uses_schema_rules_by_default(tmp_pa
         "rank_shapley",
         "rank_o-banzhaf",
     ]
+    assert (dataset_base / "rankings" / "game_toy.features.yaml").exists()
