@@ -104,6 +104,12 @@ domain と application が安定してから進めます。
   も `src` 側へ移行済みである
 - ただし legacy 側にしかない細かな描画互換や周辺オプションはまだ残る
 
+公開入口の状態は次です。
+
+- root `pyproject.toml` から `real-gen` は `src` 側 CLI を公開している
+- root `pyproject.toml` から `srs-game-gen` は `src` 側の partial な synthetic CLI を公開している
+- `legacy/pyproject.toml` の `game-gen` / `real-gen` は参照用の旧入口として残っている
+
 ## ある機能が移行完了とみなせる条件
 
 次を満たしたとき、その機能は移行済みとみなします。

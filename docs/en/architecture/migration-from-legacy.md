@@ -104,6 +104,12 @@ The current CLI migration status is:
   are also migrated into `src/`
 - some legacy-only rendering compatibility details and peripheral options still remain
 
+The current published-entry-point state is:
+
+- the root `pyproject.toml` now publishes `real-gen` from the `src` CLI
+- the root `pyproject.toml` also publishes `srs-game-gen` as the partial synthetic CLI from `src`
+- `legacy/pyproject.toml` still keeps `game-gen` / `real-gen` as legacy entry points for reference
+
 ## Definition of done for a migrated capability
 
 A capability should be considered migrated only when:

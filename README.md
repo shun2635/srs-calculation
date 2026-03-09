@@ -2,7 +2,7 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
-このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。公開されている Poetry CLI は引き続き [`legacy/`](legacy/) にありますが、次の実装は [`src/`](src/) 配下で進行しており、[`docs/`](docs/) にはその方針と境界を整理しています。
+このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。次実装の Poetry project はリポジトリ root にあり、`real-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は参照実装として残し、[`docs/`](docs/) にはその方針と境界を整理しています。
 
 ## Intended audiences
 
@@ -13,10 +13,11 @@ Note: the Japanese and English audience guides are intended to stay content-sync
 
 ## Current repository status
 
-- The published Poetry CLI still lives in [`legacy/`](legacy/).
+- The root Poetry project now publishes the `src`-based `real-gen` CLI.
+- The legacy Poetry project remains under [`legacy/`](legacy/) for reference and still carries the old `game-gen` / `real-gen` scripts.
 - The new top-level [`docs/`](docs/) directory is the recommended entry point for collaborators.
 - The new top-level [`src/`](src/) directory already contains the in-progress next implementation.
-- The `src/` tree already exposes experimental module-entry CLIs for migrated `game-gen` and `real-gen` slices.
+- The `src/` tree already exposes module-entry CLIs for migrated `game-gen` and `real-gen` slices.
 - The existing [`legacy/docs/`](legacy/docs/) directory remains the detailed technical archive for ranking rules, axioms, and design notes.
 
 ## What the code currently does
@@ -51,16 +52,22 @@ The real-data pipeline supports:
 ## Quick start
 
 ```bash
-cd legacy
 poetry install
-poetry run game-gen --help
 poetry run real-gen --help
-poetry run pytest
+poetry run srs-game-gen --help
+python -m pytest tests
 ```
+
+`legacy` 側 CLI を使う場合は、引き続き `cd legacy && poetry install` です。
 
 ## Current CLI Commands
 
-現在 `poetry run` で実行できる CLI は [`legacy/pyproject.toml`](legacy/pyproject.toml) に登録されている `game-gen` と `real-gen` です。実行時は `legacy/` で `poetry install` 済みであることを前提にしてください。
+現在の CLI 入口は 2 系統あります。
+
+- root [`pyproject.toml`](pyproject.toml): `src` ベースの `real-gen` と `srs-game-gen`
+- [`legacy/pyproject.toml`](legacy/pyproject.toml): 旧実装ベースの `game-gen` と `real-gen`
+
+`real-gen` の公開入口は root 側を優先してください。`game-gen` はまだ `src` 側で partial なので、従来の全機能は `legacy/` 側に残っています。
 
 設定の優先順位は共通で次です。
 
@@ -120,21 +127,23 @@ poetry run pytest
 
 | コマンド | 設定 | 何がどこに生成されるか |
 | --- | --- | --- |
-| `poetry run real-gen import-game <dataset_id>` | `output_base`, `realgen.import_rank_bins`, `inputs/feature_mask_tables/<dataset_id>/schema.yaml` | `output_base/real/<dataset_id>/games/game_<dataset_id>.csv`、`game_<dataset_id>.features.yaml`、`schema.yaml` のコピーを生成 |
-| `poetry run real-gen apply-rules <dataset_id>` | `pipeline.rules` または dataset `schema.yaml` の `rules`, `output_base` | `output_base/real/<dataset_id>/rankings/game_<dataset_id>.csv` を生成または更新。`rank_*` や `score_*` 列を追加 |
-| `poetry run real-gen make-figures <dataset_id>` | dataset `schema.yaml` の `figures.*`, `output_base` | `output_base/real/<dataset_id>/figures/*.png` を生成。基本の ranking 図に加えて、条件がそろえば `interaction_index.png`, `shapley_values.png`, `ordinal_banzhaf_values.png` なども生成 |
-| `poetry run real-gen feature-rule-heatmap <dataset_id>` | dataset `schema.yaml` の `heatmaps.feature_rule_max_coalition_size`, `output_base` | `output_base/real/<dataset_id>/heatmaps/feature_rule_rank.png` を生成 |
+| `poetry run real-gen import-game <dataset_id>` | `realgen.import_rank_bins`, `inputs/feature_mask_tables/<dataset_id>/schema.yaml` | `outputs/real/<dataset_id>/games/game_<dataset_id>.csv`、`game_<dataset_id>.features.yaml`、`schema.yaml` のコピーを生成 |
+| `poetry run real-gen apply-rules <dataset_id>` | dataset `schema.yaml` の `rules` または migrated rule defaults | `outputs/real/<dataset_id>/rankings/game_<dataset_id>.csv` を生成または更新。`rank_*` や `score_*` 列を追加 |
+| `poetry run real-gen make-figures <dataset_id>` | dataset `schema.yaml` の `figures.*` | `outputs/real/<dataset_id>/figures/*.png` を生成。基本の ranking 図に加えて、interaction index, red-index, shapley values, ordinal banzhaf values, lexcel rank count, give top-k などの extra figure を best-effort で生成 |
+| `poetry run real-gen feature-rule-heatmap <dataset_id>` | dataset `schema.yaml` の `heatmaps.feature_rule_max_coalition_size` | `outputs/real/<dataset_id>/heatmaps/feature_rule_rank.png` を生成 |
 
 補足:
 
 - `legacy/src/realgen/commands/resignation_contrib.py` は実装ファイルがありますが、現時点では `real-gen` CLI に登録されていないため `poetry run real-gen ...` では呼べません
 - 詳細な CLI 用例は [`legacy/README.md`](legacy/README.md) を参照してください
 
-## Experimental `src` CLI
+## `src` CLI
 
-`src/` 側には、移行済みスライスを叩くための experimental CLI があります。これは `poetry run` の公開 CLI ではなく、`src` を `PYTHONPATH` に載せて module 実行する想定です。
+`src/` 側 CLI は module 実行でも叩けます。`real-gen` は root Poetry project からも呼べます。
 
 ```bash
+poetry run real-gen --help
+poetry run srs-game-gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen apply-rules --help
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.game_gen rank-game --help
@@ -145,16 +154,16 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen make-figures --
 PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-heatmap --help
 ```
 
-現時点で実装されているのは次です。
+現時点で `src` 側に実装されているのは次です。
 
-- `game_gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
-- `game_gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
+- `srs-game-gen apply-rules`: legacy-style game CSV ディレクトリに対して migrated rules を適用する
+- `srs-game-gen rank-game`: legacy-style game CSV 1 件に対して migrated rule 1 つを適用する
 - `real_gen import-game`: feature-mask table を dataset-scoped な game CSV と `features.yaml` に変換する
 - `real_gen apply-rules`: dataset-scoped な `outputs/real/<dataset_id>/games/` に対して migrated rules を適用する
 - `real_gen make-figures`: dataset-scoped な rankings CSV から canonical table-style PNG と extra figure 群を best-effort で生成する
 - `real_gen feature-rule-heatmap`: feature × rule の rank heatmap を生成する
 
-この CLI は意図的に partial です。`real_gen` では canonical な figure / heatmap と、interaction index・red-index・Shapley values・Ordinal Banzhaf values・Lexcel rank count・RP Index top-k・Give top-k などの extra 図表群まで移行済みですが、legacy 側の周辺オプションや細かな描画互換はまだ残っています。完全なコマンド群は引き続き [`legacy/`](legacy/) 側にあります。
+`real-gen` は root から公開されています。`srs-game-gen` は意図的に partial で、legacy 側の `game-gen` 全機能をまだ置き換えていません。`real-gen` でも周辺オプションや細かな描画互換の一部は legacy 側に残っています。
 
 ## Documentation map
 
@@ -167,8 +176,8 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 - [`docs/en/specs/README.md`](docs/en/specs/README.md): feature/specification documents
 - [`docs/en/research-workflow.md`](docs/en/research-workflow.md): how to use the repository in research collaboration
 - [`src/README.md`](src/README.md): intended package structure for new code
-- [`legacy/README.md`](legacy/README.md): CLI-oriented reference for the current implementation
+- [`legacy/README.md`](legacy/README.md): CLI-oriented reference for the legacy implementation
 
 ## Practical note
 
-This repository is still legacy-first in its published executable surface, but the next implementation is already being built and exercised in `src/` under the documented architecture boundaries.
+The repository has started switching its published executable surface to `src/`: `real-gen` is now rooted at the top-level Poetry project, while `game-gen` still remains legacy-first.

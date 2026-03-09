@@ -6,6 +6,7 @@ This directory contains the in-progress new implementation of the repository.
 
 - new production code should be added here by default
 - `legacy/` remains the reference implementation until parity is demonstrated
+- the repository root Poetry project publishes `real-gen` from this tree
 - architecture decisions for this tree are documented in [`../docs/en/architecture/`](../docs/en/architecture/) and mirrored in [`../docs/ja/architecture/`](../docs/ja/architecture/)
 
 ## Intended package tree
@@ -61,9 +62,16 @@ The ranking migration slice currently includes:
 - thin CLI adapters for migrated `game-gen` and partial `real-gen` workflows under `interfaces/cli`
 - unit, integration, and legacy parity tests under `tests/`
 
-## Experimental CLI
+## CLI
 
-The `src` tree includes an experimental synthetic-game CLI for the migrated ranking slice.
+The `src` tree includes the published `real-gen` CLI and a partial synthetic-game CLI.
+
+The repository root also publishes:
+
+```bash
+poetry run real-gen --help
+poetry run srs-game-gen --help
+```
 
 Show the top-level help:
 
@@ -85,14 +93,14 @@ PYTHONPATH=src python -m srs_calculation.interfaces.cli.real_gen feature-rule-he
 
 Current supported commands:
 
-- `apply-rules`: apply migrated rules to a directory of legacy-style game CSV files
-- `rank-game`: apply one migrated rule to one legacy-style game CSV file
+- `srs-game-gen apply-rules`: apply migrated rules to a directory of legacy-style game CSV files
+- `srs-game-gen rank-game`: apply one migrated rule to one legacy-style game CSV file
 - `real-gen import-game`: import one feature-mask dataset into `outputs/real/<dataset_id>/games/`
 - `real-gen apply-rules`: apply migrated rules to `outputs/real/<dataset_id>/games/`
 - `real-gen make-figures`: render canonical table-style PNG figures plus extra real-data figures from `outputs/real/<dataset_id>/rankings/`
 - `real-gen feature-rule-heatmap`: render the canonical feature-by-rule heatmap
 
-This CLI is intentionally partial. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full production CLI surface still lives under [`../legacy/`](../legacy/).
+`real-gen` is now the published root CLI for this tree. `srs-game-gen` is intentionally partial. The canonical real-data figures, the feature-rule heatmap, and the main extra figure family are migrated, but some legacy-only compatibility details still remain. The full legacy production surface still lives under [`../legacy/`](../legacy/).
 
 ## Important rule
 

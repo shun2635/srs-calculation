@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "srs-calculation"
+version = "0.1.0"
+description = "Next implementation of cooperative-game ranking workflows"
+authors = ["Lab Team"]
+readme = "README.md"
+packages = [{ include = "srs_calculation", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+click = "^8.1"
+pyyaml = "^6.0"
+pandas = "^2.2"
+matplotlib = "^3.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+ruff = "^0.6"
+mypy = "^1.11"
+
+[tool.poetry.scripts]
+"real-gen" = "srs_calculation.interfaces.cli.real_gen:main"
+"srs-game-gen" = "srs_calculation.interfaces.cli.game_gen:main"
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = ["E", "F", "I"]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint.isort]
+force-single-line = false
+known-first-party = ["srs_calculation"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.mypy]
+python_version = "3.10"
+disallow_untyped_defs = true
+disallow_any_unimported = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+allow_redefinition = false
+strict_equality = true
+plugins = []
