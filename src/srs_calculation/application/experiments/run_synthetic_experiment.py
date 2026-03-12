@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import itertools
 from pathlib import Path
 
+from ..synthetic_workflow import resolve_synthetic_output_layout
 from ...infrastructure.config import load_yaml_config
 from ...infrastructure.plotting import generate_synthetic_ranking_figure
 from ...infrastructure.plotting import (
@@ -44,16 +45,9 @@ class RenderedSyntheticRuleCorrelationHeatmaps:
     rankings_dir: Path
     heatmaps_dir: Path
     written_paths: tuple[Path, ...]
+    written_csv_paths: tuple[Path, ...]
+    analysis_dir: Path
     method: str
-
-
-def _default_output_base(config_path: Path | None) -> Path:
-    config = load_yaml_config(config_path)
-    raw_output_base = config.get("output_base", "outputs")
-    configured = Path(str(raw_output_base))
-    if configured.is_absolute() or config_path is None:
-        return configured
-    return Path(config_path).parent / configured
 
 
 def _default_figures_dpi(config_path: Path | None, *, default: int = 150) -> int:
@@ -145,12 +139,19 @@ def render_synthetic_figures(
     out_dir: Path | None = None,
     config_path: Path | None = None,
     dpi: int | None = None,
+    constraints: tuple[str, ...] = (),
+    profile: str | None = None,
 ) -> RenderedSyntheticFigures:
     """Render PNG figures from compatibility-format synthetic rankings CSV files."""
 
-    base_out = Path(out_dir) if out_dir is not None else _default_output_base(config_path)
-    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else base_out / "rankings"
-    resolved_figures_dir = base_out / "figures"
+    layout = resolve_synthetic_output_layout(
+        out_dir=out_dir,
+        config_path=config_path,
+        constraints=constraints,
+        profile=profile,
+    )
+    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else layout.rankings_base_dir
+    resolved_figures_dir = layout.figures_base_dir
     if not resolved_rankings_dir.exists():
         raise FileNotFoundError(f"Rankings directory not found: {resolved_rankings_dir}")
 
@@ -194,12 +195,19 @@ def render_synthetic_rank_heatmaps(
     out_dir: Path | None = None,
     config_path: Path | None = None,
     dpi: int | None = None,
+    constraints: tuple[str, ...] = (),
+    profile: str | None = None,
 ) -> RenderedSyntheticRankHeatmaps:
     """Render pairwise synthetic rank heatmaps from rankings CSV files."""
 
-    base_out = Path(out_dir) if out_dir is not None else _default_output_base(config_path)
-    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else base_out / "rankings"
-    heatmaps_dir = base_out / "heatmaps" / f"n{int(players)}"
+    layout = resolve_synthetic_output_layout(
+        out_dir=out_dir,
+        config_path=config_path,
+        constraints=constraints,
+        profile=profile,
+    )
+    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else layout.rankings_base_dir
+    heatmaps_dir = layout.heatmaps_dir(int(players))
     if not resolved_rankings_dir.exists():
         raise FileNotFoundError(f"Rankings directory not found: {resolved_rankings_dir}")
 
@@ -255,12 +263,20 @@ def render_synthetic_rule_correlation_heatmaps(
     config_path: Path | None = None,
     dpi: int | None = None,
     method: str | None = None,
+    constraints: tuple[str, ...] = (),
+    profile: str | None = None,
 ) -> RenderedSyntheticRuleCorrelationHeatmaps:
     """Render rule-by-rule synthetic rank-correlation heatmaps."""
 
-    base_out = Path(out_dir) if out_dir is not None else _default_output_base(config_path)
-    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else base_out / "rankings"
-    heatmaps_dir = base_out / "heatmaps" / f"n{int(players)}"
+    layout = resolve_synthetic_output_layout(
+        out_dir=out_dir,
+        config_path=config_path,
+        constraints=constraints,
+        profile=profile,
+    )
+    resolved_rankings_dir = Path(rankings_dir) if rankings_dir is not None else layout.rankings_base_dir
+    heatmaps_dir = layout.heatmaps_dir(int(players))
+    analysis_dir = layout.analysis_dir(int(players))
     if not resolved_rankings_dir.exists():
         raise FileNotFoundError(f"Rankings directory not found: {resolved_rankings_dir}")
 
@@ -268,6 +284,7 @@ def render_synthetic_rule_correlation_heatmaps(
     effective_method = str(method) if method is not None else _rule_corr_method(config_path)
     scopes = infer_rank_column_scopes(resolved_rankings_dir, int(players))
     written_paths: list[Path] = []
+    written_csv_paths: list[Path] = []
 
     player_cols = [name for name, scope in scopes.items() if scope == "player"]
     if player_cols:
@@ -279,6 +296,10 @@ def render_synthetic_rule_correlation_heatmaps(
             method=effective_method,
         )
         if not player_corr.empty:
+            player_csv = analysis_dir / "rule_corr_player.csv"
+            player_csv.parent.mkdir(parents=True, exist_ok=True)
+            player_corr.to_csv(player_csv)
+            written_csv_paths.append(player_csv)
             written_paths.append(
                 render_correlation_heatmap(
                     player_corr,
@@ -298,6 +319,10 @@ def render_synthetic_rule_correlation_heatmaps(
             method=effective_method,
         )
         if not coalition_corr.empty:
+            coalition_csv = analysis_dir / "rule_corr_coalition.csv"
+            coalition_csv.parent.mkdir(parents=True, exist_ok=True)
+            coalition_corr.to_csv(coalition_csv)
+            written_csv_paths.append(coalition_csv)
             written_paths.append(
                 render_correlation_heatmap(
                     coalition_corr,
@@ -311,6 +336,8 @@ def render_synthetic_rule_correlation_heatmaps(
         rankings_dir=resolved_rankings_dir,
         heatmaps_dir=heatmaps_dir,
         written_paths=tuple(written_paths),
+        written_csv_paths=tuple(written_csv_paths),
+        analysis_dir=analysis_dir,
         method=effective_method,
     )
 

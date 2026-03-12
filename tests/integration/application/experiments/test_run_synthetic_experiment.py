@@ -42,15 +42,17 @@ def test_render_synthetic_figures_writes_pngs_under_matching_n_dir(tmp_path, mon
         dpi=90,
     )
 
-    assert result.figures_dir == tmp_path / "outputs" / "figures"
+    assert result.figures_dir == tmp_path / "outputs" / "synthetic" / "unconstrained" / "figures"
     assert result.skipped_count == 0
-    assert result.written_paths == (tmp_path / "outputs" / "figures" / "n2" / "game_000001.png",)
+    assert result.written_paths == (
+        tmp_path / "outputs" / "synthetic" / "unconstrained" / "figures" / "n2" / "game_000001.png",
+    )
     assert result.written_paths[0].read_text(encoding="utf-8") == "dpi=90"
 
 
 def test_render_synthetic_figures_uses_config_defaults(tmp_path, monkeypatch) -> None:
     config_path = tmp_path / "config.yaml"
-    rankings_dir = tmp_path / "custom_outputs" / "rankings" / "n3"
+    rankings_dir = tmp_path / "custom_outputs" / "synthetic" / "unconstrained" / "rankings" / "n3"
     _write(
         rankings_dir / "game_000001.csv",
         [
@@ -91,12 +93,14 @@ def test_render_synthetic_figures_uses_config_defaults(tmp_path, monkeypatch) ->
 
     assert seen["dpi"] == 123
     assert seen["rankings_csv"] == rankings_dir / "game_000001.csv"
-    assert seen["output_dir"] == tmp_path / "custom_outputs" / "figures" / "n3"
-    assert result.written_paths[0] == tmp_path / "custom_outputs" / "figures" / "n3" / "game_000001.png"
+    assert seen["output_dir"] == tmp_path / "custom_outputs" / "synthetic" / "unconstrained" / "figures" / "n3"
+    assert result.written_paths[0] == (
+        tmp_path / "custom_outputs" / "synthetic" / "unconstrained" / "figures" / "n3" / "game_000001.png"
+    )
 
 
 def test_render_synthetic_rank_heatmaps_writes_png(tmp_path) -> None:
-    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    rankings_dir = tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings" / "n2"
     _write(
         rankings_dir / "game_000001.csv",
         [
@@ -110,20 +114,20 @@ def test_render_synthetic_rank_heatmaps_writes_png(tmp_path) -> None:
 
     result = render_synthetic_rank_heatmaps(
         players=2,
-        rankings_dir=tmp_path / "outputs" / "rankings",
+        rankings_dir=tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings",
         out_dir=tmp_path / "outputs",
         dpi=80,
     )
 
     assert result.written_paths == (
-        tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png",
+        tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png",
     )
     assert result.written_paths[0].exists()
     assert result.written_paths[0].stat().st_size > 0
 
 
 def test_render_synthetic_rule_correlation_heatmaps_writes_png(tmp_path) -> None:
-    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    rankings_dir = tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings" / "n2"
     _write(
         rankings_dir / "game_000001.csv",
         [
@@ -137,13 +141,16 @@ def test_render_synthetic_rule_correlation_heatmaps_writes_png(tmp_path) -> None
 
     result = render_synthetic_rule_correlation_heatmaps(
         players=2,
-        rankings_dir=tmp_path / "outputs" / "rankings",
+        rankings_dir=tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings",
         out_dir=tmp_path / "outputs",
         dpi=80,
     )
 
     assert result.written_paths == (
-        tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png",
+        tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rule_corr_player.png",
+    )
+    assert result.written_csv_paths == (
+        tmp_path / "outputs" / "synthetic" / "unconstrained" / "analysis" / "n2" / "rule_corr_player.csv",
     )
     assert result.written_paths[0].exists()
     assert result.written_paths[0].stat().st_size > 0

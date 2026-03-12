@@ -29,6 +29,33 @@ class _RenderedSyntheticHeatmapsStub:
     written_paths: tuple[Path, ...]
     pairs: tuple[tuple[str, str], ...] = ()
     method: str = "spearman"
+    written_csv_paths: tuple[Path, ...] = ()
+    analysis_dir: Path | None = None
+
+
+@dataclass(frozen=True)
+class _SyntheticAxiomScopeReportStub:
+    scope: str
+    scope_dir: Path
+    written_count_paths: tuple[Path, ...]
+    summary_csv_path: Path | None
+    summary_heatmap_path: Path | None
+    evaluated_rule_ids: tuple[str, ...]
+    evaluated_axiom_ids: tuple[str, ...]
+    skipped_reason: str | None = None
+
+
+@dataclass(frozen=True)
+class _EvaluatedSyntheticAxiomsStub:
+    games_dir: Path
+    rankings_dir: Path
+    reports: tuple[_SyntheticAxiomScopeReportStub, ...]
+
+
+@dataclass(frozen=True)
+class _RenderedSyntheticAxiomSummaryHeatmapsStub:
+    written_paths: tuple[Path, ...]
+    scope_dirs: tuple[Path, ...]
 
 
 def test_apply_rules_cli_with_explicit_directories(tmp_path) -> None:
@@ -90,6 +117,8 @@ def test_game_gen_cli_help_lists_supported_commands() -> None:
     assert "rank-game" in result.output
     assert "rank-heatmap" in result.output
     assert "rule-corr-heatmap" in result.output
+    assert "evaluate-axioms" in result.output
+    assert "axiom-summary-heatmap" in result.output
 
 
 def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
@@ -115,7 +144,7 @@ def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
     assert result.exit_code == 0
     assert "wrote 2 game(s)" in result.output
 
-    game_dir = out_dir / "games" / "n2"
+    game_dir = out_dir / "synthetic" / "unconstrained" / "games" / "n2"
     files = sorted(game_dir.glob("game_*.csv"))
     assert len(files) == 2
 
@@ -123,7 +152,7 @@ def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
 def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
     out_dir = tmp_path / "outputs"
     _write_game_csv(
-        out_dir / "games" / "n2" / "game_000001.csv",
+        out_dir / "synthetic" / "unconstrained" / "games" / "n2" / "game_000001.csv",
         [
             "player1,player2,score,rank",
             "1,1,4,1",
@@ -150,7 +179,7 @@ def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
     assert result.exit_code == 0
     assert "processed 1 game(s) with 1 rule(s)" in result.output
 
-    rankings_csv_path = out_dir / "rankings" / "n2" / "game_000001.csv"
+    rankings_csv_path = out_dir / "synthetic" / "unconstrained" / "rankings" / "n2" / "game_000001.csv"
     with rankings_csv_path.open("r", encoding="utf-8", newline="") as fh:
         rows = list(csv.reader(fh))
 
@@ -169,7 +198,7 @@ def test_apply_rules_cli_with_legacy_style_players_and_out(tmp_path) -> None:
 def test_make_figures_cli_writes_pngs(tmp_path, monkeypatch) -> None:
     import srs_calculation.interfaces.cli.game_gen as module
 
-    rankings_dir = tmp_path / "outputs" / "rankings" / "n2"
+    rankings_dir = tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings" / "n2"
     _write_game_csv(
         rankings_dir / "game_000001.csv",
         [
@@ -181,13 +210,21 @@ def test_make_figures_cli_writes_pngs(tmp_path, monkeypatch) -> None:
         ],
     )
 
-    def _fake_render_synthetic_figures(*, rankings_dir: Path | None, out_dir: Path | None, config_path: Path | None, dpi: int | None):
-        target = tmp_path / "outputs" / "figures" / "n2" / "game_000001.png"
+    def _fake_render_synthetic_figures(
+        *,
+        rankings_dir: Path | None,
+        out_dir: Path | None,
+        config_path: Path | None,
+        dpi: int | None,
+        constraints: tuple[str, ...],
+        profile: str | None,
+    ):
+        target = tmp_path / "outputs" / "synthetic" / "unconstrained" / "figures" / "n2" / "game_000001.png"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("png", encoding="utf-8")
         return _RenderedSyntheticFiguresStub(
-            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
-            figures_dir=(out_dir or tmp_path / "outputs") / "figures",
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings",
+            figures_dir=(out_dir or tmp_path / "outputs") / "synthetic" / "unconstrained" / "figures",
             written_paths=(target,),
             skipped_count=0,
         )
@@ -200,7 +237,7 @@ def test_make_figures_cli_writes_pngs(tmp_path, monkeypatch) -> None:
         [
             "make-figures",
             "--rankings-dir",
-            str(tmp_path / "outputs" / "rankings"),
+            str(tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(tmp_path / "outputs"),
         ],
@@ -208,7 +245,7 @@ def test_make_figures_cli_writes_pngs(tmp_path, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "generated 1 PNG figure(s)" in result.output
-    assert (tmp_path / "outputs" / "figures" / "n2" / "game_000001.png").exists()
+    assert (tmp_path / "outputs" / "synthetic" / "unconstrained" / "figures" / "n2" / "game_000001.png").exists()
 
 
 def test_rank_game_cli_writes_one_rankings_csv(tmp_path) -> None:
@@ -264,13 +301,15 @@ def test_rank_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
         out_dir: Path | None,
         config_path: Path | None,
         dpi: int | None,
+        constraints: tuple[str, ...],
+        profile: str | None,
     ):
-        target = tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
+        target = tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("png", encoding="utf-8")
         return _RenderedSyntheticHeatmapsStub(
-            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
-            heatmaps_dir=(out_dir or tmp_path / "outputs") / "heatmaps" / "n2",
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings",
+            heatmaps_dir=(out_dir or tmp_path / "outputs") / "synthetic" / "unconstrained" / "heatmaps" / "n2",
             written_paths=(target,),
             pairs=(("rank_lexcel", "rank_shapley"),),
         )
@@ -285,7 +324,7 @@ def test_rank_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
             "-p",
             "2",
             "--rankings-dir",
-            str(tmp_path / "outputs" / "rankings"),
+            str(tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(tmp_path / "outputs"),
         ],
@@ -293,7 +332,7 @@ def test_rank_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "saved heatmap:" in result.output
-    assert (tmp_path / "outputs" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png").exists()
+    assert (tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png").exists()
 
 
 def test_rule_corr_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
@@ -307,15 +346,22 @@ def test_rule_corr_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
         config_path: Path | None,
         dpi: int | None,
         method: str | None,
+        constraints: tuple[str, ...],
+        profile: str | None,
     ):
-        target = tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png"
+        target = tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rule_corr_player.png"
+        summary = tmp_path / "outputs" / "synthetic" / "unconstrained" / "analysis" / "n2" / "rule_corr_player.csv"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("png", encoding="utf-8")
+        summary.parent.mkdir(parents=True, exist_ok=True)
+        summary.write_text("csv", encoding="utf-8")
         return _RenderedSyntheticHeatmapsStub(
-            rankings_dir=rankings_dir or tmp_path / "outputs" / "rankings",
-            heatmaps_dir=(out_dir or tmp_path / "outputs") / "heatmaps" / "n2",
+            rankings_dir=rankings_dir or tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings",
+            heatmaps_dir=(out_dir or tmp_path / "outputs") / "synthetic" / "unconstrained" / "heatmaps" / "n2",
             written_paths=(target,),
             method=method or "spearman",
+            written_csv_paths=(summary,),
+            analysis_dir=(out_dir or tmp_path / "outputs") / "synthetic" / "unconstrained" / "analysis" / "n2",
         )
 
     monkeypatch.setattr(
@@ -332,7 +378,7 @@ def test_rule_corr_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
             "-p",
             "2",
             "--rankings-dir",
-            str(tmp_path / "outputs" / "rankings"),
+            str(tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(tmp_path / "outputs"),
         ],
@@ -340,4 +386,94 @@ def test_rule_corr_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "saved heatmap:" in result.output
-    assert (tmp_path / "outputs" / "heatmaps" / "n2" / "rule_corr_player.png").exists()
+    assert "saved summary:" in result.output
+    assert (tmp_path / "outputs" / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rule_corr_player.png").exists()
+
+
+def test_evaluate_axioms_cli_writes_summary_and_heatmap(tmp_path, monkeypatch) -> None:
+    import srs_calculation.interfaces.cli.game_gen as module
+
+    summary_csv = tmp_path / "outputs" / "synthetic" / "unconstrained" / "analysis" / "n2" / "axiom" / "coalition" / "summary.csv"
+    summary_png = tmp_path / "outputs" / "synthetic" / "unconstrained" / "analysis" / "n2" / "axiom" / "coalition" / "summary_heatmap.png"
+    summary_csv.parent.mkdir(parents=True, exist_ok=True)
+    summary_csv.write_text("csv", encoding="utf-8")
+    summary_png.write_text("png", encoding="utf-8")
+
+    def _fake_evaluate_synthetic_axioms(**_: object):
+        return _EvaluatedSyntheticAxiomsStub(
+            games_dir=tmp_path / "outputs" / "synthetic" / "unconstrained" / "games" / "n2",
+            rankings_dir=tmp_path / "outputs" / "synthetic" / "unconstrained" / "rankings" / "n2",
+            reports=(
+                _SyntheticAxiomScopeReportStub(
+                    scope="coalition",
+                    scope_dir=summary_csv.parent,
+                    written_count_paths=(),
+                    summary_csv_path=summary_csv,
+                    summary_heatmap_path=summary_png,
+                    evaluated_rule_ids=("group_shapley",),
+                    evaluated_axiom_ids=("redundancy",),
+                ),
+                _SyntheticAxiomScopeReportStub(
+                    scope="individual",
+                    scope_dir=summary_csv.parent.parent / "individual",
+                    written_count_paths=(),
+                    summary_csv_path=None,
+                    summary_heatmap_path=None,
+                    evaluated_rule_ids=(),
+                    evaluated_axiom_ids=(),
+                    skipped_reason="no axioms evaluated for scope=individual",
+                ),
+            ),
+        )
+
+    monkeypatch.setattr(module, "evaluate_synthetic_axioms", _fake_evaluate_synthetic_axioms)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "evaluate-axioms",
+            "-p",
+            "2",
+            "--out",
+            str(tmp_path / "outputs"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved summary:" in result.output
+    assert "saved heatmap:" in result.output
+    assert "no axioms evaluated for scope=individual" in result.output
+
+
+def test_axiom_summary_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
+    import srs_calculation.interfaces.cli.game_gen as module
+
+    target = tmp_path / "outputs" / "synthetic" / "unconstrained" / "analysis" / "n2" / "axiom" / "coalition" / "summary_heatmap.png"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("png", encoding="utf-8")
+
+    def _fake_render_synthetic_axiom_summary_heatmaps(**_: object):
+        return _RenderedSyntheticAxiomSummaryHeatmapsStub(
+            written_paths=(target,),
+            scope_dirs=(target.parent,),
+        )
+
+    monkeypatch.setattr(module, "render_synthetic_axiom_summary_heatmaps", _fake_render_synthetic_axiom_summary_heatmaps)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "axiom-summary-heatmap",
+            "-p",
+            "2",
+            "--out",
+            str(tmp_path / "outputs"),
+            "--scope",
+            "coalition",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "saved heatmap:" in result.output

@@ -32,7 +32,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
     assert gen_result.exit_code == 0
     assert "wrote 1 game(s)" in gen_result.output
 
-    game_csv_path = out_dir / "games" / "n2" / "game_000001.csv"
+    game_csv_path = out_dir / "synthetic" / "unconstrained" / "games" / "n2" / "game_000001.csv"
     assert game_csv_path.exists()
 
     apply_result = runner.invoke(
@@ -47,13 +47,15 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
             "shapley",
             "--rule",
             "lexcel",
+            "--rule",
+            "group_shapley",
         ],
     )
 
     assert apply_result.exit_code == 0
-    assert "processed 1 game(s) with 2 rule(s)" in apply_result.output
+    assert "processed 1 game(s) with 3 rule(s)" in apply_result.output
 
-    rankings_csv_path = out_dir / "rankings" / "n2" / "game_000001.csv"
+    rankings_csv_path = out_dir / "synthetic" / "unconstrained" / "rankings" / "n2" / "game_000001.csv"
     assert rankings_csv_path.exists()
 
     with rankings_csv_path.open("r", encoding="utf-8", newline="") as fh:
@@ -65,8 +67,10 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
         "score",
         "rank",
         "score_shapley",
+        "score_g-shapley",
         "rank_shapley",
         "rank_lexcel",
+        "rank_g-shapley",
     ]
 
     figures_result = runner.invoke(
@@ -74,7 +78,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
         [
             "make-figures",
             "--rankings-dir",
-            str(out_dir / "rankings"),
+            str(out_dir / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(out_dir),
             "--dpi",
@@ -85,7 +89,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
     assert figures_result.exit_code == 0
     assert "generated 1 PNG figure(s)" in figures_result.output
 
-    figure_path = out_dir / "figures" / "n2" / "game_000001.png"
+    figure_path = out_dir / "synthetic" / "unconstrained" / "figures" / "n2" / "game_000001.png"
     assert figure_path.exists()
     assert figure_path.stat().st_size > 0
 
@@ -96,7 +100,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
             "-p",
             "2",
             "--rankings-dir",
-            str(out_dir / "rankings"),
+            str(out_dir / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(out_dir),
             "--dpi",
@@ -107,7 +111,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
     assert pair_heatmap_result.exit_code == 0
     assert "saved heatmap:" in pair_heatmap_result.output
 
-    pair_heatmap_path = out_dir / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
+    pair_heatmap_path = out_dir / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rank_lexcel_vs_rank_shapley.png"
     assert pair_heatmap_path.exists()
     assert pair_heatmap_path.stat().st_size > 0
 
@@ -118,7 +122,7 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
             "-p",
             "2",
             "--rankings-dir",
-            str(out_dir / "rankings"),
+            str(out_dir / "synthetic" / "unconstrained" / "rankings"),
             "--out",
             str(out_dir),
             "--dpi",
@@ -129,6 +133,48 @@ def test_synthetic_cli_workflow_generates_rankings_and_figures(tmp_path: Path) -
     assert corr_result.exit_code == 0
     assert "saved heatmap:" in corr_result.output
 
-    corr_path = out_dir / "heatmaps" / "n2" / "rule_corr_player.png"
+    corr_path = out_dir / "synthetic" / "unconstrained" / "heatmaps" / "n2" / "rule_corr_player.png"
     assert corr_path.exists()
     assert corr_path.stat().st_size > 0
+
+    axiom_result = runner.invoke(
+        main,
+        [
+            "evaluate-axioms",
+            "-p",
+            "2",
+            "--out",
+            str(out_dir),
+            "--scope",
+            "coalition",
+            "--dpi",
+            "80",
+        ],
+    )
+
+    assert axiom_result.exit_code == 0
+    assert "saved summary:" in axiom_result.output
+    assert "saved heatmap:" in axiom_result.output
+
+    axiom_summary_path = (
+        out_dir
+        / "synthetic"
+        / "unconstrained"
+        / "analysis"
+        / "n2"
+        / "axiom"
+        / "coalition"
+        / "summary.csv"
+    )
+    axiom_heatmap_path = (
+        out_dir
+        / "synthetic"
+        / "unconstrained"
+        / "analysis"
+        / "n2"
+        / "axiom"
+        / "coalition"
+        / "summary_heatmap.png"
+    )
+    assert axiom_summary_path.exists()
+    assert axiom_heatmap_path.exists()

@@ -6,12 +6,17 @@ from pathlib import Path
 
 import click
 
+from ...application.axiom_evaluation import (
+    evaluate_synthetic_axioms,
+    render_synthetic_axiom_summary_heatmaps,
+)
 from ...application.experiments import (
     render_synthetic_figures,
     render_synthetic_rank_heatmaps,
     render_synthetic_rule_correlation_heatmaps,
 )
 from ...application.game_generation import generate_synthetic_games
+from ...application.synthetic_workflow import resolve_synthetic_output_layout
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_to_game_csv,
     apply_ranking_rules_in_directory,
@@ -21,6 +26,25 @@ from ...domain.ranking.registry import build_default_ranking_rule_registry
 
 def _default_rule_ids() -> list[str]:
     return build_default_ranking_rule_registry().list_rule_ids()
+
+
+def _constraint_option() -> click.Option:
+    return click.option(
+        "--constraint",
+        "constraints",
+        multiple=True,
+        type=click.Choice(["unconstrained", "empty_zero", "monotone", "superadditive"], case_sensitive=False),
+        help="Synthetic constraint to enforce. Repeat to stack constraints.",
+    )
+
+
+def _profile_option() -> click.Option:
+    return click.option(
+        "--profile",
+        type=click.Choice(["tu", "unconstrained"], case_sensitive=False),
+        default=None,
+        help="Optional shorthand profile for a constraint set.",
+    )
 
 
 def _resolve_rankings_dir_from_games_dir(games_dir: Path) -> Path:
@@ -42,20 +66,29 @@ def _resolve_rankings_path_from_game_path(game_csv_path: Path) -> Path:
 def _resolve_apply_rules_dirs(
     *,
     players: int | None,
-    out_dir: Path,
+    out_dir: Path | None,
     games_dir: Path | None,
     rankings_dir: Path | None,
+    constraints: tuple[str, ...],
+    profile: str | None,
+    config_path: Path | None,
 ) -> tuple[Path, Path]:
+    layout = resolve_synthetic_output_layout(
+        out_dir=out_dir,
+        config_path=config_path,
+        constraints=constraints,
+        profile=profile,
+    )
     if games_dir is None:
         if players is None:
             raise click.ClickException("either --games-dir or --players must be provided")
-        resolved_games_dir = out_dir / "games" / f"n{players}"
+        resolved_games_dir = layout.games_dir(int(players))
     else:
         resolved_games_dir = games_dir
 
     if rankings_dir is None:
         if players is not None:
-            resolved_rankings_dir = out_dir / "rankings" / f"n{players}"
+            resolved_rankings_dir = layout.rankings_dir(int(players))
         else:
             resolved_rankings_dir = _resolve_rankings_dir_from_games_dir(resolved_games_dir)
     else:
@@ -110,6 +143,8 @@ def main() -> None:
     default=None,
     help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
+@_profile_option()
+@_constraint_option()
 def gen_games_command(
     players: int,
     count: int | None,
@@ -117,6 +152,8 @@ def gen_games_command(
     seed: int | None,
     out_dir: Path | None,
     config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
 ) -> None:
     """Generate complete synthetic game CSV files."""
 
@@ -128,6 +165,8 @@ def gen_games_command(
             seed=seed,
             out_dir=out_dir,
             config_path=config_path,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
@@ -137,7 +176,8 @@ def gen_games_command(
         return
     click.echo(
         f"wrote {len(result.written_paths)} game(s) to {result.games_dir} "
-        f"(players={result.player_count}, max_score={result.max_score})"
+        f"(players={result.player_count}, max_score={result.max_score}, "
+        f"constraint_set={result.constraint_selection.constraint_set_id})"
     )
 
 
@@ -168,11 +208,15 @@ def gen_games_command(
     default=None,
     help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
+@_profile_option()
+@_constraint_option()
 def make_figures_command(
     rankings_dir: Path | None,
     out_dir: Path | None,
     dpi: int | None,
     config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
 ) -> None:
     """Render PNG figures from synthetic rankings CSV files."""
 
@@ -182,6 +226,8 @@ def make_figures_command(
             out_dir=out_dir,
             config_path=config_path,
             dpi=dpi,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
         )
     except FileNotFoundError as exc:
         raise click.ClickException(str(exc)) from exc
@@ -228,12 +274,16 @@ def make_figures_command(
     default=None,
     help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
+@_profile_option()
+@_constraint_option()
 def rank_heatmap_command(
     players: int,
     rankings_dir: Path | None,
     out_dir: Path | None,
     dpi: int | None,
     config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
 ) -> None:
     """Render pairwise synthetic rank heatmaps from rankings CSV files."""
 
@@ -244,6 +294,8 @@ def rank_heatmap_command(
             out_dir=out_dir,
             config_path=config_path,
             dpi=dpi,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
         )
     except FileNotFoundError as exc:
         raise click.ClickException(str(exc)) from exc
@@ -298,6 +350,8 @@ def rank_heatmap_command(
     default=None,
     help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
 )
+@_profile_option()
+@_constraint_option()
 def rule_corr_heatmap_command(
     players: int,
     rankings_dir: Path | None,
@@ -305,6 +359,8 @@ def rule_corr_heatmap_command(
     dpi: int | None,
     method: str | None,
     config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
 ) -> None:
     """Render rule-by-rule synthetic rank-correlation heatmaps."""
 
@@ -316,18 +372,22 @@ def rule_corr_heatmap_command(
             config_path=config_path,
             dpi=dpi,
             method=method,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
         )
     except FileNotFoundError as exc:
         raise click.ClickException(str(exc)) from exc
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
-    if not result.written_paths:
+    if not result.written_paths and not result.written_csv_paths:
         click.echo("no heatmap rendered")
         return
 
     for path in result.written_paths:
         click.echo(f"saved heatmap: {path}")
+    for path in result.written_csv_paths:
+        click.echo(f"saved summary: {path}")
 
 
 @main.command(name="apply-rules")
@@ -342,9 +402,8 @@ def rule_corr_heatmap_command(
     "--out",
     "out_dir",
     type=click.Path(path_type=Path),
-    default=Path("outputs"),
-    show_default=True,
-    help="Base output directory used with --players.",
+    default=None,
+    help="Base output directory used with --players. Defaults to config or outputs.",
 )
 @click.option(
     "--games-dir",
@@ -379,14 +438,26 @@ def rule_corr_heatmap_command(
     show_default=True,
     help="Allow incomplete game tables when reading game CSV files.",
 )
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
+)
+@_profile_option()
+@_constraint_option()
 def apply_rules_command(
     players: int | None,
-    out_dir: Path,
+    out_dir: Path | None,
     games_dir: Path | None,
     rankings_dir: Path | None,
     rule_ids: tuple[str, ...],
     rank_style: str,
     allow_incomplete: bool,
+    config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
 ) -> None:
     """Apply migrated ranking rules to compatibility-format game CSV files."""
 
@@ -395,6 +466,9 @@ def apply_rules_command(
         out_dir=out_dir,
         games_dir=games_dir,
         rankings_dir=rankings_dir,
+        constraints=tuple(str(name) for name in constraints),
+        profile=profile,
+        config_path=config_path,
     )
     selected_rule_ids = [str(rule_id) for rule_id in rule_ids] or _default_rule_ids()
 
@@ -426,6 +500,162 @@ def apply_rules_command(
         f"processed {len(results)} game(s) with {len(selected_rule_ids)} rule(s) "
         f"into {resolved_rankings_dir}"
     )
+
+
+@main.command(name="evaluate-axioms")
+@click.option(
+    "--players",
+    "-p",
+    type=click.IntRange(1, 12),
+    required=True,
+    help="Number of players.",
+)
+@click.option(
+    "--games-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory containing synthetic game CSV files.",
+)
+@click.option(
+    "--rankings-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Directory containing synthetic rankings CSV files.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory. Defaults to config or outputs.",
+)
+@click.option(
+    "--scope",
+    type=click.Choice(["all", "coalition", "individual"], case_sensitive=False),
+    default="all",
+    show_default=True,
+    help="Axiom scope to evaluate.",
+)
+@click.option(
+    "--dpi",
+    type=click.IntRange(72, 600),
+    default=None,
+    help="Output PNG DPI for summary heatmaps. Defaults to config or 150.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
+)
+@_profile_option()
+@_constraint_option()
+def evaluate_axioms_command(
+    players: int,
+    games_dir: Path | None,
+    rankings_dir: Path | None,
+    out_dir: Path | None,
+    scope: str,
+    dpi: int | None,
+    config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
+) -> None:
+    """Evaluate synthetic rankings against available axiom registries."""
+
+    try:
+        result = evaluate_synthetic_axioms(
+            players=int(players),
+            games_dir=games_dir,
+            rankings_dir=rankings_dir,
+            out_dir=out_dir,
+            config_path=config_path,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
+            scope=str(scope).lower(),
+            dpi=dpi,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    for report in result.reports:
+        if report.skipped_reason is not None:
+            click.echo(report.skipped_reason)
+            continue
+        if report.summary_csv_path is not None:
+            click.echo(f"saved summary: {report.summary_csv_path}")
+        if report.summary_heatmap_path is not None:
+            click.echo(f"saved heatmap: {report.summary_heatmap_path}")
+
+
+@main.command(name="axiom-summary-heatmap")
+@click.option(
+    "--players",
+    "-p",
+    type=click.IntRange(1, 12),
+    required=True,
+    help="Number of players.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output base directory. Defaults to config or outputs.",
+)
+@click.option(
+    "--scope",
+    type=click.Choice(["all", "coalition", "individual"], case_sensitive=False),
+    default="all",
+    show_default=True,
+    help="Axiom scope to render.",
+)
+@click.option(
+    "--dpi",
+    type=click.IntRange(72, 600),
+    default=None,
+    help="Output PNG DPI. Defaults to config or 150.",
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Optional explicit root config.yaml path. If omitted, built-in defaults are used.",
+)
+@_profile_option()
+@_constraint_option()
+def axiom_summary_heatmap_command(
+    players: int,
+    out_dir: Path | None,
+    scope: str,
+    dpi: int | None,
+    config_path: Path | None,
+    profile: str | None,
+    constraints: tuple[str, ...],
+) -> None:
+    """Render heatmaps from synthetic axiom summary CSV files."""
+
+    try:
+        result = render_synthetic_axiom_summary_heatmaps(
+            players=int(players),
+            out_dir=out_dir,
+            config_path=config_path,
+            constraints=tuple(str(name) for name in constraints),
+            profile=profile,
+            scope=str(scope).lower(),
+            dpi=dpi,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not result.written_paths:
+        click.echo("no heatmap rendered")
+        return
+
+    for path in result.written_paths:
+        click.echo(f"saved heatmap: {path}")
 
 
 @main.command(name="rank-game")

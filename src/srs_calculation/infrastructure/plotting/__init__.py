@@ -1,5 +1,6 @@
 """Plotting adapters."""
 
+from .axiom_summary_heatmap import render_axiom_summary_heatmap
 from .figure_renderer import generate_real_ranking_figure
 from .figure_renderer import generate_synthetic_ranking_figure
 from .figure_renderer import (
@@ -42,6 +43,7 @@ __all__ = [
     "generate_shapley_values_plot",
     "generate_synthetic_ranking_figure",
     "normalize_ranks_per_rule",
+    "render_axiom_summary_heatmap",
     "collect_rank_pairs",
     "collect_rule_correlation_matrix",
     "infer_rank_column_scopes",
