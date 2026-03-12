@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Next implementation of cooperative-game ranking workflows"
 authors = ["Lab Team"]
 readme = "README.md"
+license = "MIT"
+classifiers = ["License :: OSI Approved :: MIT License"]
 packages = [{ include = "srs_calculation", from = "src" }]
 
 [tool.poetry.dependencies]

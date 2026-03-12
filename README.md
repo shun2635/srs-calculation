@@ -2,6 +2,8 @@
 
 Repository for cooperative-game-based ranking experiments, synthetic game generation, axiom checking, and real-data analysis.
 
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
+
 このリポジトリは、協力ゲームに基づくランキング計算、合成ゲーム生成、公理チェック、実データ解析を扱う研究用コードベースです。サポート対象の Poetry project はリポジトリ root にあり、`srs-real-gen` と `srs-game-gen` は [`src/`](src/) の CLI に接続されています。[`legacy/`](legacy/) は履歴資料として保持する archive であり、[`docs/`](docs/) にはその方針と境界を整理しています。
 
 ## Intended audiences

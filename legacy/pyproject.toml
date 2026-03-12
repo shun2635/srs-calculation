@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Ordinal/Cardinal game generator & ranking CLI"
 authors = ["Lab Team"]
 readme = "README.md"
+license = "MIT"
+classifiers = ["License :: OSI Approved :: MIT License"]
 packages = [{ include = "gamegen", from = "src" }, { include = "realgen", from = "src" }]
 
 [tool.poetry.dependencies]
