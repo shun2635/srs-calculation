@@ -16,11 +16,12 @@ from ...application.experiments import (
     render_synthetic_rule_correlation_heatmaps,
 )
 from ...application.game_generation import generate_synthetic_games
-from ...application.synthetic_workflow import resolve_synthetic_output_layout
+from ...application.paper_simulation import build_paper_simulation_config, run_paper_simulation
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
-    apply_ranking_rules_to_game_csv,
     apply_ranking_rules_in_directory,
+    apply_ranking_rules_to_game_csv,
 )
+from ...application.synthetic_workflow import resolve_synthetic_output_layout
 from ...domain.ranking.registry import build_default_ranking_rule_registry
 
 
@@ -388,6 +389,115 @@ def rule_corr_heatmap_command(
         click.echo(f"saved heatmap: {path}")
     for path in result.written_csv_paths:
         click.echo(f"saved summary: {path}")
+
+
+@main.command(name="paper-simulation")
+@click.option(
+    "--players",
+    type=click.IntRange(2, 12),
+    default=5,
+    show_default=True,
+    help="Number of players.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=1000,
+    show_default=True,
+    help="Number of random games.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=42,
+    show_default=True,
+    help="Random seed.",
+)
+@click.option(
+    "--max-score",
+    type=click.IntRange(0, None),
+    default=None,
+    help="Maximum coalition score. Defaults to 2^players - 1.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=Path("outputs/paper/main"),
+    show_default=True,
+    help="Paper simulation output directory.",
+)
+@click.option(
+    "--target-sizes",
+    type=str,
+    default=None,
+    help="Comma/range group sizes, e.g. '2,3,5' or '2-5'. Defaults to 2..players.",
+)
+@click.option(
+    "--correlation-method",
+    type=click.Choice(["spearman", "pearson"], case_sensitive=False),
+    default="spearman",
+    show_default=True,
+    help="Correlation method for GL vs RP-Difference.",
+)
+@click.option(
+    "--rank-tie-method",
+    type=click.Choice(["dense", "average", "min", "max"], case_sensitive=False),
+    default="dense",
+    show_default=True,
+    help="Tie handling for rank vectors.",
+)
+@click.option(
+    "--empty-constraints",
+    type=click.Choice(["exclude", "zero", "one"], case_sensitive=False),
+    default="exclude",
+    show_default=True,
+    help="How empty Reversal constraint rows enter summary averages.",
+)
+def paper_simulation_command(
+    players: int,
+    count: int,
+    seed: int,
+    max_score: int | None,
+    out_dir: Path,
+    target_sizes: str | None,
+    correlation_method: str,
+    rank_tie_method: str,
+    empty_constraints: str,
+) -> None:
+    """Run the paper-facing main simulation analysis."""
+
+    try:
+        config = build_paper_simulation_config(
+            players=int(players),
+            count=int(count),
+            seed=int(seed),
+            max_score=max_score,
+            out_dir=out_dir,
+            target_sizes=target_sizes,
+            correlation_method=correlation_method,
+            rank_tie_method=rank_tie_method,
+            empty_constraints=empty_constraints,
+        )
+        result = run_paper_simulation(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"saved lens consistency: {result.lens_consistency_csv}")
+    click.echo(f"saved lens consistency summary: {result.lens_consistency_summary_csv}")
+    click.echo(f"saved lens consistency matrix: {result.lens_consistency_matrix_csv}")
+    click.echo(f"saved lens consistency long: {result.lens_consistency_long_csv}")
+    click.echo(f"saved rank correlation: {result.rank_correlation_csv}")
+    click.echo(f"saved rank correlation summary: {result.rank_correlation_summary_csv}")
+    click.echo(f"saved rank correlation matrix: {result.rank_correlation_matrix_csv}")
+    click.echo(f"saved rank correlation long: {result.rank_correlation_long_csv}")
+    click.echo(f"saved simulation summary: {result.simulation_summary_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.reversal_consistency_pdf}")
+    click.echo(f"saved figure: {result.rank_correlation_pdf}")
+    click.echo(f"saved heatmap: {result.lens_consistency_heatmap_pdf}")
+    click.echo(f"saved heatmap: {result.rank_correlation_heatmap_pdf}")
+    click.echo(f"saved markdown summary: {result.result_summary_md}")
 
 
 @main.command(name="apply-rules")

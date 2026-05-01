@@ -9,11 +9,11 @@ def test_default_axiom_registry_contains_legacy_axioms() -> None:
     registry = build_default_axiom_registry()
 
     assert registry.list_axiom_ids() == [
-        "gekokujou-2p",
-        "gekokujou-weak-n",
         "give-2p",
         "give-weak-n",
         "redundancy",
+        "reversal-2p",
+        "reversal-weak-n",
         "take-2p",
         "take-weak-n",
     ]

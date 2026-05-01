@@ -20,6 +20,11 @@ from .heatmap_renderer import (
     normalize_ranks_per_rule,
     render_feature_rule_rank_heatmap,
 )
+from .paper_simulation import (
+    render_paper_heatmap,
+    render_rank_correlation_figure,
+    render_reversal_consistency_figure,
+)
 from .synthetic_rank_heatmap import (
     collect_rank_pairs,
     collect_rule_correlation_matrix,
@@ -43,6 +48,9 @@ __all__ = [
     "generate_shapley_values_plot",
     "generate_synthetic_ranking_figure",
     "normalize_ranks_per_rule",
+    "render_paper_heatmap",
+    "render_rank_correlation_figure",
+    "render_reversal_consistency_figure",
     "render_axiom_summary_heatmap",
     "collect_rank_pairs",
     "collect_rule_correlation_matrix",

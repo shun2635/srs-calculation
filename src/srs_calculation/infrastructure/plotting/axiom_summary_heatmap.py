@@ -29,8 +29,8 @@ _RULE_LABELS: dict[str, str] = {
 }
 
 _AXIOM_LABELS: dict[str, str] = {
-    "gekokujou-2p": "Gekokujou 2p",
-    "gekokujou-weak-n": "Gekokujou Weak n",
+    "reversal-2p": "Reversal 2p",
+    "reversal-weak-n": "Reversal Weak n",
     "give-2p": "Give 2p",
     "take-2p": "Take 2p",
     "give-weak-n": "Give Weak n",
