@@ -5,10 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
-from ...domain.axioms.evaluators import GiveWeakNAxiom, RedundancyAxiom, TakeWeakNAxiom
 from ...domain.games.coalition_game import CoalitionGame
-from ...domain.lenses import generate_reversal_constraints
 from ...domain.ranking.result import RuleRankSet
+from .lens_catalog import (
+    PAPER_LENS_CATALOG,
+    PAPER_LENS_SPECS,
+    PaperLensSpec,
+)
 from .metrics import _masks_of_size, correlation_for_method
 from .rule_catalog import (
     PAPER_LENS_RULE_SPECS,
@@ -16,12 +19,6 @@ from .rule_catalog import (
     PAPER_RULE_SPECS,
     PaperRuleSpec,
 )
-
-
-@dataclass(frozen=True)
-class PaperLensSpec:
-    lens_id: str
-    label: str
 
 
 @dataclass(frozen=True)
@@ -77,20 +74,6 @@ class RankCorrelationMatrixCell:
     num_na: int
 
 
-PAPER_LENS_SPECS: tuple[PaperLensSpec, ...] = (
-    PaperLensSpec("reversal", "Reversal"),
-    PaperLensSpec("up", "Up"),
-    PaperLensSpec("down", "Down"),
-    PaperLensSpec("redundancy", "Redundancy"),
-)
-
-_WEAK_N_LENS_AXIOMS = {
-    "up": GiveWeakNAxiom(),
-    "down": TakeWeakNAxiom(),
-    "redundancy": RedundancyAxiom(),
-}
-
-
 def evaluate_paper_rules(game: CoalitionGame) -> dict[str, RuleRankSet]:
     """Evaluate all paper heatmap rules and return coalition rank sets."""
 
@@ -101,49 +84,6 @@ def evaluate_paper_rules(game: CoalitionGame) -> dict[str, RuleRankSet]:
             continue
         rank_sets[spec.rule_id] = result.rank_set
     return rank_sets
-
-
-def _reversal_counts(
-    game: CoalitionGame,
-    rank_set: RuleRankSet,
-    target_sizes: Iterable[int],
-) -> tuple[int, int]:
-    """Return (satisfied, constraints) for the Reversal lens over all sizes."""
-
-    constraints = 0
-    satisfied = 0
-    rank_by_mask = rank_set.ranks_by_coalition
-    for coalition_size in target_sizes:
-        current_constraints = generate_reversal_constraints(game, int(coalition_size))
-        constraints += len(current_constraints)
-        for constraint in current_constraints:
-            preferred_rank = rank_by_mask.get(int(constraint.preferred_mask))
-            dispreferred_rank = rank_by_mask.get(int(constraint.dispreferred_mask))
-            # Strict requirement: ties are counted as unsatisfied (fixed spec).
-            if (
-                preferred_rank is not None
-                and dispreferred_rank is not None
-                and int(preferred_rank) < int(dispreferred_rank)
-            ):
-                satisfied += 1
-    return satisfied, constraints
-
-
-def _lens_counts(
-    *,
-    game: CoalitionGame,
-    rank_set: RuleRankSet,
-    lens_id: str,
-    target_sizes: Iterable[int],
-) -> tuple[int, int]:
-    """Return (satisfied, constraints) for a lens; constraints == 0 means NA."""
-
-    if lens_id == "reversal":
-        return _reversal_counts(game, rank_set, target_sizes)
-
-    axiom = _WEAK_N_LENS_AXIOMS[str(lens_id)]
-    result = axiom.evaluate(game, rank_set)
-    return int(result.satisfied_comparisons), int(result.constrained_comparisons)
 
 
 def evaluate_lens_consistency_observations(
@@ -158,24 +98,19 @@ def evaluate_lens_consistency_observations(
     observations: list[LensConsistencyObservation] = []
     for rule_spec in PAPER_LENS_RULE_SPECS:
         rank_set = rank_sets_by_rule.get(rule_spec.rule_id)
-        for lens_spec in PAPER_LENS_SPECS:
+        for lens in PAPER_LENS_CATALOG:
             satisfied = 0
             constraints = 0
             if rank_set is not None:
-                satisfied, constraints = _lens_counts(
-                    game=game,
-                    rank_set=rank_set,
-                    lens_id=lens_spec.lens_id,
-                    target_sizes=target_sizes,
-                )
+                satisfied, constraints = lens.counts(game, rank_set, target_sizes)
             consistency = None if constraints <= 0 else float(satisfied) / float(constraints)
             observations.append(
                 LensConsistencyObservation(
                     game_id=str(game_id),
                     rule_id=rule_spec.rule_id,
                     rule=rule_spec.label,
-                    lens_id=lens_spec.lens_id,
-                    lens=lens_spec.label,
+                    lens_id=lens.lens_id,
+                    lens=lens.label,
                     consistency=consistency,
                     num_satisfied=int(satisfied),
                     num_constraints=int(constraints),
