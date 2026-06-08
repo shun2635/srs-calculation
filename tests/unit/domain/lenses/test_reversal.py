@@ -47,7 +47,29 @@ def test_reversal_group_strict_difference_alone_does_not_generate_constraint() -
     assert constraints == ()
 
 
-def test_reversal_generates_preferred_weaker_group_when_group_is_not_worse() -> None:
+def test_reversal_group_tie_does_not_generate_constraint() -> None:
+    # 0b011 individually dominates 0b101 (singletons [1,2] vs [1,3]), but the
+    # two coalitions tie at the group level, so the strict ordering S > T fails
+    # and no constraint must fire.
+    game = _game(
+        {
+            0b000: 9,
+            0b001: 1,
+            0b010: 2,
+            0b100: 3,
+            0b011: 2,
+            0b101: 2,
+            0b110: 4,
+            0b111: 1,
+        }
+    )
+
+    constraints = generate_reversal_constraints(game, 2)
+
+    assert constraints == ()
+
+
+def test_reversal_generates_preferred_weaker_group_when_group_is_strictly_better() -> None:
     game = _game(
         {
             0b000: 9,

@@ -68,9 +68,10 @@ def generate_reversal_constraints(
     """Generate Reversal constraints for one group size.
 
     For ordered groups (G, H), G must be weakly better than H at singleton level
-    with at least one strict singleton comparison, and H must be weakly better
-    than G at group level. The required output comparison is then H strictly
-    above G.
+    with at least one strict singleton comparison, and H must be *strictly*
+    better than G at group level. The required output comparison is then H
+    strictly above G. Pairs that tie at the group level are excluded, matching
+    the paper's strict coalition ordering S > T.
     """
 
     game.require_complete()
@@ -103,7 +104,8 @@ def generate_reversal_constraints(
                 continue
 
             weaker_group_rank = int(base_rank_by_mask[int(weaker_individual_mask)])
-            if weaker_group_rank <= stronger_group_rank:
+            # Strict coalition ordering S > T: tied group ranks do not fire.
+            if weaker_group_rank < stronger_group_rank:
                 constraints.append(
                     ReversalConstraint(
                         preferred_mask=int(weaker_individual_mask),
