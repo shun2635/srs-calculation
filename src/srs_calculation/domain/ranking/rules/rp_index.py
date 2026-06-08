@@ -8,7 +8,18 @@ from ..rule import RankingRule, dense_rank_mapping_desc, popcount
 
 
 class RpIndexRule(RankingRule):
-    """Coalition RP-index scores and dense ranks."""
+    """Coalition Rankdiff scores and dense ranks.
+
+    Implements the paper definition directly:
+
+        Rankdiff(S) = (1 / |S|) * sum_{i in S} r({i})  -  r(S)
+
+    where the rank value ``r(C) = |{C' : C' > C}|`` is the number of coalitions
+    strictly above ``C`` (ties are not counted; the most preferred coalition has
+    ``r = 0``). The count ranges over the whole non-empty coalition pool, matching
+    the ``better`` prefix used elsewhere in the codebase. A larger Rankdiff means
+    the coalition outperforms its members' individual standing (more synergy).
+    """
 
     rule_id = "rp_index"
 
@@ -20,27 +31,28 @@ class RpIndexRule(RankingRule):
         for rank in ranks.values():
             size_by_rank[rank] = size_by_rank.get(rank, 0) + 1
 
+        # better_count_by_rank[level] == r(C) for any coalition C at that level:
+        # the number of coalitions strictly above it (ties excluded).
         better_count_by_rank: dict[int, int] = {}
         prefix = 0
         for rank in sorted(size_by_rank):
             better_count_by_rank[rank] = prefix
             prefix += size_by_rank[rank]
 
-        rp_by_coalition: dict[int, int] = {}
-        total = sum(size_by_rank.values())
-        for coalition_mask, rank in ranks.items():
-            better = better_count_by_rank[rank]
-            equal = size_by_rank[rank]
-            worse = total - better - equal
-            rp_by_coalition[int(coalition_mask)] = int(worse - better)
+        rank_value_by_coalition = {
+            int(mask): int(better_count_by_rank[rank]) for mask, rank in ranks.items()
+        }
 
         values_by_coalition: dict[int, float] = {}
-        for coalition_mask, rp_score in rp_by_coalition.items():
+        for coalition_mask, rank_value in rank_value_by_coalition.items():
             if popcount(coalition_mask) < 2:
                 continue
             members = game.coalition_members(coalition_mask)
-            avg_single = sum(rp_by_coalition.get(1 << int(player), 0) for player in members) / float(len(members))
-            values_by_coalition[int(coalition_mask)] = float(rp_score) - float(avg_single)
+            avg_single = sum(
+                rank_value_by_coalition[1 << int(player)] for player in members
+            ) / float(len(members))
+            # Rankdiff = mean individual rank value - team rank value.
+            values_by_coalition[int(coalition_mask)] = float(avg_single) - float(rank_value)
 
         return RankingResult(
             rule_id=self.rule_id,
