@@ -9,20 +9,13 @@ from ...domain.axioms.evaluators import GiveWeakNAxiom, RedundancyAxiom, TakeWea
 from ...domain.games.coalition_game import CoalitionGame
 from ...domain.lenses import generate_reversal_constraints
 from ...domain.ranking.result import RuleRankSet
-from ...domain.ranking.rule import RankingRule
-from ...domain.ranking.rules.banzhaf_interaction import BanzhafInteractionRule
-from ...domain.ranking.rules.group_lexcel import GroupLexcelRule
-from ...domain.ranking.rules.group_shapley import GroupShapleyRule
-from ...domain.ranking.rules.rankdiff import RankdiffRule
-from ...domain.ranking.rules.shapley_interaction import ShapleyInteractionRule
 from .metrics import _masks_of_size, correlation_for_method
-
-
-@dataclass(frozen=True)
-class PaperRuleSpec:
-    rule_id: str
-    label: str
-    rule: RankingRule
+from .rule_catalog import (
+    PAPER_LENS_RULE_SPECS,
+    PAPER_RANK_RULE_SPECS,
+    PAPER_RULE_SPECS,
+    PaperRuleSpec,
+)
 
 
 @dataclass(frozen=True)
@@ -83,44 +76,6 @@ class RankCorrelationMatrixCell:
     num_valid: int
     num_na: int
 
-
-PAPER_LENS_RULE_SPECS: tuple[PaperRuleSpec, ...] = (
-    PaperRuleSpec("group_lexcel", "Group Lex-cel", GroupLexcelRule()),
-    PaperRuleSpec("rankdiff", "Rankdiff", RankdiffRule()),
-    PaperRuleSpec("group_shapley", "Group Shapley Value", GroupShapleyRule()),
-    PaperRuleSpec(
-        "shapley_interaction",
-        "Shapley Interaction Index",
-        ShapleyInteractionRule(),
-    ),
-    PaperRuleSpec(
-        "banzhaf_interaction",
-        "Banzhaf Interaction Index",
-        BanzhafInteractionRule(),
-    ),
-)
-
-PAPER_RANK_RULE_SPECS: tuple[PaperRuleSpec, ...] = (
-    PaperRuleSpec("group_lexcel", "Group Lex-cel", GroupLexcelRule()),
-    PaperRuleSpec("group_shapley", "Group Shapley Value", GroupShapleyRule()),
-    PaperRuleSpec("rankdiff", "Rankdiff", RankdiffRule()),
-    PaperRuleSpec(
-        "shapley_interaction",
-        "Shapley Interaction Index",
-        ShapleyInteractionRule(),
-    ),
-    PaperRuleSpec(
-        "banzhaf_interaction",
-        "Banzhaf Interaction Index",
-        BanzhafInteractionRule(),
-    ),
-)
-
-_PAPER_RULE_SPECS_BY_ID = {
-    spec.rule_id: spec
-    for spec in (*PAPER_LENS_RULE_SPECS, *PAPER_RANK_RULE_SPECS)
-}
-PAPER_RULE_SPECS: tuple[PaperRuleSpec, ...] = tuple(_PAPER_RULE_SPECS_BY_ID.values())
 
 PAPER_LENS_SPECS: tuple[PaperLensSpec, ...] = (
     PaperLensSpec("reversal", "Reversal"),
