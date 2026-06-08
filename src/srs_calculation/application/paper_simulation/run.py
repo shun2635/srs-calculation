@@ -204,6 +204,7 @@ def _simulation_summary_rows(
                 "std": row.std_consistency,
                 "min": row.min_consistency,
                 "max": row.max_consistency,
+                "micro": row.micro_consistency,
             }
         )
     for row in rank_summary_rows:
@@ -219,6 +220,7 @@ def _simulation_summary_rows(
                 "std": row.std_correlation,
                 "min": row.min_correlation,
                 "max": row.max_correlation,
+                "micro": None,
             }
         )
     return rows
@@ -439,6 +441,7 @@ def _write_markdown_summary(
 ) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     overall_consistency = _summary_value(lens_summary_rows, "mean_consistency")
+    overall_consistency_micro = _summary_value(lens_summary_rows, "micro_consistency")
     overall_correlation = _summary_value(rank_summary_rows, "mean_correlation")
     rp_reversal = _lens_cell_value(
         lens_matrix_cells,
@@ -460,9 +463,13 @@ def _write_markdown_summary(
         "Rows with undefined correlation are excluded from this average."
     )
     rq2_summary = (
-        "The overall mean Reversal lens consistency rate for RP-Difference is "
-        f"{_format_float(overall_consistency)} over valid game-size rows. "
-        f"Empty constraint sets are handled with policy `{config.empty_constraints}`."
+        "The overall Reversal lens consistency for RP-Difference is "
+        f"{_format_float(overall_consistency)} (macro, per-game equal-weight mean "
+        "over valid game-size rows) and "
+        f"{_format_float(overall_consistency_micro)} (micro, pooled over all "
+        "firing cases). Empty constraint sets are handled with policy "
+        f"`{config.empty_constraints}` for the macro average; the micro average "
+        "pools constraints directly and is unaffected by that policy."
     )
     draft_text = (
         f"In the main simulation with n={config.players} and R={config.count}, "
@@ -668,10 +675,13 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
             "num_games",
             "num_valid_games",
             "num_empty_constraint_games",
+            "num_constraints",
+            "num_satisfied",
             "mean_consistency",
             "std_consistency",
             "min_consistency",
             "max_consistency",
+            "micro_consistency",
         ],
         (_lens_summary_dict(row) for row in lens_summary_rows),
     )
@@ -711,7 +721,7 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
     )
     _write_rows(
         lens_consistency_long_csv,
-        ["rule", "lens", "mean_consistency", "num_valid", "num_empty_or_na"],
+        ["rule", "lens", "mean_consistency", "micro_consistency", "num_valid", "num_empty_or_na"],
         (_lens_matrix_cell_dict(row) for row in lens_matrix_cells),
     )
     _write_rows(
@@ -726,7 +736,19 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
     )
     _write_rows(
         simulation_summary_csv,
-        ["metric", "n", "k", "num_games", "num_valid", "num_excluded", "mean", "std", "min", "max"],
+        [
+            "metric",
+            "n",
+            "k",
+            "num_games",
+            "num_valid",
+            "num_excluded",
+            "mean",
+            "std",
+            "min",
+            "max",
+            "micro",
+        ],
         _simulation_summary_rows(lens_summary_rows, rank_summary_rows),
     )
 

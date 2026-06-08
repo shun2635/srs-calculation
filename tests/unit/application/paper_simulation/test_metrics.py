@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from srs_calculation.application.paper_simulation.metrics import (
+    LensConsistencyRow,
     evaluate_gl_rp_rank_correlation,
     evaluate_reversal_consistency,
     summarize_lens_consistency,
@@ -94,6 +95,39 @@ def test_lens_summary_empty_policy_options() -> None:
     assert summarize_lens_consistency(rows, empty_policy="exclude")[0].num_valid_games == 0
     assert summarize_lens_consistency(rows, empty_policy="zero")[0].mean_consistency == 0.0
     assert summarize_lens_consistency(rows, empty_policy="one")[0].mean_consistency == 1.0
+
+
+def test_lens_summary_reports_micro_and_macro_averages() -> None:
+    # Game A: 1/4 firing cases satisfied; Game B: 3/3 satisfied.
+    # Macro = mean(0.25, 1.0) = 0.625; micro = (1 + 3) / (4 + 3) = 4/7.
+    rows = [
+        LensConsistencyRow(
+            game_id="A",
+            n=4,
+            k=2,
+            num_constraints=4,
+            num_satisfied=1,
+            consistency_rate=0.25,
+            is_empty_constraints=False,
+        ),
+        LensConsistencyRow(
+            game_id="B",
+            n=4,
+            k=2,
+            num_constraints=3,
+            num_satisfied=3,
+            consistency_rate=1.0,
+            is_empty_constraints=False,
+        ),
+    ]
+
+    summary = summarize_lens_consistency(rows, empty_policy="exclude")
+    overall = next(row for row in summary if row.k == "overall")
+
+    assert overall.mean_consistency == pytest.approx(0.625)
+    assert overall.micro_consistency == pytest.approx(4.0 / 7.0)
+    assert overall.num_constraints == 7
+    assert overall.num_satisfied == 4
 
 
 def test_rank_correlation_dense_spearman() -> None:

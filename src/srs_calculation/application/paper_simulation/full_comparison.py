@@ -39,6 +39,10 @@ class LensConsistencyObservation:
     lens_id: str
     lens: str
     consistency: float | None
+    # Raw per-game counts so the matrix can pool a micro (case-weighted) average
+    # in addition to the macro (per-game equal-weight) average.
+    num_satisfied: int
+    num_constraints: int
     is_empty_or_na: bool
 
 
@@ -48,7 +52,10 @@ class LensConsistencyMatrixCell:
     rule: str
     lens_id: str
     lens: str
+    # Macro: per-game rates averaged with equal weight across games.
     mean_consistency: float | None
+    # Micro: pooled sum(num_satisfied) / sum(num_constraints) over firing cases.
+    micro_consistency: float | None
     num_games: int
     num_valid: int
     num_empty_or_na: int
@@ -141,11 +148,13 @@ def evaluate_paper_rules(game: CoalitionGame) -> dict[str, RuleRankSet]:
     return rank_sets
 
 
-def _reversal_rate(
+def _reversal_counts(
     game: CoalitionGame,
     rank_set: RuleRankSet,
     target_sizes: Iterable[int],
-) -> float | None:
+) -> tuple[int, int]:
+    """Return (satisfied, constraints) for the Reversal lens over all sizes."""
+
     constraints = 0
     satisfied = 0
     rank_by_mask = rank_set.ranks_by_coalition
@@ -155,33 +164,31 @@ def _reversal_rate(
         for constraint in current_constraints:
             preferred_rank = rank_by_mask.get(int(constraint.preferred_mask))
             dispreferred_rank = rank_by_mask.get(int(constraint.dispreferred_mask))
+            # Strict requirement: ties are counted as unsatisfied (fixed spec).
             if (
                 preferred_rank is not None
                 and dispreferred_rank is not None
                 and int(preferred_rank) < int(dispreferred_rank)
             ):
                 satisfied += 1
-
-    if constraints <= 0:
-        return None
-    return float(satisfied) / float(constraints)
+    return satisfied, constraints
 
 
-def _lens_rate(
+def _lens_counts(
     *,
     game: CoalitionGame,
     rank_set: RuleRankSet,
     lens_id: str,
     target_sizes: Iterable[int],
-) -> float | None:
+) -> tuple[int, int]:
+    """Return (satisfied, constraints) for a lens; constraints == 0 means NA."""
+
     if lens_id == "reversal":
-        return _reversal_rate(game, rank_set, target_sizes)
+        return _reversal_counts(game, rank_set, target_sizes)
 
     axiom = _WEAK_N_LENS_AXIOMS[str(lens_id)]
     result = axiom.evaluate(game, rank_set)
-    if result.constrained_comparisons <= 0:
-        return None
-    return float(result.satisfied_comparisons) / float(result.constrained_comparisons)
+    return int(result.satisfied_comparisons), int(result.constrained_comparisons)
 
 
 def evaluate_lens_consistency_observations(
@@ -197,16 +204,16 @@ def evaluate_lens_consistency_observations(
     for rule_spec in PAPER_LENS_RULE_SPECS:
         rank_set = rank_sets_by_rule.get(rule_spec.rule_id)
         for lens_spec in PAPER_LENS_SPECS:
-            consistency = (
-                None
-                if rank_set is None
-                else _lens_rate(
+            satisfied = 0
+            constraints = 0
+            if rank_set is not None:
+                satisfied, constraints = _lens_counts(
                     game=game,
                     rank_set=rank_set,
                     lens_id=lens_spec.lens_id,
                     target_sizes=target_sizes,
                 )
-            )
+            consistency = None if constraints <= 0 else float(satisfied) / float(constraints)
             observations.append(
                 LensConsistencyObservation(
                     game_id=str(game_id),
@@ -215,6 +222,8 @@ def evaluate_lens_consistency_observations(
                     lens_id=lens_spec.lens_id,
                     lens=lens_spec.label,
                     consistency=consistency,
+                    num_satisfied=int(satisfied),
+                    num_constraints=int(constraints),
                     is_empty_or_na=consistency is None,
                 )
             )
@@ -241,6 +250,13 @@ def summarize_lens_consistency_matrix(
                 for observation in selected
                 if observation.consistency is not None
             ]
+            total_satisfied = sum(int(observation.num_satisfied) for observation in selected)
+            total_constraints = sum(int(observation.num_constraints) for observation in selected)
+            micro = (
+                None
+                if total_constraints <= 0
+                else float(total_satisfied) / float(total_constraints)
+            )
             cells.append(
                 LensConsistencyMatrixCell(
                     rule_id=rule_spec.rule_id,
@@ -250,6 +266,7 @@ def summarize_lens_consistency_matrix(
                     mean_consistency=(
                         None if not values else sum(values) / float(len(values))
                     ),
+                    micro_consistency=micro,
                     num_games=len(selected),
                     num_valid=len(values),
                     num_empty_or_na=len(selected) - len(values),

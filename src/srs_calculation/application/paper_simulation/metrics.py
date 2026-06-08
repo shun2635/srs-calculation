@@ -28,10 +28,17 @@ class LensConsistencySummaryRow:
     num_games: int
     num_valid_games: int
     num_empty_constraint_games: int
+    num_constraints: int
+    num_satisfied: int
+    # Macro average: per-game consistency rates averaged with equal weight.
     mean_consistency: float | None
     std_consistency: float | None
     min_consistency: float | None
     max_consistency: float | None
+    # Micro average: total satisfied / total constraints, pooled over all
+    # firing cases (case-weighted). Reported alongside the macro average so the
+    # paper can adopt either; see summarize_lens_consistency for the definition.
+    micro_consistency: float | None
 
 
 @dataclass(frozen=True)
@@ -78,7 +85,15 @@ def evaluate_reversal_consistency(
     rp_rank_by_mask: dict[int, int],
     target_sizes: Iterable[int],
 ) -> tuple[LensConsistencyRow, ...]:
-    """Evaluate RP-Difference against Reversal constraints by game and size."""
+    """Evaluate RP-Difference against Reversal constraints by game and size.
+
+    Satisfaction criterion (fixed specification, not configurable): a firing
+    case counts as satisfied only when the rule output is the *strict* required
+    ordering ``preferred > dispreferred`` (i.e. ``preferred_rank <
+    dispreferred_rank``). A tie in the output (``preferred_rank ==
+    dispreferred_rank``) is counted as NOT satisfied, because the paper requires
+    a strict ``S >^R T``.
+    """
 
     rows: list[LensConsistencyRow] = []
     for coalition_size in target_sizes:
@@ -87,6 +102,8 @@ def evaluate_reversal_consistency(
         for constraint in constraints:
             preferred_rank = rp_rank_by_mask.get(int(constraint.preferred_mask))
             dispreferred_rank = rp_rank_by_mask.get(int(constraint.dispreferred_mask))
+            # Strict requirement: ties (preferred_rank == dispreferred_rank) are
+            # deliberately treated as unsatisfied. This is a fixed spec.
             if (
                 preferred_rank is not None
                 and dispreferred_rank is not None
@@ -145,7 +162,16 @@ def summarize_lens_consistency(
     *,
     empty_policy: str,
 ) -> tuple[LensConsistencySummaryRow, ...]:
-    """Summarize Reversal consistency rows by k and overall."""
+    """Summarize Reversal consistency rows by k and overall.
+
+    Two averages are reported per group:
+
+    - ``mean_consistency`` (macro): per-game consistency rates averaged with
+      equal weight across games, subject to ``empty_policy`` for empty rows.
+    - ``micro_consistency`` (micro): the pooled ratio ``sum(num_satisfied) /
+      sum(num_constraints)`` over all firing cases, i.e. case-weighted. Empty
+      rows contribute no constraints and therefore drop out naturally.
+    """
 
     row_list = list(rows)
     if not row_list:
@@ -161,6 +187,11 @@ def summarize_lens_consistency(
             if value is not None
         ]
         mean, std, min_value, max_value = _summary_stats(values)
+        total_constraints = sum(int(row.num_constraints) for row in selected)
+        total_satisfied = sum(int(row.num_satisfied) for row in selected)
+        micro = (
+            None if total_constraints <= 0 else float(total_satisfied) / float(total_constraints)
+        )
         summary_rows.append(
             LensConsistencySummaryRow(
                 n=n,
@@ -168,10 +199,13 @@ def summarize_lens_consistency(
                 num_games=len(selected),
                 num_valid_games=len(values),
                 num_empty_constraint_games=sum(1 for row in selected if row.is_empty_constraints),
+                num_constraints=total_constraints,
+                num_satisfied=total_satisfied,
                 mean_consistency=mean,
                 std_consistency=std,
                 min_consistency=min_value,
                 max_consistency=max_value,
+                micro_consistency=micro,
             )
         )
     return tuple(summary_rows)
