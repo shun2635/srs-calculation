@@ -13,7 +13,7 @@ from ...domain.ranking.rule import RankingRule
 from ...domain.ranking.rules.banzhaf_interaction import BanzhafInteractionRule
 from ...domain.ranking.rules.group_lexcel import GroupLexcelRule
 from ...domain.ranking.rules.group_shapley import GroupShapleyRule
-from ...domain.ranking.rules.rp_index import RpIndexRule
+from ...domain.ranking.rules.rankdiff import RankdiffRule
 from ...domain.ranking.rules.shapley_interaction import ShapleyInteractionRule
 from .metrics import _masks_of_size, correlation_for_method
 
@@ -86,7 +86,7 @@ class RankCorrelationMatrixCell:
 
 PAPER_LENS_RULE_SPECS: tuple[PaperRuleSpec, ...] = (
     PaperRuleSpec("group_lexcel", "Group Lex-cel", GroupLexcelRule()),
-    PaperRuleSpec("rp_index", "RP-Difference", RpIndexRule()),
+    PaperRuleSpec("rankdiff", "Rankdiff", RankdiffRule()),
     PaperRuleSpec("group_shapley", "Group Shapley Value", GroupShapleyRule()),
     PaperRuleSpec(
         "shapley_interaction",
@@ -103,7 +103,7 @@ PAPER_LENS_RULE_SPECS: tuple[PaperRuleSpec, ...] = (
 PAPER_RANK_RULE_SPECS: tuple[PaperRuleSpec, ...] = (
     PaperRuleSpec("group_lexcel", "Group Lex-cel", GroupLexcelRule()),
     PaperRuleSpec("group_shapley", "Group Shapley Value", GroupShapleyRule()),
-    PaperRuleSpec("rp_index", "RP-Difference", RpIndexRule()),
+    PaperRuleSpec("rankdiff", "Rankdiff", RankdiffRule()),
     PaperRuleSpec(
         "shapley_interaction",
         "Shapley Interaction Index",

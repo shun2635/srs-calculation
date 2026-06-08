@@ -2,15 +2,15 @@
 
 ## 0. 目的
 
-AAMAS論文のSimulation Analysisに使う、Group Lex-cel / RP-Difference / Reversal lens を中心とした主分析を実装・実行する。
+AAMAS論文のSimulation Analysisに使う、Group Lex-cel / Rankdiff / Reversal lens を中心とした主分析を実装・実行する。
 
 ## 1. 論文定義
 
 - Group Lex-cel: 各 group `G` について、ordinal coalition ranking の rank class ごとに `G` を含む coalition 数を数え、その appearance vector を辞書式降順で比較する。
-- RP-Difference: 各 coalition の Rank Point `RP(S)` から、構成 singleton の平均 Rank Point を引いた `Delta^RP(G)` で group formation value を測る。
+- Rankdiff: 各 coalition の Rank Point `RP(S)` から、構成 singleton の平均 Rank Point を引いた `Delta^RP(G)` で group formation value を測る。
 - Reversal lens: 個人としては `G` 側が `H` 側を弱く上回り、少なくとも1つの singleton 比較で厳密に上回る一方、group としては `H` が `G` に劣らないとき、formation value ranking は `H` を `G` より厳密に上位へ置くことを要求する。
-- Reversal consistency rate: RP-Difference が Reversal constraint `(H,G)` のうち `H` を `G` より厳密に上位へ置く割合を測る。空 constraint は標準では平均から除外する。
-- GL vs RP rank correlation: 各 game と group size `k` について、`X_k` 上の Group Lex-cel rank vector と RP-Difference rank vector の相関を測る。標準は Spearman、tie method は dense。
+- Reversal consistency rate: Rankdiff が Reversal constraint `(H,G)` のうち `H` を `G` より厳密に上位へ置く割合を測る。空 constraint は標準では平均から除外する。
+- GL vs RP rank correlation: 各 game と group size `k` について、`X_k` 上の Group Lex-cel rank vector と Rankdiff rank vector の相関を測る。標準は Spearman、tie method は dense。
 
 ## 2. 実装方針
 

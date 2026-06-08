@@ -79,7 +79,7 @@ def render_reversal_consistency_figure(
     return _render_bar_chart(
         labels=labels,
         values=values,
-        title="Reversal Consistency of RP-Difference",
+        title="Reversal Consistency of Rankdiff",
         ylabel="mean consistency",
         pdf_path=pdf_path,
         png_path=png_path,
@@ -92,7 +92,7 @@ def render_rank_correlation_figure(
     pdf_path: Path,
     png_path: Path,
 ) -> tuple[Path, Path]:
-    """Render GL vs RP-Difference rank correlation by k plus overall."""
+    """Render GL vs Rankdiff rank correlation by k plus overall."""
 
     rows = list(summary_rows)
     labels = [f"k={row.k}" if str(row.k) != "overall" else "overall" for row in rows]
@@ -100,7 +100,7 @@ def render_rank_correlation_figure(
     return _render_bar_chart(
         labels=labels,
         values=values,
-        title="Group Lex-cel vs RP-Difference Rank Correlation",
+        title="Group Lex-cel vs Rankdiff Rank Correlation",
         ylabel="mean correlation",
         pdf_path=pdf_path,
         png_path=png_path,

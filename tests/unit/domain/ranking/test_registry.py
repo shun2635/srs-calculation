@@ -18,8 +18,8 @@ def test_default_ranking_rule_registry_contains_legacy_rule_set() -> None:
         "group_sum_shapley",
         "lexcel",
         "ordinal_banzhaf",
+        "rankdiff",
         "red_index",
-        "rp_index",
         "shapley",
         "shapley_interaction",
         "ud",
@@ -28,7 +28,7 @@ def test_default_ranking_rule_registry_contains_legacy_rule_set() -> None:
     assert registry.get("ordinal_banzhaf").rule_id == "ordinal_banzhaf"
     assert registry.get("o-banzhaf").rule_id == "ordinal_banzhaf"
     assert registry.get("g-shapley").rule_id == "group_shapley"
-    assert registry.get("rp-index").rule_id == "rp_index"
+    assert registry.get("rankdiff").rule_id == "rankdiff"
 
 
 def test_registry_raises_clear_error_for_unknown_rule_id() -> None:

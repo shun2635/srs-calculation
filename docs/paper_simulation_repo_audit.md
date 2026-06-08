@@ -35,7 +35,7 @@
 | rule | 実装ファイル | 関数名 / クラス名 | 入力形式 | 出力形式 | 論文定義との一致度 | 差異・要確認点 | テストの有無 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Group Lex-cel | `src/srs_calculation/domain/ranking/rules/group_lexcel.py` | `GroupLexcelRule.evaluate` | complete `CoalitionGame`、`base_ranks_by_mask` | `RankingResult.rank_set`、coalition scope、`rank_g-lexcel` | 高い | 全非空coalitionに rank を出す。論文主分析で同サイズ `X_k` に制限する集計は別途必要 | registry/integrationあり。旧 `legacy/tests/test_group_lexcel.py` に詳細あり |
-| RP-Difference | `src/srs_calculation/domain/ranking/rules/rp_index.py` | `RpIndexRule.evaluate` | complete `CoalitionGame`、`base_ranks_by_mask` | `score_rp-index`, `rank_rp-index`、`|S|>=2` の coalitionのみ | 高い | 実装名は `rp_index` / `RP Index`。論文名は RP-Difference に寄せる必要あり。singleton rank は出力しない | integrationあり。旧 docs と実装あり |
+| Rankdiff | `src/srs_calculation/domain/ranking/rules/rankdiff.py` | `RankdiffRule.evaluate` | complete `CoalitionGame`、`base_ranks_by_mask` | `score_rankdiff`, `rank_rankdiff`、`|S|>=2` の coalitionのみ | 高い | 実装名は `rankdiff` / `RP Index`。論文名は Rankdiff に寄せる必要あり。singleton rank は出力しない | integrationあり。旧 docs と実装あり |
 | UD | `src/srs_calculation/domain/ranking/rules/updown.py` | `UdRule.evaluate` | complete `CoalitionGame` | `score_ud_up`, `score_ud_down`, `rank_ud` | 論文主分析外 | singleton比較に基づく up/down count | registry/integrationあり |
 | DU | `src/srs_calculation/domain/ranking/rules/updown.py` | `DuRule.evaluate` | complete `CoalitionGame` | `score_du_up`, `score_du_down`, `rank_du` | 論文主分析外 | UDと同じ count を別スコア化 | registry/integrationあり |
 | Red | `src/srs_calculation/domain/ranking/rules/red_index.py` | `RedIndexRule.evaluate` | complete `CoalitionGame` | `score_red-index`, `rank_red-index` | 論文主分析外 | `coalition_rank <= superset_rank` を数える | registry/integrationあり |
@@ -94,7 +94,7 @@
 | --- | --- |
 | 実装の有無 | あり。ただし名前は lens consistency ではなく axiom satisfaction |
 | 対応lens | `reversal-2p`, `reversal-weak-n`, `give-*`, `take-*`, `redundancy` |
-| 対応rule | coalition-scoped rankを持つ全rule。`rp_index` も対象 |
+| 対応rule | coalition-scoped rankを持つ全rule。`rankdiff` も対象 |
 | 制約集合が空の場合 | per-game CSVでは `"0"`、summaryも total constraints が0なら `"0"`。domain property は `1.0` |
 | 厳密比較の扱い | `reversal` は output rank の厳密比較を要求 |
 | tie の扱い | `reversal` では output tie は不満足。`redundancy` は弱比較なので tie 満足 |
@@ -103,7 +103,7 @@
 
 不足:
 
-- 論文名 `Reversal lens consistency rate for RP-Difference` に絞った CSV/figure は未作成。
+- 論文名 `Reversal lens consistency rate for Rankdiff` に絞った CSV/figure は未作成。
 - 空制約入力を平均から除外する集計は未実装。
 - Reversal lens の制約生成が論文定義と完全一致するかを検証するテストが不足。
 
@@ -112,7 +112,7 @@
 | 項目 | 現在の状態 |
 | --- | --- |
 | 実装の有無 | あり。ただし full rule correlation heatmap として実装 |
-| 対応rule pair | scope内の全 rank column。`rank_g-lexcel` と `rank_rp-index` も含められる |
+| 対応rule pair | scope内の全 rank column。`rank_g-lexcel` と `rank_rankdiff` も含められる |
 | 同サイズ集合 `X_k` ごとの計算 | 未実装。現行 coalition-scope は非空coalition全体を縦結合 |
 | tie の rank 処理 | serialized rank を `effective_rank = 1 + strictly better count` に変換。average rank ではない |
 | Spearman correlation | `pandas.DataFrame.corr(method="spearman", min_periods=1)` |
@@ -122,7 +122,7 @@
 
 不足:
 
-- Group Lex-cel と RP-Difference に絞った per-game/per-size Spearman summary CSV がない。
+- Group Lex-cel と Rankdiff に絞った per-game/per-size Spearman summary CSV がない。
 - 論文用の rank correlation 平均値・分散・信頼区間などの要約がない。
 
 ## 6. 既存出力物
@@ -138,7 +138,7 @@
 | `outputs/heatmaps/n3/*.png` | 旧または過去の heatmap | `rank_lexcel_vs_rank_shapley.png`, `rule_corr_*.png` | 主分析には不足 | 可能 | GLC vs RP 専用ではない |
 | `outputs/heatmaps/n4/*.png` | 同上 | n=4 heatmap PNG | 主分析には不足 | 可能 |  |
 | `legacy/outputs/axiom/n{3,4,5,10}/summary.csv` | legacy `check-axioms` / summary | axiom satisfaction summary | 定義確認後なら参考 | legacyで可能 | Reversal相当は `gekokujou-*` |
-| `legacy/outputs/axiom/n*/gekokujou-weak-n/rp-index.csv` | legacy axiom workflow | per-game RP Index gekokujou counts | Reversalとの差分確認が必要 | legacyで可能 | 既存値を本文に使うには条件確認が必要 |
+| `legacy/outputs/axiom/n*/gekokujou-weak-n/rankdiff.csv` | legacy axiom workflow | per-game RP Index gekokujou counts | Reversalとの差分確認が必要 | legacyで可能 | 既存値を本文に使うには条件確認が必要 |
 | `legacy/outputs/axiom/n*/summary_heatmap.png` | legacy summary heatmap | axiom satisfaction heatmap | 参考 | legacyで可能 | 論文主分析の最小図とは異なる |
 | `legacy/outputs/heatmaps/n*/rule_corr_coalition.png` | legacy heatmap | coalition rule correlation | 参考 | legacyで可能 | CSV summary は見つからない |
 | `legacy/outputs/figures/n*/*.png` | legacy figure command | game別 ranking table PNG | 主分析には不向き | legacyで可能 | 個別確認用 |
@@ -159,10 +159,10 @@
 | 必要項目 | 実装済みか | 既存ファイル | 不足点 | 優先度 | 次に必要な作業 |
 | --- | --- | --- | --- | --- | --- |
 | Group Lex-cel rule | はい | `src/.../group_lexcel.py` | 同サイズ `X_k` の論文用集計 | 高 | rule outputをsize別に集計する |
-| RP-Difference rule | はい | `src/.../rp_index.py` | 名前整理、singleton除外範囲の明示 | 高 | 論文では `RP-Difference` として列名/表示名を整理 |
+| Rankdiff rule | はい | `src/.../rankdiff.py` | 名前整理、singleton除外範囲の明示 | 高 | 論文では `Rankdiff` として列名/表示名を整理 |
 | Reversal lens | はい | `src/.../reversal.py` | paper simulation 用の集計と図表が必要 | 最高 | Reversal consistency と一体で検証する |
-| RP-Difference の Reversal consistency | 部分的 | `evaluate_synthetic_axioms`, `synthetic_reports.py` | 空制約除外、RP専用summary、論文用CSVなし | 最高 | `rp_index` x Reversal の per-game/per-size CSVを出力 |
-| Group Lex-cel と RP-Difference の rank correlation | 部分的 | `synthetic_rank_heatmap.py` | `X_k` ごと、average rank tie、NA除外が未実装 | 最高 | 論文定義版 correlation metric を実装 |
+| Rankdiff の Reversal consistency | 部分的 | `evaluate_synthetic_axioms`, `synthetic_reports.py` | 空制約除外、RP専用summary、論文用CSVなし | 最高 | `rankdiff` x Reversal の per-game/per-size CSVを出力 |
+| Group Lex-cel と Rankdiff の rank correlation | 部分的 | `synthetic_rank_heatmap.py` | `X_k` ごと、average rank tie、NA除外が未実装 | 最高 | 論文定義版 correlation metric を実装 |
 | summary CSV | 部分的 | axiom summary / rule corr matrix | 論文主分析用の縦持ち summary がない | 高 | `results/simulation_summary.csv` 相当を生成 |
 | lens consistency figure | 部分的 | axiom summary heatmap | Reversal x RP 専用ではない | 高 | bar/heatmap を生成 |
 | rank correlation figure | 部分的 | rule_corr_coalition.png | GLC vs RP, size別ではない | 高 | `rank_correlation_glc_rp` 図を生成 |
@@ -172,8 +172,8 @@
 
 | 図表名 | 目的 | 入力データ | 出力ファイル候補 | 本文向け / appendix向け | 未実装事項 |
 | --- | --- | --- | --- | --- | --- |
-| Reversal consistency of RP-Difference | RQ2: RP-Difference が Reversal 制約をどの程度満たすか | Reversal constraint counts for `rp_index` | `figures/reversal_consistency.pdf`, `.png` | 本文向け | 論文定義版 Reversal、空制約除外、summary CSV |
-| GLC vs RP rank correlation | RQ1: Group Lex-cel と RP-Difference の差を見る | size別 rank vectors | `figures/rank_correlation_glc_rp.pdf`, `.png` | 本文向け | `X_k` ごと、average rank tie、NA除外 |
+| Reversal consistency of Rankdiff | RQ2: Rankdiff が Reversal 制約をどの程度満たすか | Reversal constraint counts for `rankdiff` | `figures/reversal_consistency.pdf`, `.png` | 本文向け | 論文定義版 Reversal、空制約除外、summary CSV |
+| GLC vs RP rank correlation | RQ1: Group Lex-cel と Rankdiff の差を見る | size別 rank vectors | `figures/rank_correlation_glc_rp.pdf`, `.png` | 本文向け | `X_k` ごと、average rank tie、NA除外 |
 | Full coalition rule correlation heatmap | 他ruleとの相対的位置付け | `rule_corr_coalition.csv` | `figures/rule_corr_coalition_appendix.pdf` | appendix向け | 現行PNGはあるがPDF/論文用整形は未実装 |
 | Reversal constraints by `n,k` heatmap | 制約の発生量と安定性確認 | per-game/per-size constraints | `figures/reversal_constraint_counts.pdf` | appendix向け | size別 constraint count CSV |
 | Robustness by constraint profile | unconstrained vs TU などの比較 | constraint-set別 summary | `figures/robustness_constraint_profiles.pdf` | appendix向け | 大規模実験設計と出力統合 |
@@ -197,7 +197,7 @@ poetry run srs-test
 
 ```bash
 poetry run srs-game-gen gen-games -p 4 -c 100 --max-score 15 --seed 1 --out outputs
-poetry run srs-game-gen apply-rules -p 4 --out outputs --rule group_lexcel --rule rp_index
+poetry run srs-game-gen apply-rules -p 4 --out outputs --rule group_lexcel --rule rankdiff
 poetry run srs-game-gen evaluate-axioms -p 4 --out outputs --scope coalition
 poetry run srs-game-gen rule-corr-heatmap -p 4 --out outputs --method spearman
 ```
@@ -242,8 +242,8 @@ poetry run srs-test tests/e2e/interfaces/cli/test_synthetic_workflow.py tests/in
 ## 10. 次に行うべき実装タスク
 
 1. 論文定義版 Reversal lens constraint generator を検証し、active surfaceでは `reversal` を正式名にする。
-2. Reversal lens consistency rate を `rp_index` 専用に集計する。空制約入力は平均から除外する。
-3. Group Lex-cel と RP-Difference の rank correlation を、同サイズ `X_k` ごと、tie average rank、constant vector NA除外で実装する。
+2. Reversal lens consistency rate を `rankdiff` 専用に集計する。空制約入力は平均から除外する。
+3. Group Lex-cel と Rankdiff の rank correlation を、同サイズ `X_k` ごと、tie average rank、constant vector NA除外で実装する。
 4. `results/lens_consistency.csv`, `results/rank_correlation.csv`, `results/simulation_summary.csv` 相当を生成する。
 5. `figures/reversal_consistency.pdf/png` と `figures/rank_correlation_glc_rp.pdf/png` を生成する。
 6. `docs/simulation_result_summary.md` に、実験設定、件数、除外件数、主要数値を自動または半自動で書き出す。
@@ -255,8 +255,8 @@ poetry run srs-test tests/e2e/interfaces/cli/test_synthetic_workflow.py tests/in
 | 成果物 | 目的 | 論文側の挿入先 |
 | --- | --- | --- |
 | `results/simulation_summary.csv` | RQ1/RQ2 の主要指標をまとめる | Simulation Analysis 本文の数値要約 |
-| `results/lens_consistency.csv` | RP-Difference x Reversal の per-game/per-size consistency | RQ2 の表、appendix の詳細表 |
-| `results/rank_correlation.csv` | Group Lex-cel vs RP-Difference の per-game/per-size Spearman | RQ1 の表、appendix の詳細表 |
+| `results/lens_consistency.csv` | Rankdiff x Reversal の per-game/per-size consistency | RQ2 の表、appendix の詳細表 |
+| `results/rank_correlation.csv` | Group Lex-cel vs Rankdiff の per-game/per-size Spearman | RQ1 の表、appendix の詳細表 |
 | `results/experiment_metadata.json` | commit, seed, `n`, `R`, `max_score`, constraints, commands | 再現性 appendix |
 | `figures/reversal_consistency.pdf` | Reversal consistency の本文図 | RQ2 本文 |
 | `figures/reversal_consistency.png` | preview / slide / issue共有 | 補助 |

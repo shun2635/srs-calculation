@@ -15,10 +15,10 @@ from ...infrastructure.plotting import (
     generate_lexcel_rank_count_heatmap,
     generate_ordinal_banzhaf_values_plot,
     generate_rank_occurrence_distribution_heatmap,
+    generate_rankdiff_top_size2_figure,
     generate_real_ranking_figure,
     generate_red_index_scatter_plot,
     generate_red_index_topk_by_size_figures,
-    generate_rp_index_top_size2_figure,
     generate_shapley_values_plot,
     render_feature_rule_rank_heatmap,
 )
@@ -288,7 +288,7 @@ def render_real_dataset_figures(
 
         try:
             written_paths.append(
-                generate_rp_index_top_size2_figure(
+                generate_rankdiff_top_size2_figure(
                     rankings_csv=canonical_rankings_csv,
                     output_dir=resolved_figures_dir,
                     dpi=int(dpi),

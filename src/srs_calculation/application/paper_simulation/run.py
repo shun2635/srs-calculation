@@ -35,7 +35,7 @@ from .metrics import (
     LensConsistencySummaryRow,
     RankCorrelationRow,
     RankCorrelationSummaryRow,
-    evaluate_gl_rp_rank_correlation,
+    evaluate_gl_rankdiff_rank_correlation,
     evaluate_reversal_consistency,
     summarize_lens_consistency,
     summarize_rank_correlation,
@@ -210,7 +210,7 @@ def _simulation_summary_rows(
     for row in rank_summary_rows:
         rows.append(
             {
-                "metric": "gl_rp_rank_correlation",
+                "metric": "gl_rankdiff_rank_correlation",
                 "n": row.n,
                 "k": row.k,
                 "num_games": row.num_games,
@@ -365,7 +365,7 @@ def _heatmap_tendency_text(
 
 def _lens_summary_text(cells: Iterable[LensConsistencyMatrixCell]) -> str:
     gl_reversal = _lens_cell_value(cells, rule="Group Lex-cel", lens="Reversal")
-    rp_reversal = _lens_cell_value(cells, rule="RP-Difference", lens="Reversal")
+    rp_reversal = _lens_cell_value(cells, rule="Rankdiff", lens="Reversal")
     group_shapley_reversal = _lens_cell_value(
         cells,
         rule="Group Shapley Value",
@@ -382,7 +382,7 @@ def _lens_summary_text(cells: Iterable[LensConsistencyMatrixCell]) -> str:
         lens="Reversal",
     )
     return (
-        "RP-Difference is fully consistent with Reversal in this run "
+        "Rankdiff is fully consistent with Reversal in this run "
         f"({_format_float(rp_reversal)}). Group Lex-cel has lower Reversal "
         f"consistency ({_format_float(gl_reversal)}). The cardinal benchmarks "
         "show Reversal consistency of "
@@ -404,26 +404,26 @@ def _rank_summary_text(cells: Iterable[RankCorrelationMatrixCell]) -> str:
     )
     rp_shapley_interaction = _rank_cell_value(
         cells,
-        rule_a="RP-Difference",
+        rule_a="Rankdiff",
         rule_b="Shapley Interaction Index",
     )
     rp_banzhaf_interaction = _rank_cell_value(
         cells,
-        rule_a="RP-Difference",
+        rule_a="Rankdiff",
         rule_b="Banzhaf Interaction Index",
     )
     gl_rp = _rank_cell_value(
         cells,
         rule_a="Group Lex-cel",
-        rule_b="RP-Difference",
+        rule_b="Rankdiff",
     )
     return (
         "Group Lex-cel and Group Shapley Value have mean rank correlation "
-        f"{_format_float(gl_group_shapley)}. RP-Difference is correlated with "
+        f"{_format_float(gl_group_shapley)}. Rankdiff is correlated with "
         f"the Shapley and Banzhaf interaction indices at "
         f"{_format_float(rp_shapley_interaction)} and "
         f"{_format_float(rp_banzhaf_interaction)}, respectively. The "
-        "Group Lex-cel vs RP-Difference correlation is "
+        "Group Lex-cel vs Rankdiff correlation is "
         f"{_format_float(gl_rp)}, suggesting a visible separation between "
         "group-level value and formation/interaction perspectives."
     )
@@ -445,25 +445,25 @@ def _write_markdown_summary(
     overall_correlation = _summary_value(rank_summary_rows, "mean_correlation")
     rp_reversal = _lens_cell_value(
         lens_matrix_cells,
-        rule="RP-Difference",
+        rule="Rankdiff",
         lens="Reversal",
     )
     gl_rp_correlation = _rank_cell_value(
         rank_matrix_cells,
         rule_a="Group Lex-cel",
-        rule_b="RP-Difference",
+        rule_b="Rankdiff",
     )
     heatmap_tendency = _heatmap_tendency_text(rank_matrix_cells)
     lens_heatmap_summary = _lens_summary_text(lens_matrix_cells)
     rank_heatmap_summary = _rank_summary_text(rank_matrix_cells)
     rq1_summary = (
         f"The overall mean {config.correlation_method} rank correlation between "
-        "Group Lex-cel and RP-Difference is "
+        "Group Lex-cel and Rankdiff is "
         f"{_format_float(overall_correlation)} over valid game-size rows. "
         "Rows with undefined correlation are excluded from this average."
     )
     rq2_summary = (
-        "The overall Reversal lens consistency for RP-Difference is "
+        "The overall Reversal lens consistency for Rankdiff is "
         f"{_format_float(overall_consistency)} (macro, per-game equal-weight mean "
         "over valid game-size rows) and "
         f"{_format_float(overall_consistency_micro)} (micro, pooled over all "
@@ -476,8 +476,8 @@ def _write_markdown_summary(
         "coalition values were sampled independently and uniformly from the "
         f"integers 0 to {config.max_score}, without imposing monotonicity with "
         f"respect to coalition size. The mean {config.correlation_method} rank "
-        "correlation between Group Lex-cel and RP-Difference was "
-        f"{_format_float(gl_rp_correlation)}, while RP-Difference's mean "
+        "correlation between Group Lex-cel and Rankdiff was "
+        f"{_format_float(gl_rp_correlation)}, while Rankdiff's mean "
         "Reversal lens consistency rate was "
         f"{_format_float(rp_reversal)}. The focused comparison indicates "
         "that the two rules do not simply reproduce the same ranking. The "
@@ -500,11 +500,11 @@ def _write_markdown_summary(
 - rank tie method: {config.rank_tie_method}
 - empty Reversal constraints: {config.empty_constraints}
 
-## RQ1: Group Lex-cel vs RP-Difference
+## RQ1: Group Lex-cel vs Rankdiff
 
 {rq1_summary}
 
-## RQ2: Reversal Consistency of RP-Difference
+## RQ2: Reversal Consistency of Rankdiff
 
 {rq2_summary}
 
@@ -513,12 +513,12 @@ def _write_markdown_summary(
 - lens consistency heatmap: `{output_paths["lens_consistency_heatmap_pdf"]}`
 - rank correlation heatmap: `{output_paths["rank_correlation_heatmap_pdf"]}`
 - Reversal consistency bar chart: `{output_paths["reversal_consistency_pdf"]}`
-- GL vs RP rank correlation bar chart: `{output_paths["rank_correlation_pdf"]}`
+- GL vs Rankdiff rank correlation bar chart: `{output_paths["rank_correlation_pdf"]}`
 
 ## Main Numerical Summary
 
-- RP-Difference Reversal consistency: {_format_float(rp_reversal)}
-- Group Lex-cel vs RP-Difference rank correlation: {_format_float(gl_rp_correlation)}
+- Rankdiff Reversal consistency: {_format_float(rp_reversal)}
+- Group Lex-cel vs Rankdiff rank correlation: {_format_float(gl_rp_correlation)}
 - {heatmap_tendency}
 
 ## Lens Consistency Summary
@@ -548,7 +548,7 @@ are not treated as full axiomatic foundations in the main text.
 - lens consistency heatmap: `{output_paths["lens_consistency_heatmap_pdf"]}`
 - rule rank correlation heatmap: `{output_paths["rank_correlation_heatmap_pdf"]}`
 - Reversal consistency figure: `{output_paths["reversal_consistency_pdf"]}`
-- GL vs RP rank correlation figure: `{output_paths["rank_correlation_pdf"]}`
+- GL vs Rankdiff rank correlation figure: `{output_paths["rank_correlation_pdf"]}`
 
 ## Draft Text for Paper
 
@@ -558,7 +558,7 @@ are not treated as full axiomatic foundations in the main text.
 
 - The reported values are generated from this run and should not be copied across
   different seeds or settings.
-- Reversal satisfaction requires a strict RP-Difference ranking improvement; ties
+- Reversal satisfaction requires a strict Rankdiff ranking improvement; ties
   are not counted as satisfied.
 - Undefined correlations and empty constraint sets are excluded from the default averages.
 """
@@ -584,22 +584,22 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
         game = _random_complete_game(config.players, max_score=config.max_score, rng=rng)
         rank_sets_by_rule = evaluate_paper_rules(game)
         gl_rank_by_mask = rank_sets_by_rule["group_lexcel"].ranks_by_coalition
-        rp_rank_by_mask = rank_sets_by_rule["rp_index"].ranks_by_coalition
+        rankdiff_rank_by_mask = rank_sets_by_rule["rankdiff"].ranks_by_coalition
 
         lens_rows.extend(
             evaluate_reversal_consistency(
                 game_id=game_id,
                 game=game,
-                rp_rank_by_mask=rp_rank_by_mask,
+                rankdiff_rank_by_mask=rankdiff_rank_by_mask,
                 target_sizes=config.target_sizes,
             )
         )
         rank_rows.extend(
-            evaluate_gl_rp_rank_correlation(
+            evaluate_gl_rankdiff_rank_correlation(
                 game_id=game_id,
                 player_count=config.players,
                 gl_rank_by_mask=gl_rank_by_mask,
-                rp_rank_by_mask=rp_rank_by_mask,
+                rankdiff_rank_by_mask=rankdiff_rank_by_mask,
                 target_sizes=config.target_sizes,
                 correlation_method=config.correlation_method,
                 rank_tie_method=config.rank_tie_method,

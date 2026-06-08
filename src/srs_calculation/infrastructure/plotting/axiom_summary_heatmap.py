@@ -22,7 +22,7 @@ _RULE_LABELS: dict[str, str] = {
     "group_lexcel": "Group Lex-cel",
     "shapley_interaction": "Shapley Interaction",
     "banzhaf_interaction": "Banzhaf Interaction",
-    "rp_index": "RP Difference",
+    "rankdiff": "Rankdiff",
     "ud": "UD",
     "du": "DU",
     "red_index": "Redundancy",

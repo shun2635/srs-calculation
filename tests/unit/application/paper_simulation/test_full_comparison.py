@@ -13,7 +13,7 @@ def test_paper_heatmap_rule_sets_use_main_text_comparators() -> None:
 
     assert lens_labels == [
         "Group Lex-cel",
-        "RP-Difference",
+        "Rankdiff",
         "Group Shapley Value",
         "Shapley Interaction Index",
         "Banzhaf Interaction Index",
@@ -21,7 +21,7 @@ def test_paper_heatmap_rule_sets_use_main_text_comparators() -> None:
     assert rank_labels == [
         "Group Lex-cel",
         "Group Shapley Value",
-        "RP-Difference",
+        "Rankdiff",
         "Shapley Interaction Index",
         "Banzhaf Interaction Index",
     ]

@@ -1,4 +1,4 @@
-"""Unit tests for the Rankdiff (rp_index) rule.
+"""Unit tests for the Rankdiff (rankdiff) rule.
 
 These tests pin the paper definition
 
@@ -14,7 +14,7 @@ other's rank value.
 from __future__ import annotations
 
 from srs_calculation.domain.games.coalition_game import CoalitionGame
-from srs_calculation.domain.ranking.rules.rp_index import RpIndexRule
+from srs_calculation.domain.ranking.rules.rankdiff import RankdiffRule
 
 
 def _rank_value(level: int, levels: dict[int, int]) -> int:
@@ -57,7 +57,7 @@ def test_rankdiff_matches_paper_with_individual_and_team_ties() -> None:
     }
     game = CoalitionGame.from_scores_by_mask(4, {m: float(v) for m, v in scores_by_mask.items()})
 
-    result = RpIndexRule().evaluate(game)
+    result = RankdiffRule().evaluate(game)
     assert result.score_set is not None
     values = result.score_set.values_by_coalition
 

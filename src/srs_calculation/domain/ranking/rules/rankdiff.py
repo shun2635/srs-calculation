@@ -1,4 +1,4 @@
-"""RP-index rule in the new domain layer."""
+"""Rankdiff rule in the new domain layer."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from ..result import RankingResult, RuleRankSet, RuleScoreSet
 from ..rule import RankingRule, dense_rank_mapping_desc, popcount
 
 
-class RpIndexRule(RankingRule):
+class RankdiffRule(RankingRule):
     """Coalition Rankdiff scores and dense ranks.
 
     Implements the paper definition directly:
@@ -21,7 +21,7 @@ class RpIndexRule(RankingRule):
     the coalition outperforms its members' individual standing (more synergy).
     """
 
-    rule_id = "rp_index"
+    rule_id = "rankdiff"
 
     def evaluate(self, game: CoalitionGame) -> RankingResult:
         game.require_complete()

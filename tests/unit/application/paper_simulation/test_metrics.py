@@ -5,7 +5,7 @@ import pytest
 from srs_calculation.application.paper_simulation.metrics import (
     LensConsistencyRow,
     correlation_for_method,
-    evaluate_gl_rp_rank_correlation,
+    evaluate_gl_rankdiff_rank_correlation,
     evaluate_reversal_consistency,
     summarize_lens_consistency,
 )
@@ -34,7 +34,7 @@ def test_reversal_consistency_empty_constraints_are_na() -> None:
     rows = evaluate_reversal_consistency(
         game_id="game_000001",
         game=game,
-        rp_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
+        rankdiff_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
         target_sizes=(2,),
     )
 
@@ -59,13 +59,13 @@ def test_reversal_consistency_requires_strict_satisfaction() -> None:
     tied = evaluate_reversal_consistency(
         game_id="game_000001",
         game=game,
-        rp_rank_by_mask={0b011: 1, 0b101: 1, 0b110: 3},
+        rankdiff_rank_by_mask={0b011: 1, 0b101: 1, 0b110: 3},
         target_sizes=(2,),
     )
     strict = evaluate_reversal_consistency(
         game_id="game_000001",
         game=game,
-        rp_rank_by_mask={0b011: 2, 0b101: 1, 0b110: 1},
+        rankdiff_rank_by_mask={0b011: 2, 0b101: 1, 0b110: 1},
         target_sizes=(2,),
     )
 
@@ -89,7 +89,7 @@ def test_lens_summary_empty_policy_options() -> None:
     rows = evaluate_reversal_consistency(
         game_id="game_000001",
         game=game,
-        rp_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
+        rankdiff_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
         target_sizes=(2,),
     )
 
@@ -132,7 +132,7 @@ def test_lens_summary_reports_micro_and_macro_averages() -> None:
 
 
 def test_rank_correlation_dense_spearman() -> None:
-    rows = evaluate_gl_rp_rank_correlation(
+    rows = evaluate_gl_rankdiff_rank_correlation(
         game_id="game_000001",
         player_count=4,
         gl_rank_by_mask={
@@ -143,7 +143,7 @@ def test_rank_correlation_dense_spearman() -> None:
             0b1010: 3,
             0b1100: 4,
         },
-        rp_rank_by_mask={
+        rankdiff_rank_by_mask={
             0b0011: 1,
             0b0101: 1,
             0b1001: 2,
@@ -216,11 +216,11 @@ def test_unsupported_correlation_method_is_na() -> None:
 
 
 def test_rank_correlation_constant_vector_is_na() -> None:
-    rows = evaluate_gl_rp_rank_correlation(
+    rows = evaluate_gl_rankdiff_rank_correlation(
         game_id="game_000001",
         player_count=3,
         gl_rank_by_mask={0b011: 1, 0b101: 1, 0b110: 1},
-        rp_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
+        rankdiff_rank_by_mask={0b011: 1, 0b101: 2, 0b110: 3},
         target_sizes=(2,),
         correlation_method="spearman",
         rank_tie_method="dense",

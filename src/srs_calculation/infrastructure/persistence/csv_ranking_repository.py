@@ -91,11 +91,11 @@ _COMPATIBILITY_RULE_SPECS: dict[str, CompatibleRankingRuleSpec] = {
         scope="coalition",
         score_column_names=("score_banzhaf-interaction",),
     ),
-    "rp_index": CompatibleRankingRuleSpec(
-        internal_rule_id="rp_index",
-        compatible_rule_id="rp-index",
+    "rankdiff": CompatibleRankingRuleSpec(
+        internal_rule_id="rankdiff",
+        compatible_rule_id="rankdiff",
         scope="coalition",
-        score_column_names=("score_rp-index",),
+        score_column_names=("score_rankdiff",),
     ),
     "ud": CompatibleRankingRuleSpec(
         internal_rule_id="ud",
@@ -125,7 +125,7 @@ _CANONICAL_DERIVED_COLUMN_ORDER: tuple[str, ...] = (
     "score_g-sum-shapley",
     "score_shapley-interaction",
     "score_banzhaf-interaction",
-    "score_rp-index",
+    "score_rankdiff",
     "score_ud_up",
     "score_ud_down",
     "score_du_up",
@@ -139,7 +139,7 @@ _CANONICAL_DERIVED_COLUMN_ORDER: tuple[str, ...] = (
     "rank_g-sum-shapley",
     "rank_shapley-interaction",
     "rank_banzhaf-interaction",
-    "rank_rp-index",
+    "rank_rankdiff",
     "rank_ud",
     "rank_du",
     "rank_red-index",

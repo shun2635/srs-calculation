@@ -82,10 +82,10 @@ def evaluate_reversal_consistency(
     *,
     game_id: str,
     game: CoalitionGame,
-    rp_rank_by_mask: dict[int, int],
+    rankdiff_rank_by_mask: dict[int, int],
     target_sizes: Iterable[int],
 ) -> tuple[LensConsistencyRow, ...]:
-    """Evaluate RP-Difference against Reversal constraints by game and size.
+    """Evaluate Rankdiff against Reversal constraints by game and size.
 
     Satisfaction criterion (fixed specification, not configurable): a firing
     case counts as satisfied only when the rule output is the *strict* required
@@ -100,8 +100,8 @@ def evaluate_reversal_consistency(
         constraints = generate_reversal_constraints(game, int(coalition_size))
         satisfied = 0
         for constraint in constraints:
-            preferred_rank = rp_rank_by_mask.get(int(constraint.preferred_mask))
-            dispreferred_rank = rp_rank_by_mask.get(int(constraint.dispreferred_mask))
+            preferred_rank = rankdiff_rank_by_mask.get(int(constraint.preferred_mask))
+            dispreferred_rank = rankdiff_rank_by_mask.get(int(constraint.dispreferred_mask))
             # Strict requirement: ties (preferred_rank == dispreferred_rank) are
             # deliberately treated as unsatisfied. This is a fixed spec.
             if (
@@ -353,24 +353,24 @@ def correlation_for_method(
     return _correlation(values_x, values_y)
 
 
-def evaluate_gl_rp_rank_correlation(
+def evaluate_gl_rankdiff_rank_correlation(
     *,
     game_id: str,
     player_count: int,
     gl_rank_by_mask: dict[int, int],
-    rp_rank_by_mask: dict[int, int],
+    rankdiff_rank_by_mask: dict[int, int],
     target_sizes: Iterable[int],
     correlation_method: str,
     rank_tie_method: str,
 ) -> tuple[RankCorrelationRow, ...]:
-    """Evaluate GL vs RP-Difference rank correlation by game and size."""
+    """Evaluate GL vs Rankdiff rank correlation by game and size."""
 
     rows: list[RankCorrelationRow] = []
     for coalition_size in target_sizes:
         masks = _masks_of_size(int(player_count), int(coalition_size))
         correlation_value, reason = correlation_for_method(
             gl_rank_by_mask,
-            rp_rank_by_mask,
+            rankdiff_rank_by_mask,
             masks,
             method=correlation_method,
             tie_method=rank_tie_method,
@@ -428,7 +428,7 @@ __all__ = [
     "RankCorrelationRow",
     "RankCorrelationSummaryRow",
     "correlation_for_method",
-    "evaluate_gl_rp_rank_correlation",
+    "evaluate_gl_rankdiff_rank_correlation",
     "evaluate_reversal_consistency",
     "summarize_lens_consistency",
     "summarize_rank_correlation",
