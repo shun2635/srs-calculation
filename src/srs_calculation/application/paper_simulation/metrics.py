@@ -273,6 +273,86 @@ def _correlation(values_x: list[float], values_y: list[float]) -> tuple[float | 
     return sum(x * y for x, y in zip(centered_x, centered_y, strict=True)) / denominator, ""
 
 
+def _kendall_tau_b(values_x: list[float], values_y: list[float]) -> tuple[float | None, str]:
+    """Kendall tau-b (tie-corrected) over paired rank values."""
+
+    if len(values_x) != len(values_y):
+        return None, "length_mismatch"
+    if len(values_x) < 2:
+        return None, "not_enough_items"
+    if len(set(values_x)) <= 1 or len(set(values_y)) <= 1:
+        return None, "constant_vector"
+
+    concordant = 0
+    discordant = 0
+    ties_x = 0
+    ties_y = 0
+    n = len(values_x)
+    for i in range(n):
+        for j in range(i + 1, n):
+            dx = values_x[i] - values_x[j]
+            dy = values_y[i] - values_y[j]
+            if dx == 0.0 and dy == 0.0:
+                continue
+            if dx == 0.0:
+                ties_x += 1
+                continue
+            if dy == 0.0:
+                ties_y += 1
+                continue
+            if (dx > 0.0) == (dy > 0.0):
+                concordant += 1
+            else:
+                discordant += 1
+
+    total_pairs = concordant + discordant
+    denominator = sqrt(
+        float(total_pairs + ties_x) * float(total_pairs + ties_y)
+    )
+    if denominator == 0.0:
+        return None, "constant_vector"
+    return float(concordant - discordant) / denominator, ""
+
+
+def correlation_for_method(
+    ranks_x_by_mask: dict[int, int],
+    ranks_y_by_mask: dict[int, int],
+    masks: list[int],
+    *,
+    method: str,
+    tie_method: str,
+) -> tuple[float | None, str]:
+    """Compute the rank correlation that matches the requested method label.
+
+    - ``spearman``: Pearson correlation on average-tie rank values, i.e. the
+      exact (tie-corrected) Spearman rho. The configured ``tie_method`` is
+      overridden with ``average`` so the result is a genuine Spearman.
+    - ``pearson``: Pearson correlation on rank values using ``tie_method``.
+    - ``kendall``: tie-corrected Kendall tau-b.
+    """
+
+    normalized_method = str(method).strip().lower()
+    if normalized_method == "spearman":
+        effective_tie = "average"
+    elif normalized_method == "kendall":
+        # Kendall only depends on order and tie structure; dense encodes both.
+        effective_tie = "dense"
+    elif normalized_method == "pearson":
+        effective_tie = str(tie_method)
+    else:
+        return None, "unsupported_correlation_method"
+
+    values_x, reason_x = _rank_values(ranks_x_by_mask, masks, tie_method=effective_tie)
+    values_y, reason_y = _rank_values(ranks_y_by_mask, masks, tie_method=effective_tie)
+    reason = reason_x or reason_y
+    if reason or values_x is None or values_y is None:
+        return None, reason
+
+    if normalized_method == "kendall":
+        return _kendall_tau_b(values_x, values_y)
+    return _correlation(values_x, values_y)
+
+
 def evaluate_gl_rp_rank_correlation(
     *,
     game_id: str,
@@ -288,12 +368,13 @@ def evaluate_gl_rp_rank_correlation(
     rows: list[RankCorrelationRow] = []
     for coalition_size in target_sizes:
         masks = _masks_of_size(int(player_count), int(coalition_size))
-        gl_values, gl_reason = _rank_values(gl_rank_by_mask, masks, tie_method=rank_tie_method)
-        rp_values, rp_reason = _rank_values(rp_rank_by_mask, masks, tie_method=rank_tie_method)
-        reason = gl_reason or rp_reason
-        correlation_value: float | None = None
-        if not reason and gl_values is not None and rp_values is not None:
-            correlation_value, reason = _correlation(gl_values, rp_values)
+        correlation_value, reason = correlation_for_method(
+            gl_rank_by_mask,
+            rp_rank_by_mask,
+            masks,
+            method=correlation_method,
+            tie_method=rank_tie_method,
+        )
 
         rows.append(
             RankCorrelationRow(
@@ -346,6 +427,7 @@ __all__ = [
     "LensConsistencySummaryRow",
     "RankCorrelationRow",
     "RankCorrelationSummaryRow",
+    "correlation_for_method",
     "evaluate_gl_rp_rank_correlation",
     "evaluate_reversal_consistency",
     "summarize_lens_consistency",

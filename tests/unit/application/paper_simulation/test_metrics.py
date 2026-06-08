@@ -4,6 +4,7 @@ import pytest
 
 from srs_calculation.application.paper_simulation.metrics import (
     LensConsistencyRow,
+    correlation_for_method,
     evaluate_gl_rp_rank_correlation,
     evaluate_reversal_consistency,
     summarize_lens_consistency,
@@ -157,6 +158,61 @@ def test_rank_correlation_dense_spearman() -> None:
 
     assert rows[0].correlation == pytest.approx(1.0)
     assert rows[0].is_na is False
+
+
+def test_spearman_forces_average_ties_and_differs_from_pearson_dense() -> None:
+    masks = [10, 20, 30, 40]
+    ranks_x = {10: 1, 20: 1, 30: 2, 40: 3}  # uneven tie group at the top
+    ranks_y = {10: 1, 20: 2, 30: 3, 40: 4}
+
+    spearman, _ = correlation_for_method(
+        ranks_x, ranks_y, masks, method="spearman", tie_method="dense"
+    )
+    pearson_dense, _ = correlation_for_method(
+        ranks_x, ranks_y, masks, method="pearson", tie_method="dense"
+    )
+
+    # Spearman overrides the dense tie method with average, so the two differ;
+    # this is exactly what makes the "Spearman" label truthful now.
+    assert spearman is not None and pearson_dense is not None
+    assert spearman != pytest.approx(pearson_dense)
+
+
+def test_correlation_methods_agree_for_strictly_monotone_input() -> None:
+    masks = [10, 20, 30, 40]
+    ranks_x = {10: 1, 20: 2, 30: 3, 40: 4}
+    ranks_y = {10: 1, 20: 2, 30: 3, 40: 4}
+
+    for method in ("spearman", "pearson", "kendall"):
+        value, reason = correlation_for_method(
+            ranks_x, ranks_y, masks, method=method, tie_method="dense"
+        )
+        assert reason == ""
+        assert value == pytest.approx(1.0)
+
+
+def test_kendall_tau_known_value() -> None:
+    masks = [10, 20, 30, 40]
+    ranks_x = {10: 1, 20: 2, 30: 3, 40: 4}
+    ranks_y = {10: 1, 20: 2, 30: 4, 40: 3}  # one discordant pair
+
+    value, reason = correlation_for_method(
+        ranks_x, ranks_y, masks, method="kendall", tie_method="dense"
+    )
+
+    assert reason == ""
+    # C=5, D=1, no ties -> tau-b = (5 - 1) / 6.
+    assert value == pytest.approx(4.0 / 6.0)
+
+
+def test_unsupported_correlation_method_is_na() -> None:
+    masks = [10, 20]
+    ranks = {10: 1, 20: 2}
+    value, reason = correlation_for_method(
+        ranks, ranks, masks, method="bogus", tie_method="dense"
+    )
+    assert value is None
+    assert reason == "unsupported_correlation_method"
 
 
 def test_rank_correlation_constant_vector_is_na() -> None:

@@ -15,7 +15,7 @@ from ...domain.ranking.rules.group_lexcel import GroupLexcelRule
 from ...domain.ranking.rules.group_shapley import GroupShapleyRule
 from ...domain.ranking.rules.rp_index import RpIndexRule
 from ...domain.ranking.rules.shapley_interaction import ShapleyInteractionRule
-from .metrics import _correlation, _masks_of_size, _rank_values
+from .metrics import _masks_of_size, correlation_for_method
 
 
 @dataclass(frozen=True)
@@ -281,6 +281,7 @@ def evaluate_rank_correlation_observations(
     player_count: int,
     rank_sets_by_rule: dict[str, RuleRankSet],
     target_sizes: Iterable[int],
+    correlation_method: str,
     rank_tie_method: str,
 ) -> tuple[RankCorrelationObservation, ...]:
     """Evaluate off-diagonal rule-pair rank correlations for one game."""
@@ -295,19 +296,13 @@ def evaluate_rank_correlation_observations(
                 reason = "missing_rank_set"
                 if rank_set_a is not None and rank_set_b is not None:
                     masks = _masks_of_size(int(player_count), int(coalition_size))
-                    values_a, reason_a = _rank_values(
+                    correlation, reason = correlation_for_method(
                         rank_set_a.ranks_by_coalition,
-                        masks,
-                        tie_method=rank_tie_method,
-                    )
-                    values_b, reason_b = _rank_values(
                         rank_set_b.ranks_by_coalition,
                         masks,
+                        method=correlation_method,
                         tie_method=rank_tie_method,
                     )
-                    reason = reason_a or reason_b
-                    if not reason and values_a is not None and values_b is not None:
-                        correlation, reason = _correlation(values_a, values_b)
 
                 observations.append(
                     RankCorrelationObservation(

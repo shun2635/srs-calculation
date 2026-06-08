@@ -435,10 +435,10 @@ def rule_corr_heatmap_command(
 )
 @click.option(
     "--correlation-method",
-    type=click.Choice(["spearman", "pearson"], case_sensitive=False),
+    type=click.Choice(["spearman", "pearson", "kendall"], case_sensitive=False),
     default="spearman",
     show_default=True,
-    help="Correlation method for GL vs RP-Difference.",
+    help="Correlation method for GL vs RP-Difference (spearman forces average ties).",
 )
 @click.option(
     "--rank-tie-method",

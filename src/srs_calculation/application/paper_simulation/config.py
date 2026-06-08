@@ -9,7 +9,7 @@ DEFAULT_PLAYERS = 5
 DEFAULT_COUNT = 1000
 DEFAULT_SEED = 42
 DEFAULT_OUT_DIR = Path("outputs/paper/main")
-CORRELATION_METHODS = {"spearman", "pearson"}
+CORRELATION_METHODS = {"spearman", "pearson", "kendall"}
 RANK_TIE_METHODS = {"dense", "average", "min", "max"}
 EMPTY_CONSTRAINT_POLICIES = {"exclude", "zero", "one"}
 

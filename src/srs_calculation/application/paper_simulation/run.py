@@ -619,6 +619,7 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
                 player_count=config.players,
                 rank_sets_by_rule=rank_sets_by_rule,
                 target_sizes=config.target_sizes,
+                correlation_method=config.correlation_method,
                 rank_tie_method=config.rank_tie_method,
             )
         )
@@ -803,7 +804,7 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
         vmin=-1.0,
         vmax=1.0,
         cmap_name="coolwarm",
-        colorbar_label="Mean Spearman correlation",
+        colorbar_label=f"Mean {config.correlation_method.capitalize()} correlation",
         figsize=(6.5, 5.0),
         pdf_path=rank_correlation_heatmap_pdf,
         png_path=rank_correlation_heatmap_png,
