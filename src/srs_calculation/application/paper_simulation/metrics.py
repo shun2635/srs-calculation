@@ -8,6 +8,7 @@ from typing import Iterable
 
 from ...domain.games.coalition_game import CoalitionGame
 from ...domain.lenses import generate_reversal_constraints
+from .aggregation import RowGroup, group_by_k_with_overall
 
 
 @dataclass(frozen=True)
@@ -173,42 +174,48 @@ def summarize_lens_consistency(
       rows contribute no constraints and therefore drop out naturally.
     """
 
-    row_list = list(rows)
-    if not row_list:
-        return ()
+    groups = group_by_k_with_overall(rows, k_of=lambda row: int(row.k))
+    return tuple(
+        _reduce_lens_consistency_group(group, empty_policy=empty_policy) for group in groups
+    )
 
-    n = int(row_list[0].n)
-    summary_rows: list[LensConsistencySummaryRow] = []
-    for key in [str(k) for k in sorted({row.k for row in row_list})] + ["overall"]:
-        selected = row_list if key == "overall" else [row for row in row_list if row.k == int(key)]
-        values = [
-            value
-            for value in (_consistency_summary_value(row, empty_policy) for row in selected)
-            if value is not None
-        ]
-        mean, std, min_value, max_value = _summary_stats(values)
-        total_constraints = sum(int(row.num_constraints) for row in selected)
-        total_satisfied = sum(int(row.num_satisfied) for row in selected)
-        micro = (
-            None if total_constraints <= 0 else float(total_satisfied) / float(total_constraints)
-        )
-        summary_rows.append(
-            LensConsistencySummaryRow(
-                n=n,
-                k=key,
-                num_games=len(selected),
-                num_valid_games=len(values),
-                num_empty_constraint_games=sum(1 for row in selected if row.is_empty_constraints),
-                num_constraints=total_constraints,
-                num_satisfied=total_satisfied,
-                mean_consistency=mean,
-                std_consistency=std,
-                min_consistency=min_value,
-                max_consistency=max_value,
-                micro_consistency=micro,
-            )
-        )
-    return tuple(summary_rows)
+
+def _reduce_lens_consistency_group(
+    group: RowGroup[LensConsistencyRow],
+    *,
+    empty_policy: str,
+) -> LensConsistencySummaryRow:
+    """Reduce one row group into a lens-consistency summary row.
+
+    This is the per-group statistic (macro + micro) and is independent of the
+    aggregation axis that produced ``group``.
+    """
+
+    selected = list(group.rows)
+    n = int(selected[0].n)
+    values = [
+        value
+        for value in (_consistency_summary_value(row, empty_policy) for row in selected)
+        if value is not None
+    ]
+    mean, std, min_value, max_value = _summary_stats(values)
+    total_constraints = sum(int(row.num_constraints) for row in selected)
+    total_satisfied = sum(int(row.num_satisfied) for row in selected)
+    micro = None if total_constraints <= 0 else float(total_satisfied) / float(total_constraints)
+    return LensConsistencySummaryRow(
+        n=n,
+        k=group.key,
+        num_games=len(selected),
+        num_valid_games=len(values),
+        num_empty_constraint_games=sum(1 for row in selected if row.is_empty_constraints),
+        num_constraints=total_constraints,
+        num_satisfied=total_satisfied,
+        mean_consistency=mean,
+        std_consistency=std,
+        min_consistency=min_value,
+        max_consistency=max_value,
+        micro_consistency=micro,
+    )
 
 
 def _rank_values(
@@ -396,30 +403,30 @@ def summarize_rank_correlation(
 ) -> tuple[RankCorrelationSummaryRow, ...]:
     """Summarize rank-correlation rows by k and overall."""
 
-    row_list = list(rows)
-    if not row_list:
-        return ()
+    groups = group_by_k_with_overall(rows, k_of=lambda row: int(row.k))
+    return tuple(_reduce_rank_correlation_group(group) for group in groups)
 
-    n = int(row_list[0].n)
-    summary_rows: list[RankCorrelationSummaryRow] = []
-    for key in [str(k) for k in sorted({row.k for row in row_list})] + ["overall"]:
-        selected = row_list if key == "overall" else [row for row in row_list if row.k == int(key)]
-        values = [float(row.correlation) for row in selected if row.correlation is not None]
-        mean, std, min_value, max_value = _summary_stats(values)
-        summary_rows.append(
-            RankCorrelationSummaryRow(
-                n=n,
-                k=key,
-                num_games=len(selected),
-                num_valid_games=len(values),
-                num_na_games=sum(1 for row in selected if row.is_na),
-                mean_correlation=mean,
-                std_correlation=std,
-                min_correlation=min_value,
-                max_correlation=max_value,
-            )
-        )
-    return tuple(summary_rows)
+
+def _reduce_rank_correlation_group(
+    group: RowGroup[RankCorrelationRow],
+) -> RankCorrelationSummaryRow:
+    """Reduce one row group into a rank-correlation summary row."""
+
+    selected = list(group.rows)
+    n = int(selected[0].n)
+    values = [float(row.correlation) for row in selected if row.correlation is not None]
+    mean, std, min_value, max_value = _summary_stats(values)
+    return RankCorrelationSummaryRow(
+        n=n,
+        k=group.key,
+        num_games=len(selected),
+        num_valid_games=len(values),
+        num_na_games=sum(1 for row in selected if row.is_na),
+        mean_correlation=mean,
+        std_correlation=std,
+        min_correlation=min_value,
+        max_correlation=max_value,
+    )
 
 
 __all__ = [
