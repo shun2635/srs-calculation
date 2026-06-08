@@ -71,7 +71,9 @@ def generate_reversal_constraints(
     with at least one strict singleton comparison, and H must be *strictly*
     better than G at group level. The required output comparison is then H
     strictly above G. Pairs that tie at the group level are excluded, matching
-    the paper's strict coalition ordering S > T.
+    the paper's strict coalition ordering S > T. This strictness is a fixed spec
+    (see application/paper_simulation/fixed_specs.py:
+    REVERSAL_STRICT_GROUP_ORDERING) and must not be relaxed.
     """
 
     game.require_complete()

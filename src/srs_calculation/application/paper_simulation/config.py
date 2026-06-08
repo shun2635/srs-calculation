@@ -5,13 +5,25 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+# Default run parameters. These are the single source of truth shared by the
+# library default and the CLI option defaults.
 DEFAULT_PLAYERS = 5
 DEFAULT_COUNT = 1000
 DEFAULT_SEED = 42
 DEFAULT_OUT_DIR = Path("outputs/paper/main")
-CORRELATION_METHODS = {"spearman", "pearson", "kendall"}
-RANK_TIE_METHODS = {"dense", "average", "min", "max"}
-EMPTY_CONSTRAINT_POLICIES = {"exclude", "zero", "one"}
+DEFAULT_CORRELATION_METHOD = "spearman"
+DEFAULT_RANK_TIE_METHOD = "dense"
+DEFAULT_EMPTY_CONSTRAINTS = "exclude"
+
+# Allowed choices, in CLI/help display order. The validation sets are derived
+# from these tuples so the choices live in exactly one place.
+CORRELATION_METHOD_CHOICES: tuple[str, ...] = ("spearman", "pearson", "kendall")
+RANK_TIE_METHOD_CHOICES: tuple[str, ...] = ("dense", "average", "min", "max")
+EMPTY_CONSTRAINT_CHOICES: tuple[str, ...] = ("exclude", "zero", "one")
+
+CORRELATION_METHODS = frozenset(CORRELATION_METHOD_CHOICES)
+RANK_TIE_METHODS = frozenset(RANK_TIE_METHOD_CHOICES)
+EMPTY_CONSTRAINT_POLICIES = frozenset(EMPTY_CONSTRAINT_CHOICES)
 
 
 @dataclass(frozen=True)
@@ -84,9 +96,9 @@ def build_paper_simulation_config(
     max_score: int | None = None,
     out_dir: Path = DEFAULT_OUT_DIR,
     target_sizes: str | None = None,
-    correlation_method: str = "spearman",
-    rank_tie_method: str = "dense",
-    empty_constraints: str = "exclude",
+    correlation_method: str = DEFAULT_CORRELATION_METHOD,
+    rank_tie_method: str = DEFAULT_RANK_TIE_METHOD,
+    empty_constraints: str = DEFAULT_EMPTY_CONSTRAINTS,
 ) -> PaperSimulationConfig:
     """Build and validate the effective paper simulation configuration."""
 
@@ -131,13 +143,19 @@ def build_paper_simulation_config(
 
 __all__ = [
     "CORRELATION_METHODS",
+    "CORRELATION_METHOD_CHOICES",
+    "DEFAULT_CORRELATION_METHOD",
     "DEFAULT_COUNT",
+    "DEFAULT_EMPTY_CONSTRAINTS",
     "DEFAULT_OUT_DIR",
     "DEFAULT_PLAYERS",
+    "DEFAULT_RANK_TIE_METHOD",
     "DEFAULT_SEED",
+    "EMPTY_CONSTRAINT_CHOICES",
     "EMPTY_CONSTRAINT_POLICIES",
     "PaperSimulationConfig",
     "RANK_TIE_METHODS",
+    "RANK_TIE_METHOD_CHOICES",
     "build_paper_simulation_config",
     "parse_target_sizes",
 ]

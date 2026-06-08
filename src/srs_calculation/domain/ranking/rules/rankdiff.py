@@ -19,6 +19,10 @@ class RankdiffRule(RankingRule):
     ``r = 0``). The count ranges over the whole non-empty coalition pool, matching
     the ``better`` prefix used elsewhere in the codebase. A larger Rankdiff means
     the coalition outperforms its members' individual standing (more synergy).
+
+    This definition and the "ties not counted" rank value are fixed specs (see
+    application/paper_simulation/fixed_specs.py: RANKDIFF_DEFINITION,
+    RANK_VALUE_TIES_NOT_COUNTED) and must not be made configurable.
     """
 
     rule_id = "rankdiff"

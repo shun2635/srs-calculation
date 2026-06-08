@@ -40,6 +40,15 @@ from .metrics import (
     summarize_lens_consistency,
     summarize_rank_correlation,
 )
+from .schema import (
+    LENS_CONSISTENCY_COLUMNS,
+    LENS_CONSISTENCY_LONG_COLUMNS,
+    LENS_CONSISTENCY_SUMMARY_COLUMNS,
+    RANK_CORRELATION_COLUMNS,
+    RANK_CORRELATION_LONG_COLUMNS,
+    RANK_CORRELATION_SUMMARY_COLUMNS,
+    SIMULATION_SUMMARY_COLUMNS,
+)
 
 
 @dataclass(frozen=True)
@@ -657,62 +666,22 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
 
     _write_rows(
         lens_consistency_csv,
-        [
-            "game_id",
-            "n",
-            "k",
-            "num_constraints",
-            "num_satisfied",
-            "consistency_rate",
-            "is_empty_constraints",
-        ],
+        list(LENS_CONSISTENCY_COLUMNS),
         (_lens_row_dict(row) for row in lens_rows),
     )
     _write_rows(
         lens_consistency_summary_csv,
-        [
-            "n",
-            "k",
-            "num_games",
-            "num_valid_games",
-            "num_empty_constraint_games",
-            "num_constraints",
-            "num_satisfied",
-            "mean_consistency",
-            "std_consistency",
-            "min_consistency",
-            "max_consistency",
-            "micro_consistency",
-        ],
+        list(LENS_CONSISTENCY_SUMMARY_COLUMNS),
         (_lens_summary_dict(row) for row in lens_summary_rows),
     )
     _write_rows(
         rank_correlation_csv,
-        [
-            "game_id",
-            "n",
-            "k",
-            "correlation_method",
-            "rank_tie_method",
-            "correlation",
-            "is_na",
-            "reason_if_na",
-        ],
+        list(RANK_CORRELATION_COLUMNS),
         (_rank_row_dict(row) for row in rank_rows),
     )
     _write_rows(
         rank_correlation_summary_csv,
-        [
-            "n",
-            "k",
-            "num_games",
-            "num_valid_games",
-            "num_na_games",
-            "mean_correlation",
-            "std_correlation",
-            "min_correlation",
-            "max_correlation",
-        ],
+        list(RANK_CORRELATION_SUMMARY_COLUMNS),
         (_rank_summary_dict(row) for row in rank_summary_rows),
     )
     _write_rows(
@@ -722,7 +691,7 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
     )
     _write_rows(
         lens_consistency_long_csv,
-        ["rule", "lens", "mean_consistency", "micro_consistency", "num_valid", "num_empty_or_na"],
+        list(LENS_CONSISTENCY_LONG_COLUMNS),
         (_lens_matrix_cell_dict(row) for row in lens_matrix_cells),
     )
     _write_rows(
@@ -732,24 +701,12 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
     )
     _write_rows(
         rank_correlation_long_csv,
-        ["rule_a", "rule_b", "mean_correlation", "num_valid", "num_na"],
+        list(RANK_CORRELATION_LONG_COLUMNS),
         (_rank_matrix_cell_dict(row) for row in rank_matrix_cells),
     )
     _write_rows(
         simulation_summary_csv,
-        [
-            "metric",
-            "n",
-            "k",
-            "num_games",
-            "num_valid",
-            "num_excluded",
-            "mean",
-            "std",
-            "min",
-            "max",
-            "micro",
-        ],
+        list(SIMULATION_SUMMARY_COLUMNS),
         _simulation_summary_rows(lens_summary_rows, rank_summary_rows),
     )
 

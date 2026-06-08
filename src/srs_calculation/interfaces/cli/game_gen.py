@@ -17,6 +17,18 @@ from ...application.experiments import (
 )
 from ...application.game_generation import generate_synthetic_games
 from ...application.paper_simulation import build_paper_simulation_config, run_paper_simulation
+from ...application.paper_simulation.config import (
+    CORRELATION_METHOD_CHOICES,
+    DEFAULT_CORRELATION_METHOD,
+    DEFAULT_COUNT,
+    DEFAULT_EMPTY_CONSTRAINTS,
+    DEFAULT_OUT_DIR,
+    DEFAULT_PLAYERS,
+    DEFAULT_RANK_TIE_METHOD,
+    DEFAULT_SEED,
+    EMPTY_CONSTRAINT_CHOICES,
+    RANK_TIE_METHOD_CHOICES,
+)
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_in_directory,
     apply_ranking_rules_to_game_csv,
@@ -395,21 +407,21 @@ def rule_corr_heatmap_command(
 @click.option(
     "--players",
     type=click.IntRange(2, 12),
-    default=5,
+    default=DEFAULT_PLAYERS,
     show_default=True,
     help="Number of players.",
 )
 @click.option(
     "--count",
     type=click.IntRange(1, None),
-    default=1000,
+    default=DEFAULT_COUNT,
     show_default=True,
     help="Number of random games.",
 )
 @click.option(
     "--seed",
     type=int,
-    default=42,
+    default=DEFAULT_SEED,
     show_default=True,
     help="Random seed.",
 )
@@ -423,7 +435,7 @@ def rule_corr_heatmap_command(
     "--out",
     "out_dir",
     type=click.Path(path_type=Path),
-    default=Path("outputs/paper/main"),
+    default=DEFAULT_OUT_DIR,
     show_default=True,
     help="Paper simulation output directory.",
 )
@@ -435,22 +447,22 @@ def rule_corr_heatmap_command(
 )
 @click.option(
     "--correlation-method",
-    type=click.Choice(["spearman", "pearson", "kendall"], case_sensitive=False),
-    default="spearman",
+    type=click.Choice(list(CORRELATION_METHOD_CHOICES), case_sensitive=False),
+    default=DEFAULT_CORRELATION_METHOD,
     show_default=True,
     help="Correlation method for GL vs Rankdiff (spearman forces average ties).",
 )
 @click.option(
     "--rank-tie-method",
-    type=click.Choice(["dense", "average", "min", "max"], case_sensitive=False),
-    default="dense",
+    type=click.Choice(list(RANK_TIE_METHOD_CHOICES), case_sensitive=False),
+    default=DEFAULT_RANK_TIE_METHOD,
     show_default=True,
     help="Tie handling for rank vectors.",
 )
 @click.option(
     "--empty-constraints",
-    type=click.Choice(["exclude", "zero", "one"], case_sensitive=False),
-    default="exclude",
+    type=click.Choice(list(EMPTY_CONSTRAINT_CHOICES), case_sensitive=False),
+    default=DEFAULT_EMPTY_CONSTRAINTS,
     show_default=True,
     help="How empty Reversal constraint rows enter summary averages.",
 )

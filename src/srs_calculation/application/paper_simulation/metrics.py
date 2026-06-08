@@ -93,7 +93,8 @@ def evaluate_reversal_consistency(
     ordering ``preferred > dispreferred`` (i.e. ``preferred_rank <
     dispreferred_rank``). A tie in the output (``preferred_rank ==
     dispreferred_rank``) is counted as NOT satisfied, because the paper requires
-    a strict ``S >^R T``.
+    a strict ``S >^R T``. This is a fixed spec (see
+    fixed_specs.OUTPUT_TIES_COUNT_AS_UNSATISFIED) and is not configurable.
     """
 
     rows: list[LensConsistencyRow] = []
