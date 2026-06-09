@@ -144,6 +144,35 @@ def render_line_series(
     return pdf_path, png_path
 
 
+def render_scatter(
+    *,
+    x_values: list[float],
+    y_values: list[float],
+    title: str,
+    xlabel: str,
+    ylabel: str,
+    pdf_path: Path,
+    png_path: Path,
+) -> tuple[Path, Path]:
+    """Render a scatter plot (e.g. a divergence measure vs a structural feature)."""
+
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+    png_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(6.4, 4.6))
+    ax.scatter(x_values, y_values, s=10, alpha=0.35, color="#4c78a8", edgecolors="none")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(alpha=0.25)
+
+    fig.tight_layout()
+    fig.savefig(pdf_path)
+    fig.savefig(png_path, dpi=180)
+    plt.close(fig)
+    return pdf_path, png_path
+
+
 def render_paper_heatmap(
     *,
     row_labels: list[str],
@@ -226,6 +255,7 @@ def render_paper_heatmap(
 
 __all__ = [
     "render_line_series",
+    "render_scatter",
     "render_paper_heatmap",
     "render_rank_correlation_figure",
     "render_reversal_consistency_figure",

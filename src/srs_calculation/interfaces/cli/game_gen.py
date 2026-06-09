@@ -29,6 +29,11 @@ from ...application.paper_simulation.config import (
     EMPTY_CONSTRAINT_CHOICES,
     RANK_TIE_METHOD_CHOICES,
 )
+from ...application.paper_simulation.divergence import (
+    DEFAULT_DIVERGENCE_OUT_DIR,
+    build_divergence_config,
+    run_divergence_analysis,
+)
 from ...application.paper_simulation.n_sweep import (
     DEFAULT_SWEEP_OUT_DIR,
     DEFAULT_SWEEP_STEPS,
@@ -592,6 +597,59 @@ def paper_n_sweep_command(
     click.echo(f"saved metadata: {result.metadata_json}")
     click.echo(f"saved figure: {result.consistency_figure_pdf}")
     click.echo(f"saved figure: {result.correlation_figure_pdf}")
+
+
+@main.command(name="paper-divergence")
+@click.option(
+    "--players",
+    type=click.IntRange(2, 12),
+    default=5,
+    show_default=True,
+    help="Number of players for the divergence analysis.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=1000,
+    show_default=True,
+    help="Number of random games.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=DEFAULT_SEED,
+    show_default=True,
+    help="Random seed.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_DIVERGENCE_OUT_DIR,
+    show_default=True,
+    help="Divergence analysis output directory.",
+)
+def paper_divergence_command(
+    players: int,
+    count: int,
+    seed: int,
+    out_dir: Path,
+) -> None:
+    """Analyse which inputs make Group Lex-cel and Rankdiff diverge."""
+
+    try:
+        config = build_divergence_config(
+            players=int(players), count=int(count), seed=int(seed), out_dir=out_dir
+        )
+        result = run_divergence_analysis(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"divergence records: {len(result.records)}")
+    click.echo(f"saved divergence records: {result.records_csv}")
+    click.echo(f"saved feature correlations: {result.feature_correlation_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.scatter_pdf}")
 
 
 @main.command(name="apply-rules")

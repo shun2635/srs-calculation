@@ -25,6 +25,7 @@ from .paper_simulation import (
     render_paper_heatmap,
     render_rank_correlation_figure,
     render_reversal_consistency_figure,
+    render_scatter,
 )
 from .synthetic_rank_heatmap import (
     collect_rank_pairs,
@@ -50,6 +51,7 @@ __all__ = [
     "generate_synthetic_ranking_figure",
     "normalize_ranks_per_rule",
     "render_line_series",
+    "render_scatter",
     "render_paper_heatmap",
     "render_rank_correlation_figure",
     "render_reversal_consistency_figure",
