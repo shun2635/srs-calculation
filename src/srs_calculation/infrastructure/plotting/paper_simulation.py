@@ -107,6 +107,43 @@ def render_rank_correlation_figure(
     )
 
 
+def render_line_series(
+    *,
+    x_values: list[int],
+    series: list[tuple[str, list[float | None]]],
+    title: str,
+    xlabel: str,
+    ylabel: str,
+    pdf_path: Path,
+    png_path: Path,
+    ylim: tuple[float, float] | None = (0.0, 1.0),
+) -> tuple[Path, Path]:
+    """Render one or more value-vs-x line series (e.g. a metric over n)."""
+
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+    png_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(max(6.0, 0.9 * len(x_values) + 2.5), 4.4))
+    for label, values in series:
+        y_values = [np.nan if value is None else float(value) for value in values]
+        ax.plot(x_values, y_values, marker="o", label=label)
+    ax.set_xticks(list(x_values))
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(alpha=0.25)
+    if len(series) > 1:
+        ax.legend(fontsize=8, loc="best")
+
+    fig.tight_layout()
+    fig.savefig(pdf_path)
+    fig.savefig(png_path, dpi=180)
+    plt.close(fig)
+    return pdf_path, png_path
+
+
 def render_paper_heatmap(
     *,
     row_labels: list[str],
@@ -188,6 +225,7 @@ def render_paper_heatmap(
 
 
 __all__ = [
+    "render_line_series",
     "render_paper_heatmap",
     "render_rank_correlation_figure",
     "render_reversal_consistency_figure",

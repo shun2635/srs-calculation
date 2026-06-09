@@ -52,8 +52,35 @@ def group_by_k_with_overall(
     return tuple(groups)
 
 
+def group_by_n_and_k_with_overall(
+    rows: Iterable[T],
+    *,
+    n_of: Callable[[T], int],
+    k_of: Callable[[T], int],
+) -> tuple[RowGroup[T], ...]:
+    """Group rows by player count ``n``, then by ``k`` with an overall bucket.
+
+    For each ``n`` (sorted) this yields that ``n``'s ``group_by_k_with_overall``
+    groups, so every returned group stays within a single ``n``. Existing
+    per-group reducers (which read ``n`` from the rows themselves) therefore work
+    unchanged -- this is the n-sweep aggregation axis, added without touching the
+    reducers or the metric calculation.
+    """
+
+    row_list = list(rows)
+    if not row_list:
+        return ()
+
+    groups: list[RowGroup[T]] = []
+    for n in sorted({n_of(row) for row in row_list}):
+        n_rows = [row for row in row_list if n_of(row) == n]
+        groups.extend(group_by_k_with_overall(n_rows, k_of=k_of))
+    return tuple(groups)
+
+
 __all__ = [
     "OVERALL_KEY",
     "RowGroup",
     "group_by_k_with_overall",
+    "group_by_n_and_k_with_overall",
 ]

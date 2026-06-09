@@ -29,6 +29,12 @@ from ...application.paper_simulation.config import (
     EMPTY_CONSTRAINT_CHOICES,
     RANK_TIE_METHOD_CHOICES,
 )
+from ...application.paper_simulation.n_sweep import (
+    DEFAULT_SWEEP_OUT_DIR,
+    DEFAULT_SWEEP_STEPS,
+    build_n_sweep_config,
+    run_n_sweep,
+)
 from ...application.ranking.apply_ranking_rules_to_game_csv import (
     apply_ranking_rules_in_directory,
     apply_ranking_rules_to_game_csv,
@@ -510,6 +516,82 @@ def paper_simulation_command(
     click.echo(f"saved heatmap: {result.lens_consistency_heatmap_pdf}")
     click.echo(f"saved heatmap: {result.rank_correlation_heatmap_pdf}")
     click.echo(f"saved markdown summary: {result.result_summary_md}")
+
+
+def _parse_sweep_steps(
+    players_sweep: str | None,
+    count: int,
+    count_for: tuple[str, ...],
+) -> tuple[tuple[int, int], ...]:
+    if players_sweep is None or not players_sweep.strip():
+        return DEFAULT_SWEEP_STEPS
+    overrides: dict[int, int] = {}
+    for item in count_for:
+        if ":" not in item:
+            raise click.ClickException(f"--count-for expects 'n:R', got {item!r}")
+        n_str, r_str = item.split(":", 1)
+        overrides[int(n_str)] = int(r_str)
+    players = [int(part.strip()) for part in players_sweep.split(",") if part.strip()]
+    return tuple((n, overrides.get(n, int(count))) for n in players)
+
+
+@main.command(name="paper-n-sweep")
+@click.option(
+    "--players-sweep",
+    type=str,
+    default=None,
+    help="Comma list of player counts, e.g. '3,4,5,6,7'. Default sweep is 3..7.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=1000,
+    show_default=True,
+    help="Default number of random games per n.",
+)
+@click.option(
+    "--count-for",
+    multiple=True,
+    help="Per-n game-count override 'n:R' (repeatable), e.g. --count-for 7:500.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=DEFAULT_SEED,
+    show_default=True,
+    help="Random seed (fixed per n).",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_SWEEP_OUT_DIR,
+    show_default=True,
+    help="n-sweep output directory.",
+)
+def paper_n_sweep_command(
+    players_sweep: str | None,
+    count: int,
+    count_for: tuple[str, ...],
+    seed: int,
+    out_dir: Path,
+) -> None:
+    """Run the n-sweep sensitivity analysis (consistency / correlation over n)."""
+
+    try:
+        steps = _parse_sweep_steps(players_sweep, int(count), count_for)
+        config = build_n_sweep_config(steps=steps, seed=int(seed), out_dir=out_dir)
+        result = run_n_sweep(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"sweep steps: {[(s.players, s.count) for s in config.steps]}")
+    click.echo(f"saved n-sweep overview: {result.overview_csv}")
+    click.echo(f"saved n-sweep consistency: {result.consistency_csv}")
+    click.echo(f"saved n-sweep correlation: {result.correlation_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.consistency_figure_pdf}")
+    click.echo(f"saved figure: {result.correlation_figure_pdf}")
 
 
 @main.command(name="apply-rules")
