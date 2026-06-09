@@ -65,15 +65,26 @@ def generate_reversal_constraints(
     game: CoalitionGame,
     coalition_size: int,
 ) -> tuple[ReversalConstraint, ...]:
-    """Generate Reversal constraints for one group size.
+    """Generate the Reverse Axiom firing constraints for one group size.
 
-    For ordered groups (G, H), G must be weakly better than H at singleton level
-    with at least one strict singleton comparison, and H must be *strictly*
-    better than G at group level. The required output comparison is then H
-    strictly above G. Pairs that tie at the group level are excluded, matching
-    the paper's strict coalition ordering S > T. This strictness is a fixed spec
-    (see application/paper_simulation/fixed_specs.py:
-    REVERSAL_STRICT_GROUP_ORDERING) and must not be relaxed.
+    Paper correspondence (confirmed Reverse Axiom firing condition). For two
+    same-size coalitions S and T, the axiom fires when both hold:
+
+    1. T individually dominates S: there is a bijection sigma with
+       ``{sigma(i)} >=_ind {i}`` for every member (singleton level), with at
+       least one strict singleton comparison; and
+    2. the coalition (group) ordering has S strictly above T.
+
+    When it fires, the required rule output is the strict ``S >^R T``. Pairs that
+    tie at the group level do NOT fire, matching the paper's strict coalition
+    ordering S > T. This strictness is a fixed spec (see
+    application/paper_simulation/fixed_specs.py: REVERSAL_STRICT_GROUP_ORDERING)
+    and must not be relaxed.
+
+    In the code below the names are mirrored: ``stronger_individual_mask`` is the
+    individually-dominating coalition (T) and ``weaker_individual_mask`` is the
+    individually-weaker one (S); the emitted constraint requires S (preferred)
+    strictly above T (dispreferred).
     """
 
     game.require_complete()

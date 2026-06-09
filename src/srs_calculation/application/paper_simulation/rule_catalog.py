@@ -16,6 +16,17 @@ that heatmap's display-order tuple so the column/legend order is explicit; an
 import-time invariant checks that the order tuples match the role membership, so
 the two can never silently diverge.
 
+Paper correspondence (roles):
+
+- ``ROLE_FOCAL`` -- the two main-text comparators, Group Lex-cel and Rankdiff.
+  These are the rules whose Reversal consistency and mutual rank correlation are
+  reported as the headline results. Rankdiff is defined in
+  ``domain/ranking/rules/rankdiff.py`` (see ``fixed_specs.RANKDIFF_DEFINITION``).
+- ``ROLE_LENS_HEATMAP`` / ``ROLE_RANK_HEATMAP`` -- the full comparison set. In
+  addition to the two focal rules these include the cardinal benchmarks (Group
+  Shapley Value, Shapley Interaction Index, Banzhaf Interaction Index) used to
+  place the focal comparison in a broader rule space.
+
 Behaviour note: the catalog reproduces exactly the historical rule sets and
 orders that the previous ``PAPER_LENS_RULE_SPECS`` / ``PAPER_RANK_RULE_SPECS``
 tuples defined. This module is structure-only and changes no numbers.

@@ -7,7 +7,7 @@ import json
 import random
 import subprocess
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -23,7 +23,9 @@ from .full_comparison import (
     PAPER_LENS_SPECS,
     PAPER_RANK_RULE_SPECS,
     LensConsistencyMatrixCell,
+    LensConsistencyObservation,
     RankCorrelationMatrixCell,
+    RankCorrelationObservation,
     evaluate_lens_consistency_observations,
     evaluate_paper_rules,
     evaluate_rank_correlation_observations,
@@ -216,19 +218,19 @@ def _simulation_summary_rows(
                 "micro": row.micro_consistency,
             }
         )
-    for row in rank_summary_rows:
+    for rank_row in rank_summary_rows:
         rows.append(
             {
                 "metric": "gl_rankdiff_rank_correlation",
-                "n": row.n,
-                "k": row.k,
-                "num_games": row.num_games,
-                "num_valid": row.num_valid_games,
-                "num_excluded": row.num_na_games,
-                "mean": row.mean_correlation,
-                "std": row.std_correlation,
-                "min": row.min_correlation,
-                "max": row.max_correlation,
+                "n": rank_row.n,
+                "k": rank_row.k,
+                "num_games": rank_row.num_games,
+                "num_valid": rank_row.num_valid_games,
+                "num_excluded": rank_row.num_na_games,
+                "mean": rank_row.mean_correlation,
+                "std": rank_row.std_correlation,
+                "min": rank_row.min_correlation,
+                "max": rank_row.max_correlation,
                 "micro": None,
             }
         )
@@ -254,7 +256,7 @@ def _write_metadata(
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "workflow": "srs-game-gen paper-simulation",
-        "created_at": datetime.now(UTC).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": _git_commit(),
         "config": {
             "players": config.players,
@@ -342,7 +344,7 @@ def _off_diagonal_rank_cells(
     cells: Iterable[RankCorrelationMatrixCell],
 ) -> list[RankCorrelationMatrixCell]:
     selected: list[RankCorrelationMatrixCell] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, ...]] = set()
     for cell in cells:
         if cell.rule_a_id == cell.rule_b_id or cell.mean_correlation is None:
             continue
@@ -354,6 +356,13 @@ def _off_diagonal_rank_cells(
     return selected
 
 
+def _off_diagonal_mean(cell: RankCorrelationMatrixCell) -> float:
+    # _off_diagonal_rank_cells only returns cells with a non-None mean.
+    value = cell.mean_correlation
+    assert value is not None
+    return float(value)
+
+
 def _heatmap_tendency_text(
     rank_matrix_cells: Iterable[RankCorrelationMatrixCell],
 ) -> str:
@@ -361,8 +370,8 @@ def _heatmap_tendency_text(
     if not off_diagonal:
         return "The full rank-correlation heatmap has no valid off-diagonal cells."
 
-    strongest = max(off_diagonal, key=lambda cell: float(cell.mean_correlation))
-    weakest = min(off_diagonal, key=lambda cell: float(cell.mean_correlation))
+    strongest = max(off_diagonal, key=_off_diagonal_mean)
+    weakest = min(off_diagonal, key=_off_diagonal_mean)
     return (
         "In the full rule-correlation heatmap, the strongest off-diagonal "
         f"mean correlation is {strongest.rule_a} vs {strongest.rule_b} "
@@ -585,8 +594,8 @@ def run_paper_simulation(config: PaperSimulationConfig) -> PaperSimulationResult
     rng = random.Random(int(config.seed))
     lens_rows: list[LensConsistencyRow] = []
     rank_rows: list[RankCorrelationRow] = []
-    lens_heatmap_observations = []
-    rank_heatmap_observations = []
+    lens_heatmap_observations: list[LensConsistencyObservation] = []
+    rank_heatmap_observations: list[RankCorrelationObservation] = []
 
     for index in range(1, int(config.count) + 1):
         game_id = f"game_{index:06d}"

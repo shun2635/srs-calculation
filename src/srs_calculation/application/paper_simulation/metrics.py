@@ -173,6 +173,12 @@ def summarize_lens_consistency(
     - ``micro_consistency`` (micro): the pooled ratio ``sum(num_satisfied) /
       sum(num_constraints)`` over all firing cases, i.e. case-weighted. Empty
       rows contribute no constraints and therefore drop out naturally.
+
+    Paper correspondence: the main-text adequacy / consistency value is the
+    macro average (``fixed_specs.MAIN_TEXT_ADEQUACY_AVERAGE == "macro"``); the
+    micro average is reported alongside but is not the headline figure. A firing
+    case counts as satisfied only on a strict output improvement; a tied output
+    is unsatisfied (``fixed_specs.OUTPUT_TIES_COUNT_AS_UNSATISFIED``).
     """
 
     groups = group_by_k_with_overall(rows, k_of=lambda row: int(row.k))
@@ -371,7 +377,13 @@ def evaluate_gl_rankdiff_rank_correlation(
     correlation_method: str,
     rank_tie_method: str,
 ) -> tuple[RankCorrelationRow, ...]:
-    """Evaluate GL vs Rankdiff rank correlation by game and size."""
+    """Evaluate the focal Group Lex-cel vs Rankdiff rank correlation per game/size.
+
+    Paper correspondence: this is the main-text comparison of the two focal
+    rules. With ``correlation_method="spearman"`` (the default) it is a genuine
+    tie-corrected Spearman rho; the headline value reported is the ``overall``
+    summary row from :func:`summarize_rank_correlation`.
+    """
 
     rows: list[RankCorrelationRow] = []
     for coalition_size in target_sizes:

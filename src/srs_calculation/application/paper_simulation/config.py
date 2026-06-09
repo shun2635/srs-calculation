@@ -73,7 +73,7 @@ def parse_target_sizes(raw_value: str | None, players: int) -> tuple[int, ...]:
             end = int(bounds[1])
             if start > end:
                 raise ValueError(f"target size range must be ascending: {raw_part!r}")
-            values = range(start, end + 1)
+            values: range | tuple[int, ...] = range(start, end + 1)
         else:
             values = (int(part),)
         for value in values:

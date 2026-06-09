@@ -10,6 +10,12 @@ unifies both behind one interface:
 
 so adding a lens means registering one object in ``PAPER_LENS_CATALOG``.
 
+Paper correspondence: ``Reversal`` is the main formation-value lens whose
+consistency is reported in the main text (see ``domain/lenses/reversal.py`` for
+the confirmed Reverse Axiom firing condition). ``Up`` / ``Down`` / ``Redundancy``
+are diagnostic lenses for the simulation only; they are not treated as full
+axiomatic foundations in the main text.
+
 Structure-only: the lens set, order, labels and the per-lens counting logic are
 identical to the previous implementation, so no numbers change.
 """
