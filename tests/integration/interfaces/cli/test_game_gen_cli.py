@@ -119,6 +119,7 @@ def test_game_gen_cli_help_lists_supported_commands() -> None:
     assert "rule-corr-heatmap" in result.output
     assert "evaluate-axioms" in result.output
     assert "axiom-summary-heatmap" in result.output
+    assert "paper-simulation" in result.output
 
 
 def test_gen_games_cli_writes_game_csvs(tmp_path) -> None:
@@ -477,3 +478,50 @@ def test_axiom_summary_heatmap_cli_writes_png(tmp_path, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert "saved heatmap:" in result.output
+
+
+def test_paper_simulation_cli_writes_required_artifacts(tmp_path) -> None:
+    runner = CliRunner()
+    out_dir = tmp_path / "paper"
+
+    result = runner.invoke(
+        main,
+        [
+            "paper-simulation",
+            "--players",
+            "4",
+            "--count",
+            "3",
+            "--seed",
+            "1",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "saved lens consistency:" in result.output
+    required_paths = [
+        out_dir / "results" / "lens_consistency.csv",
+        out_dir / "results" / "lens_consistency_summary.csv",
+        out_dir / "results" / "lens_consistency_matrix.csv",
+        out_dir / "results" / "lens_consistency_long.csv",
+        out_dir / "results" / "rank_correlation.csv",
+        out_dir / "results" / "rank_correlation_summary.csv",
+        out_dir / "results" / "rank_correlation_matrix.csv",
+        out_dir / "results" / "rank_correlation_long.csv",
+        out_dir / "results" / "simulation_summary.csv",
+        out_dir / "results" / "experiment_metadata.json",
+        out_dir / "figures" / "reversal_consistency.pdf",
+        out_dir / "figures" / "reversal_consistency.png",
+        out_dir / "figures" / "rank_correlation_glc_rp.pdf",
+        out_dir / "figures" / "rank_correlation_glc_rp.png",
+        out_dir / "figures" / "lens_consistency_heatmap.pdf",
+        out_dir / "figures" / "lens_consistency_heatmap.png",
+        out_dir / "figures" / "rank_correlation_heatmap.pdf",
+        out_dir / "figures" / "rank_correlation_heatmap.png",
+        out_dir / "docs" / "simulation_result_summary.md",
+    ]
+    for path in required_paths:
+        assert path.exists()
+        assert path.stat().st_size > 0

@@ -16,11 +16,35 @@ from ...application.experiments import (
     render_synthetic_rule_correlation_heatmaps,
 )
 from ...application.game_generation import generate_synthetic_games
-from ...application.synthetic_workflow import resolve_synthetic_output_layout
-from ...application.ranking.apply_ranking_rules_to_game_csv import (
-    apply_ranking_rules_to_game_csv,
-    apply_ranking_rules_in_directory,
+from ...application.paper_simulation import build_paper_simulation_config, run_paper_simulation
+from ...application.paper_simulation.config import (
+    CORRELATION_METHOD_CHOICES,
+    DEFAULT_CORRELATION_METHOD,
+    DEFAULT_COUNT,
+    DEFAULT_EMPTY_CONSTRAINTS,
+    DEFAULT_OUT_DIR,
+    DEFAULT_PLAYERS,
+    DEFAULT_RANK_TIE_METHOD,
+    DEFAULT_SEED,
+    EMPTY_CONSTRAINT_CHOICES,
+    RANK_TIE_METHOD_CHOICES,
 )
+from ...application.paper_simulation.divergence import (
+    DEFAULT_DIVERGENCE_OUT_DIR,
+    build_divergence_config,
+    run_divergence_analysis,
+)
+from ...application.paper_simulation.n_sweep import (
+    DEFAULT_SWEEP_OUT_DIR,
+    DEFAULT_SWEEP_STEPS,
+    build_n_sweep_config,
+    run_n_sweep,
+)
+from ...application.ranking.apply_ranking_rules_to_game_csv import (
+    apply_ranking_rules_in_directory,
+    apply_ranking_rules_to_game_csv,
+)
+from ...application.synthetic_workflow import resolve_synthetic_output_layout
 from ...domain.ranking.registry import build_default_ranking_rule_registry
 
 
@@ -388,6 +412,244 @@ def rule_corr_heatmap_command(
         click.echo(f"saved heatmap: {path}")
     for path in result.written_csv_paths:
         click.echo(f"saved summary: {path}")
+
+
+@main.command(name="paper-simulation")
+@click.option(
+    "--players",
+    type=click.IntRange(2, 12),
+    default=DEFAULT_PLAYERS,
+    show_default=True,
+    help="Number of players.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=DEFAULT_COUNT,
+    show_default=True,
+    help="Number of random games.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=DEFAULT_SEED,
+    show_default=True,
+    help="Random seed.",
+)
+@click.option(
+    "--max-score",
+    type=click.IntRange(0, None),
+    default=None,
+    help="Maximum coalition score. Defaults to 2^players - 1.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_OUT_DIR,
+    show_default=True,
+    help="Paper simulation output directory.",
+)
+@click.option(
+    "--target-sizes",
+    type=str,
+    default=None,
+    help="Comma/range group sizes, e.g. '2,3,5' or '2-5'. Defaults to 2..players.",
+)
+@click.option(
+    "--correlation-method",
+    type=click.Choice(list(CORRELATION_METHOD_CHOICES), case_sensitive=False),
+    default=DEFAULT_CORRELATION_METHOD,
+    show_default=True,
+    help="Correlation method for GL vs Rankdiff (spearman forces average ties).",
+)
+@click.option(
+    "--rank-tie-method",
+    type=click.Choice(list(RANK_TIE_METHOD_CHOICES), case_sensitive=False),
+    default=DEFAULT_RANK_TIE_METHOD,
+    show_default=True,
+    help="Tie handling for rank vectors.",
+)
+@click.option(
+    "--empty-constraints",
+    type=click.Choice(list(EMPTY_CONSTRAINT_CHOICES), case_sensitive=False),
+    default=DEFAULT_EMPTY_CONSTRAINTS,
+    show_default=True,
+    help="How empty Reversal constraint rows enter summary averages.",
+)
+def paper_simulation_command(
+    players: int,
+    count: int,
+    seed: int,
+    max_score: int | None,
+    out_dir: Path,
+    target_sizes: str | None,
+    correlation_method: str,
+    rank_tie_method: str,
+    empty_constraints: str,
+) -> None:
+    """Run the paper-facing main simulation analysis."""
+
+    try:
+        config = build_paper_simulation_config(
+            players=int(players),
+            count=int(count),
+            seed=int(seed),
+            max_score=max_score,
+            out_dir=out_dir,
+            target_sizes=target_sizes,
+            correlation_method=correlation_method,
+            rank_tie_method=rank_tie_method,
+            empty_constraints=empty_constraints,
+        )
+        result = run_paper_simulation(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"saved lens consistency: {result.lens_consistency_csv}")
+    click.echo(f"saved lens consistency summary: {result.lens_consistency_summary_csv}")
+    click.echo(f"saved lens consistency matrix: {result.lens_consistency_matrix_csv}")
+    click.echo(f"saved lens consistency long: {result.lens_consistency_long_csv}")
+    click.echo(f"saved rank correlation: {result.rank_correlation_csv}")
+    click.echo(f"saved rank correlation summary: {result.rank_correlation_summary_csv}")
+    click.echo(f"saved rank correlation matrix: {result.rank_correlation_matrix_csv}")
+    click.echo(f"saved rank correlation long: {result.rank_correlation_long_csv}")
+    click.echo(f"saved simulation summary: {result.simulation_summary_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.reversal_consistency_pdf}")
+    click.echo(f"saved figure: {result.rank_correlation_pdf}")
+    click.echo(f"saved heatmap: {result.lens_consistency_heatmap_pdf}")
+    click.echo(f"saved heatmap: {result.rank_correlation_heatmap_pdf}")
+    click.echo(f"saved markdown summary: {result.result_summary_md}")
+
+
+def _parse_sweep_steps(
+    players_sweep: str | None,
+    count: int,
+    count_for: tuple[str, ...],
+) -> tuple[tuple[int, int], ...]:
+    if players_sweep is None or not players_sweep.strip():
+        return DEFAULT_SWEEP_STEPS
+    overrides: dict[int, int] = {}
+    for item in count_for:
+        if ":" not in item:
+            raise click.ClickException(f"--count-for expects 'n:R', got {item!r}")
+        n_str, r_str = item.split(":", 1)
+        overrides[int(n_str)] = int(r_str)
+    players = [int(part.strip()) for part in players_sweep.split(",") if part.strip()]
+    return tuple((n, overrides.get(n, int(count))) for n in players)
+
+
+@main.command(name="paper-n-sweep")
+@click.option(
+    "--players-sweep",
+    type=str,
+    default=None,
+    help="Comma list of player counts, e.g. '3,4,5,6,7'. Default sweep is 3..7.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=1000,
+    show_default=True,
+    help="Default number of random games per n.",
+)
+@click.option(
+    "--count-for",
+    multiple=True,
+    help="Per-n game-count override 'n:R' (repeatable), e.g. --count-for 7:500.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=DEFAULT_SEED,
+    show_default=True,
+    help="Random seed (fixed per n).",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_SWEEP_OUT_DIR,
+    show_default=True,
+    help="n-sweep output directory.",
+)
+def paper_n_sweep_command(
+    players_sweep: str | None,
+    count: int,
+    count_for: tuple[str, ...],
+    seed: int,
+    out_dir: Path,
+) -> None:
+    """Run the n-sweep sensitivity analysis (consistency / correlation over n)."""
+
+    try:
+        steps = _parse_sweep_steps(players_sweep, int(count), count_for)
+        config = build_n_sweep_config(steps=steps, seed=int(seed), out_dir=out_dir)
+        result = run_n_sweep(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"sweep steps: {[(s.players, s.count) for s in config.steps]}")
+    click.echo(f"saved n-sweep overview: {result.overview_csv}")
+    click.echo(f"saved n-sweep consistency: {result.consistency_csv}")
+    click.echo(f"saved n-sweep correlation: {result.correlation_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.consistency_figure_pdf}")
+    click.echo(f"saved figure: {result.correlation_figure_pdf}")
+
+
+@main.command(name="paper-divergence")
+@click.option(
+    "--players",
+    type=click.IntRange(2, 12),
+    default=5,
+    show_default=True,
+    help="Number of players for the divergence analysis.",
+)
+@click.option(
+    "--count",
+    type=click.IntRange(1, None),
+    default=1000,
+    show_default=True,
+    help="Number of random games.",
+)
+@click.option(
+    "--seed",
+    type=int,
+    default=DEFAULT_SEED,
+    show_default=True,
+    help="Random seed.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_DIVERGENCE_OUT_DIR,
+    show_default=True,
+    help="Divergence analysis output directory.",
+)
+def paper_divergence_command(
+    players: int,
+    count: int,
+    seed: int,
+    out_dir: Path,
+) -> None:
+    """Analyse which inputs make Group Lex-cel and Rankdiff diverge."""
+
+    try:
+        config = build_divergence_config(
+            players=int(players), count=int(count), seed=int(seed), out_dir=out_dir
+        )
+        result = run_divergence_analysis(config)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo(f"divergence records: {len(result.records)}")
+    click.echo(f"saved divergence records: {result.records_csv}")
+    click.echo(f"saved feature correlations: {result.feature_correlation_csv}")
+    click.echo(f"saved metadata: {result.metadata_json}")
+    click.echo(f"saved figure: {result.scatter_pdf}")
 
 
 @main.command(name="apply-rules")

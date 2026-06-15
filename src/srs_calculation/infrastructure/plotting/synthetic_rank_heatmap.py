@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 RankingScope = Literal["player", "coalition"]
 
 _RANK_LABEL_FALLBACKS: dict[str, str] = {
@@ -26,7 +25,7 @@ _RANK_LABEL_FALLBACKS: dict[str, str] = {
     "g-sum-shapley": "Sum of Shapley Values",
     "shapley-interaction": "Shapley Interaction Rule",
     "banzhaf-interaction": "Banzhaf Interaction Rule",
-    "rp-index": "RP Difference Rule",
+    "rankdiff": "Rankdiff Rule",
     "ud": "UD Rule",
     "du": "DU Rule",
     "red-index": "Redundancy Rule",
@@ -43,7 +42,7 @@ _PREFERRED_RANK_COLUMN_ORDER: tuple[str, ...] = (
     "rank_g-sum-shapley",
     "rank_shapley-interaction",
     "rank_banzhaf-interaction",
-    "rank_rp-index",
+    "rank_rankdiff",
     "rank_ud",
     "rank_du",
     "rank_red-index",

@@ -8,8 +8,8 @@ from .group_shapley import GroupShapleyRule
 from .group_sum_shapley import GroupSumShapleyRule
 from .lexcel import LexcelRule
 from .ordinal_banzhaf import OrdinalBanzhafRule
+from .rankdiff import RankdiffRule
 from .red_index import RedIndexRule
-from .rp_index import RpIndexRule
 from .shapley import ShapleyRule
 from .shapley_interaction import ShapleyInteractionRule
 from .updown import DuRule, UdRule
@@ -25,7 +25,7 @@ __all__ = [
     "GroupLexcelRule",
     "ShapleyInteractionRule",
     "BanzhafInteractionRule",
-    "RpIndexRule",
+    "RankdiffRule",
     "UdRule",
     "DuRule",
     "RedIndexRule",

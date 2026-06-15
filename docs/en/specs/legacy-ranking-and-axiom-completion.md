@@ -50,8 +50,8 @@ Coalition-scope rules:
 
 ## Migrated axiom set
 
-- `gekokujou-2p`
-- `gekokujou-weak-n`
+- `reversal-2p`
+- `reversal-weak-n`
 - `give-2p`
 - `take-2p`
 - `give-weak-n`

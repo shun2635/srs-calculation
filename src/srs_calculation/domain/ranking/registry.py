@@ -13,8 +13,8 @@ from .rules.group_shapley import GroupShapleyRule
 from .rules.group_sum_shapley import GroupSumShapleyRule
 from .rules.lexcel import LexcelRule
 from .rules.ordinal_banzhaf import OrdinalBanzhafRule
+from .rules.rankdiff import RankdiffRule
 from .rules.red_index import RedIndexRule
-from .rules.rp_index import RpIndexRule
 from .rules.shapley import ShapleyRule
 from .rules.shapley_interaction import ShapleyInteractionRule
 from .rules.updown import DuRule, UdRule
@@ -60,7 +60,7 @@ def build_default_ranking_rule_registry() -> RankingRuleRegistry:
         GroupLexcelRule(),
         ShapleyInteractionRule(),
         BanzhafInteractionRule(),
-        RpIndexRule(),
+        RankdiffRule(),
         UdRule(),
         DuRule(),
         RedIndexRule(),
@@ -73,6 +73,5 @@ def build_default_ranking_rule_registry() -> RankingRuleRegistry:
     registry.register_alias("g-lexcel", "group_lexcel")
     registry.register_alias("shapley-interaction", "shapley_interaction")
     registry.register_alias("banzhaf-interaction", "banzhaf_interaction")
-    registry.register_alias("rp-index", "rp_index")
     registry.register_alias("red-index", "red_index")
     return registry

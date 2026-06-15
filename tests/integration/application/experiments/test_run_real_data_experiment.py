@@ -59,7 +59,7 @@ def test_render_real_dataset_figures_invokes_extra_generators_for_canonical_game
     _write(
         dataset_base / "rankings" / "game_wine.csv",
         [
-            "player1,player2,score,rank,score_shapley,score_red-index,rank_rp-index,score_rp-index,rank_shapley-interaction,score_shapley-interaction",
+            "player1,player2,score,rank,score_shapley,score_red-index,rank_rankdiff,score_rankdiff,rank_shapley-interaction,score_shapley-interaction",
             "0,0,0.0,4,,,,,,",
             "1,0,1.0,3,0.1,1,2,10,2,0.3",
             "0,1,2.0,2,0.2,2,1,20,1,0.4",
@@ -97,7 +97,7 @@ def test_render_real_dataset_figures_invokes_extra_generators_for_canonical_game
                 "generate_ordinal_banzhaf_values_plot": "ordinal_banzhaf_values.png",
                 "generate_lexcel_rank_count_heatmap": "lexcel_rank_counts.png",
                 "generate_rank_occurrence_distribution_heatmap": kwargs.get("out_name", "rank_occurrence_distribution.png"),
-                "generate_rp_index_top_size2_figure": "rp_index_top_size2_k10.png",
+                "generate_rankdiff_top_size2_figure": "rankdiff_top_size2_k10.png",
                 "generate_give_topk_table": "give_top10.png",
             }.get(name, "generated.png")
             out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -120,7 +120,7 @@ def test_render_real_dataset_figures_invokes_extra_generators_for_canonical_game
         "generate_ordinal_banzhaf_values_plot",
         "generate_lexcel_rank_count_heatmap",
         "generate_rank_occurrence_distribution_heatmap",
-        "generate_rp_index_top_size2_figure",
+        "generate_rankdiff_top_size2_figure",
         "generate_give_topk_table",
     ]:
         monkeypatch.setattr(module, name, _mark(name))
@@ -131,7 +131,7 @@ def test_render_real_dataset_figures_invokes_extra_generators_for_canonical_game
     assert "generate_interaction_index_figure" in called
     assert "generate_shapley_values_plot" in called
     assert "generate_ordinal_banzhaf_values_plot" in called
-    assert "generate_rp_index_top_size2_figure" in called
+    assert "generate_rankdiff_top_size2_figure" in called
     assert "generate_give_topk_table" in called
     assert len(result.written_paths) >= 6
 

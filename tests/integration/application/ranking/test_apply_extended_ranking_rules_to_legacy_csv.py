@@ -5,7 +5,9 @@ import csv
 from srs_calculation.application.ranking.apply_ranking_rules import apply_ranking_rules
 from srs_calculation.domain.games.coalition_game import CoalitionGame
 from srs_calculation.domain.ranking.registry import build_default_ranking_rule_registry
-from srs_calculation.infrastructure.persistence.csv_ranking_repository import write_compatible_rankings_csv
+from srs_calculation.infrastructure.persistence.csv_ranking_repository import (
+    write_compatible_rankings_csv,
+)
 
 
 def _rows_by_mask(path) -> dict[int, dict[str, str]]:
@@ -62,7 +64,7 @@ def test_all_legacy_rules_can_be_serialized_to_compatible_rankings_csv(tmp_path)
         "score_g-sum-shapley",
         "score_shapley-interaction",
         "score_banzhaf-interaction",
-        "score_rp-index",
+        "score_rankdiff",
         "score_ud_up",
         "score_ud_down",
         "score_du_up",
@@ -76,7 +78,7 @@ def test_all_legacy_rules_can_be_serialized_to_compatible_rankings_csv(tmp_path)
         "rank_g-sum-shapley",
         "rank_shapley-interaction",
         "rank_banzhaf-interaction",
-        "rank_rp-index",
+        "rank_rankdiff",
         "rank_ud",
         "rank_du",
         "rank_red-index",

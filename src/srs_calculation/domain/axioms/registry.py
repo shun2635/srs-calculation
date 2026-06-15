@@ -6,11 +6,11 @@ from dataclasses import dataclass, field
 
 from .axiom import CoalitionRankingAxiom
 from .evaluators import (
-    Gekokujou2pAxiom,
-    GekokujouWeakNAxiom,
     Give2pAxiom,
     GiveWeakNAxiom,
     RedundancyAxiom,
+    Reversal2pAxiom,
+    ReversalWeakNAxiom,
     Take2pAxiom,
     TakeWeakNAxiom,
 )
@@ -41,8 +41,8 @@ def build_default_axiom_registry() -> AxiomRegistry:
 
     registry = AxiomRegistry()
     for axiom in (
-        Gekokujou2pAxiom(),
-        GekokujouWeakNAxiom(),
+        Reversal2pAxiom(),
+        ReversalWeakNAxiom(),
         Give2pAxiom(),
         Take2pAxiom(),
         GiveWeakNAxiom(),

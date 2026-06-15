@@ -91,7 +91,7 @@ def _canonical_rank_column_order(columns: list[str]) -> list[str]:
         "rank_g-sum-shapley",
         "rank_shapley-interaction",
         "rank_banzhaf-interaction",
-        "rank_rp-index",
+        "rank_rankdiff",
         "rank_ud",
         "rank_du",
         "rank_red-index",
@@ -518,7 +518,7 @@ def generate_interaction_index_figure(
     specs = [
         ("Shapley Interaction", "rank_shapley-interaction", "score_shapley-interaction"),
         ("Banzhaf Interaction", "rank_banzhaf-interaction", "score_banzhaf-interaction"),
-        ("RP Index", "rank_rp-index", "score_rp-index"),
+        ("Rankdiff", "rank_rankdiff", "score_rankdiff"),
     ]
     available = [(title, rank_col, score_col) for title, rank_col, score_col in specs if rank_col in df.columns]
     if not available:
@@ -754,50 +754,50 @@ def generate_lexcel_rank_count_heatmap(
     )
 
 
-def generate_rp_index_top_size2_figure(
+def generate_rankdiff_top_size2_figure(
     *,
     rankings_csv: Path,
     output_dir: Path,
     dpi: int = 200,
     top_k: int = 10,
     coalition_size: int = 2,
-    out_name: str = "rp_index_top_size2_k10.png",
+    out_name: str = "rankdiff_top_size2_k10.png",
 ) -> Path:
-    """Write a top-k table of coalitions ranked by RP Index."""
+    """Write a top-k table of coalitions ranked by Rankdiff."""
 
     import pandas as pd
 
     df = _read_rankings_df(rankings_csv)
-    if "rank_rp-index" not in df.columns:
-        raise ValueError("rank_rp-index column not found (apply rp-index rule first).")
+    if "rank_rankdiff" not in df.columns:
+        raise ValueError("rank_rankdiff column not found (apply rankdiff rule first).")
     player_cols = _player_columns(df.columns)
     if not player_cols:
         raise ValueError("CSV missing player columns (player1, ...)")
     player_names = _feature_names(rankings_csv, len(player_cols))
 
     dfx = df.copy()
-    dfx["rank_rp-index"] = pd.to_numeric(dfx["rank_rp-index"], errors="coerce")
-    dfx = dfx[pd.notna(dfx["rank_rp-index"])]
+    dfx["rank_rankdiff"] = pd.to_numeric(dfx["rank_rankdiff"], errors="coerce")
+    dfx = dfx[pd.notna(dfx["rank_rankdiff"])]
     dfx["_mask"] = dfx.apply(lambda row: _mask_from_row(row, player_cols), axis=1)
     dfx["_size"] = dfx["_mask"].apply(lambda mask: int(mask).bit_count())
     dfx = dfx[(dfx["_mask"] != 0) & (dfx["_size"] == int(coalition_size))]
     if dfx.empty:
         raise ValueError(f"no coalitions found for |S|={int(coalition_size)}")
-    dfx = dfx.sort_values(["rank_rp-index", "_mask"], ascending=[True, True], kind="mergesort").head(int(top_k))
+    dfx = dfx.sort_values(["rank_rankdiff", "_mask"], ascending=[True, True], kind="mergesort").head(int(top_k))
 
     rows = []
     for _, row in dfx.iterrows():
-        cells = [_coalition_label(row, player_cols, player_names), str(int(float(row["rank_rp-index"])))]
-        if "score_rp-index" in dfx.columns:
-            cells.append(_format_score_cell(row.get("score_rp-index")))
+        cells = [_coalition_label(row, player_cols, player_names), str(int(float(row["rank_rankdiff"])))]
+        if "score_rankdiff" in dfx.columns:
+            cells.append(_format_score_cell(row.get("score_rankdiff")))
         rows.append(cells)
 
-    labels = ["coalition", "rank_rp-index"]
-    if "score_rp-index" in dfx.columns:
-        labels.append("score_rp-index")
+    labels = ["coalition", "rank_rankdiff"]
+    if "score_rankdiff" in dfx.columns:
+        labels.append("score_rankdiff")
     return _render_table_figure(
         out_path=output_dir / out_name,
-        title=f"RP Index top-{int(top_k)} (|S|={int(coalition_size)})",
+        title=f"Rankdiff top-{int(top_k)} (|S|={int(coalition_size)})",
         column_labels=labels,
         rows=rows,
         dpi=dpi,
@@ -1001,7 +1001,7 @@ __all__ = [
     "generate_real_ranking_figure",
     "generate_red_index_scatter_plot",
     "generate_red_index_topk_by_size_figures",
-    "generate_rp_index_top_size2_figure",
+    "generate_rankdiff_top_size2_figure",
     "generate_shapley_values_plot",
     "generate_ordinal_banzhaf_values_plot",
     "generate_synthetic_ranking_figure",

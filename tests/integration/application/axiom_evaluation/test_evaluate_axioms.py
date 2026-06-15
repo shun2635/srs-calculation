@@ -52,13 +52,13 @@ def test_evaluate_axioms_for_coalition_ranking_result_returns_default_axioms() -
     evaluations = evaluate_axioms_for_ranking_result(game, ranking_result, max_examples=2)
 
     assert set(evaluations) == {
-        "gekokujou-2p",
-        "gekokujou-weak-n",
         "give-2p",
         "take-2p",
         "give-weak-n",
         "take-weak-n",
         "redundancy",
+        "reversal-2p",
+        "reversal-weak-n",
     }
     assert evaluations["redundancy"].constrained_comparisons == 9
     assert evaluations["redundancy"].satisfied_comparisons == 9
